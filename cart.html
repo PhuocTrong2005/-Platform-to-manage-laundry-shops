@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ Hàng Dịch Vụ Giặt Ủi</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Giỏ Hàng</h1>
+        </header>
+
+        <main>
+            <section class="service-form">
+                <h2>Thêm Dịch Vụ Giặt Ủi</h2>
+                <form id="add-service-form">
+                    <div class="form-group">
+                        <label for="service-type">Loại Dịch Vụ</label>
+                        <select id="service-type" required>
+                            <option value="">Chọn dịch vụ</option>
+                            <option value="Clothes washing">Giặt quần áo (60.000đ/kg)</option>
+                            <option value="Ironing">Ủi đồ (70.000đ/món)</option>
+                            <option value="Stain removal">Tẩy vết bẩn (100.000đ/món)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quantity">Số Lượng</label>
+                        <input type="number" id="quantity" min="1" value="1" required>
+                        <span id="quantity-unit">kg</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="special-notes">Ghi Chú Đặc Biệt</label>
+                        <textarea id="special-notes" placeholder="Ví dụ: Không dùng nước xả vải, Cần gấp"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-add">Thêm Vào Giỏ</button>
+                </form>
+            </section>
+
+            <section class="cart-section">
+                <h2>Giỏ Hàng Của Bạn</h2>
+                <div class="cart-empty-message" id="cart-empty">Giỏ hàng của bạn đang trống</div>
+                <div class="service-list" id="service-list"></div>
+
+                <div class="price-calculation" id="price-calculation">
+                    <div class="price-row">
+                        <span>Tạm tính:</span>
+                        <span id="subtotal">0đ</span>
+                    </div>
+                    
+                    <div class="additional-services">
+                        <div class="additional-service">
+                            <input type="checkbox" id="express-delivery" class="additional-fee">
+                            <label for="express-delivery">Giao hàng nhanh (+120.000đ)</label>
+                        </div>
+                        <div class="additional-service">
+                            <input type="checkbox" id="special-detergent" class="additional-fee">
+                            <label for="special-detergent">Nước giặt đặc biệt (+70.000đ)</label>
+                        </div>
+                    </div>
+                    
+                    <div class="price-row total">
+                        <span>Tổng cộng:</span>
+                        <span id="total">0đ</span>
+                    </div>
+                    
+                    <button id="checkout-btn" class="btn-checkout" disabled>Tiến Hành Thanh Toán</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
