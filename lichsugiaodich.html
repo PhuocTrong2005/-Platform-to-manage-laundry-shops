@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Sử Giao Hàng</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <section id="delivery-history">
+        <h1>Lịch Sử Giao Hàng</h1>
+        <label for="delivery-filter">Lọc theo trạng thái:</label>
+        <select id="delivery-filter">
+            <option value="all">Tất cả</option>
+            <option value="delivered">Đã giao</option>
+            <option value="failed">Thất bại</option>
+        </select>
+
+        <table id="delivery-table">
+            <thead>
+                <tr>
+                    <th>Mã Giao Hàng</th>
+                    <th>Ngày Giao</th>
+                    <th>Địa Chỉ</th>
+                    <th>Trạng Thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="delivered">
+                    <td>#D12345</td>
+                    <td>2025-03-19</td>
+                    <td>99 Nguyễn Huệ, Bến Nghé , Quận 1 , TP.HCM</td>
+                    <td>Đã giao</td>
+                </tr>
+                <tr class="failed">
+                    <td>#D12346</td>
+                    <td>2025-03-18</td>
+                    <td>88 Song Hành, Phường An Phú, TP.Thủ Đức, TP.HCM</td>
+                    <td>Thất bại</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

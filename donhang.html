@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn Hàng Của Tôi</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <section id="orders">
+        <h1>Đơn Hàng Của Tôi</h1>
+        <table id="order-table">
+            <thead>
+                <tr>
+                    <th>Mã Đơn Hàng</th>
+                    <th>Ngày Đặt</th>
+                    <th>Sản Phẩm</th>
+                    <th>Tổng Tiền</th>
+                    <th>Trạng Thái</th>
+                    <th>Hành Động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>#12345</td>
+                    <td>2025-03-19</td>
+                    <td>Áo thun, Quần jeans</td>
+                    <td>1.200.000 VND</td>
+                    <td>Đang giao</td>
+                    <td><button onclick="showOrderDetails('#12345')">Xem chi tiết</button></td>
+                </tr>
+                <tr>
+                    <td>#12346</td>
+                    <td>2025-03-18</td>
+                    <td>Giày thể thao</td>
+                    <td>800.000 VND</td>
+                    <td>Hoàn thành</td>
+                    <td><button onclick="showOrderDetails('#12346')">Xem chi tiết</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <div id="order-detail-popup">
+        <h2>Chi Tiết Đơn Hàng</h2>
+        <p id="order-detail-content"></p>
+        <button onclick="closeOrderDetails()">Đóng</button>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

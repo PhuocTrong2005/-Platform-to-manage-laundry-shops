@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt Dịch Vụ</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header>
+        <div class="Logo">
+            <a href="customer.html">
+                <img alt="Company Logo" class="h-10 w-10 rounded-full shadow-md" height="50" src="https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg" width="50"/>
+            </a>
+        </div>
+        <nav>
+            <a href="#">Trang chủ</a>
+            <a href="cart.html">Giỏ hàng</a>
+            <a href="donhang.html">Đơn hàng</a>
+            <a href="order.html">Đặt dịch vụ</a>
+            <a href="lichsugiaodich.html">Lịch sử giao dịch</a>
+            <a href="#">Đánh giá</a>
+            <a href="#">Tài khoản</a>
+            <a href="#">Hỗ trợ</a>
+        </nav>
+    </header>
+    <section id="service-booking">
+        <h1>Đặt Dịch Vụ</h1>
+        <form id="service-form">
+            <label for="service-type">Loại Dịch Vụ:</label>
+            <select id="service-type" name="service-type">
+                <option value="repair">Sửa chữa</option>
+                <option value="consultation">Tư vấn</option>
+                <option value="delivery">Giao hàng</option>
+            </select>
+
+            <label for="service-date">Ngày Đặt:</label>
+            <input type="date" id="service-date" name="service-date">
+
+            <label for="service-time">Giờ Đặt:</label>
+            <input type="time" id="service-time" name="service-time">
+
+            <label for="details">Chi Tiết Dịch Vụ:</label>
+            <textarea id="details" name="details" rows="4" placeholder="Mô tả yêu cầu của bạn"></textarea>
+
+            <button type="submit">Đặt Dịch Vụ</button>
+        </form>
+    </section>
+
+    <div id="service-success-popup">
+        <h2>Đặt Dịch Vụ Thành Công!</h2>
+        <p>Chúng tôi đã nhận được yêu cầu của bạn và sẽ xử lý sớm nhất có thể.</p>
+        <button onclick="closeServiceSuccess()">Đóng</button>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
