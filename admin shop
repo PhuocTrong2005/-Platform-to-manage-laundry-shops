@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Dashboard - Laundry Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+    </script>
+</head>
+<body class="bg-gray-900 text-white">
+    <header class="bg-gray-800 p-4 flex justify-between items-center shadow-lg fixed w-full top-0 z-50">
+        <div class="flex items-center space-x-4">
+            <img src="https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg" alt="Logo" class="h-10 w-10 rounded-full">
+            <span class="text-lg font-semibold">Admin System</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <a href="#" class="text-white hover:text-gray-400">Home</a>
+            <a href="#" class="text-white hover:text-gray-400">Services</a>
+            <a href="#" class="text-white hover:text-gray-400">About</a>
+        </div>
+    </header>
+    <aside class="w-64 h-screen bg-gray-800 fixed mt-16">
+        <nav class="mt-4 px-4">
+            <ul class="space-y-2">
+                <li><a href="#" onclick="showSection('orders')" class="flex items-center space-x-2 p-2 text-white hover:bg-gray-700 rounded"><i class="fas fa-shopping-basket"></i> <span>Quản lý đơn hàng</span></a></li>
+                <li><a href="#" onclick="showSection('customers')" class="flex items-center space-x-2 p-2 text-white hover:bg-gray-700 rounded"><i class="fas fa-users"></i> <span>Quản lý khách hàng</span></a></li>
+                <li><a href="#" onclick="showSection('services')" class="flex items-center space-x-2 p-2 text-white hover:bg-gray-700 rounded"><i class="fas fa-tags"></i> <span>Quản lý dịch vụ</span></a></li>
+                <li><a href="#" onclick="showSection('reports')" class="flex items-center space-x-2 p-2 text-white hover:bg-gray-700 rounded"><i class="fas fa-chart-line"></i> <span>Báo cáo & Thống kê</span></a></li>
+            </ul>
+        </nav>
+    </aside>
+    <main class="ml-64 p-6 mt-16">
+        <section id="orders" class="section hidden">
+            <h2 class="text-2xl font-semibold">Quản lý đơn hàng</h2>
+            <table class="w-full mt-4 bg-gray-700 rounded-lg">
+                <thead><tr><th>ID</th><th>Khách hàng</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </section>
+        <section id="customers" class="section hidden">
+            <h2 class="text-2xl font-semibold">Quản lý khách hàng</h2>
+            <table class="w-full mt-4 bg-gray-700 rounded-lg">
+                <thead><tr><th>ID</th><th>Tên</th><th>Email</th><th>Thao tác</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </section>
+        <section id="services" class="section hidden">
+            <h2 class="text-2xl font-semibold">Quản lý dịch vụ</h2>
+
+            <table class="w-full mt-4 bg-gray-700 rounded-lg">
+                <thead><tr><th>ID</th><th>Tên dịch vụ</th><th>Giá</th><th>Thao tác</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </section>
+        <section id="reports" class="section hidden">
+            <h2 class="text-2xl font-semibold">Báo cáo & Thống kê</h2>
+            <div class="mt-4">Biểu đồ doanh thu và thống kê sẽ hiển thị ở đây.</div>
+        </section>
+    </main>
+</body>
+</html>
