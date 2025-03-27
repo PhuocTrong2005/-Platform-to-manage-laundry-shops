@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head th:replace="admin/fragments/head :: head"></head>
+<body class="bg-gray-900 text-white flex flex-col min-h-screen">
+
+    <!-- HEADER -->
+    <div th:replace="admin/fragments/header :: header"></div>
+
+    <!-- SIDEBAR -->
+    <div th:replace="admin/fragments/sidebar :: sidebar"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="ml-64 p-6 mt-16 flex-grow">
+        <section id="home" class="section">
+        <h1>Chào mừng đến với hệ thống quản lý laundry</h1>
+        </section>
+        <!-- Quản lý đơn hàng -->
+        <section id="orders" class="section hidden">
+            <h2 class="text-2xl font-semibold mb-4">Quản lý đơn hàng</h2>
+            <table class="w-full mt-4 bg-gray-700 rounded-lg">
+                <thead><tr><th>ID</th><th>Khách hàng</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </section>
+        
+        <!-- Quản lý khách hàng -->
+        <section id="customers" class="section hidden">
+            <h2 class="text-2xl font-semibold mb-4">Quản lý khách hàng</h2>
+            <table class="w-full mt-4 bg-gray-700 rounded-lg">
+                <thead><tr><th>ID</th><th>Tên</th><th>Email</th><th>Thao tác</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </section>
+        
+        <!-- Quản lý dịch vụ -->
+        <section id="services" class="section hidden">
+            <h2 class="text-2xl font-semibold mb-4">Quản lý dịch vụ</h2>
+            <table class="w-full mt-4 bg-gray-700 rounded-lg">
+                <thead><tr><th>ID</th><th>Tên dịch vụ</th><th>Giá</th><th>Thao tác</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </section>
+        
+        <!-- Báo cáo & Thống kê -->
+        <section id="reports" class="section hidden">
+            <h2 class="text-2xl font-semibold mb-4">Báo cáo & Thống kê</h2>
+            <div class="mt-4">Biểu đồ doanh thu và thống kê sẽ hiển thị ở đây.</div>
+        </section>    
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white text-gray-900 py-6 text-center w-full shadow-lg ml-64">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-4 md:mb-0">
+                    <h2 class="text-lg font-semibold mb-4">Kết nối với chúng tôi</h2>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-500 hover:text-gray-800"><i class="fab fa-facebook fa-2x"></i></a>
+                        <a href="#" class="text-gray-500 hover:text-gray-800"><i class="fab fa-instagram fa-2x"></i></a>
+                    </div>
+                </div>
+                <div class="mb-4 md:mb-0">
+                    <h2 class="text-lg font-semibold mb-4">Mẹo & Hướng dẫn</h2>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-500 hover:text-gray-800">Cách giặt sạch vết bẩn khó</a></li>
+                        <li><a href="#" class="text-gray-500 hover:text-gray-800">Mẹo bảo quản quần áo</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold mb-4">Nhận tin tức</h2>
+                    <form class="flex">
+                        <input type="email" placeholder="Nhập email" class="w-full px-4 py-2 border rounded-l-md">
+                        <button type="submit" class="bg-blue-500 px-4 py-2 rounded-r-md text-white">
+                            <i class="fas fa-envelope"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPT -->
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => section.classList.add('hidden'));
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+    </script>
+
+</body>
+</html>

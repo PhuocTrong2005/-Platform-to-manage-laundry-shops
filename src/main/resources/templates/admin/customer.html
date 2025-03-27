@@ -1,0 +1,118 @@
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+        }
+        header {
+            background-color: #4A5568;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        header .Logo img {
+            height: 50px;
+            width: 50px;
+        }
+        header nav a {
+            color: white;
+            margin: 0 1rem;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        header nav a:hover {
+            color: #A0AEC0;
+        }
+        main {
+            padding: 2rem;
+            background-color: #F7FAFC;
+        }
+        main section {
+            margin-bottom: 2rem;
+        }
+        main h1, main h2 {
+            color: #2D3748;
+        }
+        main p, main ul {
+            color: #4A5568;
+        }
+        footer {
+            background-color: #4A5568;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div th:replace="admin/fragments/header :: header"></div>
+
+    <!-- SIDEBAR -->
+    <div th:replace="admin/fragments/sidebarAdmin :: sidebar"></div>
+
+    <main>
+        <section id="home">
+            <h1>Chào mừng bạn đến với cửa hàng giặt ủi của chúng tôi</h1>
+            <p>Chúng tôi cung cấp dịch vụ giặt ủi chuyên nghiệp, nhanh chóng và tiện lợi. Hãy khám phá các dịch vụ của chúng tôi ngay.</p>
+        </section>
+
+        <section id="services">
+            <h2>Dịch vụ của chúng tôi</h2>
+            <ul>
+                <li><a href="#">Giặt đồ trẻ em</a></li>
+                <li><a href="#">Giặt chăn ga, gối nệm</a></li>
+                <li><a href="#">Giặt quần áo</a></li>
+                <li><a href="#">Ủi đồ</a></li>
+            </ul>
+        </section>
+
+        <section id="promotion">
+            <h2>Ưu đãi đặc biệt</h2>
+            <p>Nhận ngay giảm giá 10% khi sử dụng dịch vụ lần đầu. Đặt dịch vụ ngay để trải nghiệm.</p>
+        </section>
+    </main>
+
+    <footer class="bg-white py-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row justify-between">
+          <!-- Connect With Us -->
+          <div class="mb-8 md:mb-0">
+            <h2 class="text-lg font-semibold mb-4">Connect With Us</h2>
+            <div class="flex space-x-4">
+              <a href="#" class="text-gray-600 hover:text-gray-800"><i class="fab fa-facebook fa-2x"></i></a>
+              <a href="#" class="text-gray-600 hover:text-gray-800"><i class="fab fa-instagram fa-2x"></i></a>
+            </div>
+          </div>
+          <!-- Recent Posts -->
+          <div class="mb-8 md:mb-0">
+            <h2 class="text-lg font-semibold mb-4">Tips & Guides</h2>
+            <ul class="space-y-2">
+              <li><a href="https://www.nbcnews.com/better/lifestyle/how-get-stains-out-almost-anything-ncna885806" class="text-gray-600 hover:text-gray-800">How to remove tough stains</a></li>
+              <li><a href="https://freshcleanlaundromat.com/practical-tips-to-take-care-of-different-types-of-fabrics/" class="text-gray-600 hover:text-gray-800">Best fabric care tips</a></li>
+              <li><a href="https://www.thespruce.com/laundry-hacks-4684443" class="text-gray-600 hover:text-gray-800">Laundry hacks to save time</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold mb-4">Newsletter</h2>
+            <p class="text-gray-600 mb-4">Subscribe to our newsletter for the latest updates and articles.</p>
+            <form class="flex">
+              <input type="email" placeholder="Enter your email" class="w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r-md"><i class="fas fa-envelope"></i></button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Laundry Management - PMLS</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <script src="script.js" defer></script>
+  <style>
+    *{
+      font-family:'Times New Roman', Times, serif;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white font-Times">
+  <header class="bg-gray-800 p-4 flex justify-between items-center shadow-lg fixed w-full top-0 z-50">
+    <div class="flex items-center space-x-4">
+      <img alt="Company Logo" class="h-10 w-10 rounded-full shadow-md" height="50" src="https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg" width="50"/>
+      <nav class="space-x-4">
+        <a class="text-white hover:text-gray-400 transition duration-300 nav-link" href="#home" id="home-link">TRANG CHỦ</a>
+        <a class="text-white hover:text-gray-400 transition duration-300 nav-link" href="#services" id="services-link">DỊCH VỤ</a>
+        <a class="text-white hover:text-gray-400 transition duration-300 nav-link" href="#about" id="about-link">THÔNG TIN</a>
+      </nav>
+    </div>
+    <div class="flex items-center space-x-4">
+      <a class="text-white hover:text-gray-400 transition duration-300 " href="/login">Đăng nhập</a>
+      <a class="text-white hover:text-gray-400 transition duration-300" href="/register">Đăng kí</a>
+    </div>
+  </header>
+  <main id="home" class="flex flex-col md:flex-row mt-16">
+    <section class="bg-blue-900 p-8 md:w-2/5 shadow-lg">
+      <h2 class="text-lg font-semibold">HỆ THỐNG QUẢN LÝ GIẶT ỦI</h2>
+      <h1 class="text-4xl font-Time New roman mt-4">Dịch vụ giặt là hiệu quả và đáng tin cậy</h1>
+      <p class="container">
+        PMLS là một nền tảng web đa thuê bao, nơi chủ cửa hàng giặt là có thể đăng ký cửa hàng của mình và sử dụng các công cụ để quản lý hoạt động hàng ngày. Nền tảng này sẽ cho phép chủ cửa hàng theo dõi đơn hàng, phân công nhiệm vụ, quản lý dữ liệu khách hàng và giám sát hiệu suất tài chính. Khách hàng có thể tìm thấy các cửa hàng đã đăng ký, đặt hàng và theo dõi tình trạng giặt là của mình. Bằng cách cung cấp một hệ thống tập trung và thân thiện với người dùng, nền tảng này sẽ cải thiện việc cung cấp dịch vụ, tiết kiệm thời gian và trao quyền cho các doanh nghiệp giặt là mở rộng quy mô hiệu quả.
+      </p>
+    </section>
+    <section class="md:w-3/5">
+      <div class="relative w-full h-full">
+        <img alt="Laundry room with washing machines and dryers" class="w-full h-full object-cover shadow-lg" src="https://storage.googleapis.com/a1aa/image/ilm21YRzKo-R9wUGWHUmjYqV8dvis17JqdrTPkKilJk.jpg"/>
+      </div>
+    </section>
+  </main>
+  <section id="services" class="bg-gray-800 p-8 shadow-lg">
+    <h2 class="text-3xl font-bold text-center mb-4">Our Services</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
+        <h3 class="text-xl font-semibold mb-2">Wash &amp; Fold</h3>
+        <p>We offer professional wash and fold services to save you time and effort. Drop off your laundry and pick it up fresh and clean.</p>
+      </div>
+      <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
+        <h3 class="text-xl font-semibold mb-2">Dry Cleaning</h3>
+        <p>Our dry cleaning service ensures your delicate and special garments are cleaned with care and precision.</p>
+      </div>
+      <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
+        <h3 class="text-xl font-semibold mb-2">Ironing</h3>
+        <p>Get perfectly pressed clothes with our professional ironing service. We take the wrinkles out of your day.</p>
+      </div>
+      <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
+        <h3 class="text-xl font-semibold mb-2">Pickup & Delivery</h3>
+        <p>We offer convenient pickup and delivery services to save you time. Schedule a pickup and we'll handle the rest.</p>
+      </div>
+      <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
+        <h3 class="text-xl font-semibold mb-2">Stain Removal</h3>
+        <p>Our expert stain removal services ensure that even the toughest stains are treated with care and precision.</p>
+      </div>
+      <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
+        <h3 class="text-xl font-semibold mb-2">Alterations</h3>
+        <p>We provide professional alteration services to ensure your clothes fit perfectly. From hemming to resizing, we've got you covered.</p>
+      </div>
+    </div>
+  </section>
+  <section id="about" class="bg-gray-900 p-8 shadow-lg">
+    <h2 class="text-3xl font-bold text-center mb-4">About Us</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
+        <h3 class="text-xl font-semibold mb-2">Our Mission</h3>
+        <p>Our mission is to provide the highest quality laundry services with a focus on customer satisfaction and environmental sustainability.</p>
+      </div>
+      <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
+        <h3 class="text-xl font-semibold mb-2">Our Vision</h3>
+        <p>We envision a world where laundry services are convenient, affordable, and eco-friendly, making life easier for everyone.</p>
+      </div>
+      <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
+        <h3 class="text-xl font-semibold mb-2">Our Values</h3>
+        <p>We value integrity, quality, and customer satisfaction. We strive to exceed expectations with every service we provide.</p>
+      </div>
+      <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
+        <h3 class="text-xl font-semibold mb-2">Our Team</h3>
+        <p>Our team is composed of experienced professionals who are passionate about providing the best laundry services possible.</p>
+      </div>
+    </div>
+  </section>
+  <footer class="bg-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row justify-between">
+        <!-- Connect With Us -->
+        <div class="mb-8 md:mb-0">
+          <h2 class="text-lg font-semibold mb-4">Connect With Us</h2>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-600 hover:text-gray-800"><i class="fab fa-facebook fa-2x"></i></a>
+            <a href="#" class="text-gray-600 hover:text-gray-800"><i class="fab fa-instagram fa-2x"></i></a>
+          </div>
+        </div>
+        <!-- Recent Posts -->
+        <div class="mb-8 md:mb-0">
+          <h2 class="text-lg font-semibold mb-4">Tips & Guides</h2>
+          <ul class="space-y-2">
+            <li><a href="https://www.nbcnews.com/better/lifestyle/how-get-stains-out-almost-anything-ncna885806" class="text-gray-600 hover:text-gray-800">How to remove tough stains</a></li>
+            <li><a href="https://freshcleanlaundromat.com/practical-tips-to-take-care-of-different-types-of-fabrics/" class="text-gray-600 hover:text-gray-800">Best fabric care tips</a></li>
+            <li><a href="https://www.thespruce.com/laundry-hacks-4684443" class="text-gray-600 hover:text-gray-800">Laundry hacks to save time</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2 class="text-lg font-semibold mb-4">Newsletter</h2>
+          <p class="text-gray-600 mb-4">Subscribe to our newsletter for the latest updates and articles.</p>
+          <form class="flex">
+            <input type="email" placeholder="Enter your email" class="w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r-md"><i class="fas fa-envelope"></i></button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const sections = document.querySelectorAll('section');
+      const navLinks = document.querySelectorAll('nav a');
+
+      window.addEventListener('scroll', function() {
+        let current = 'home';
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.clientHeight;
+          if (pageYOffset >= sectionTop - sectionHeight / 3) {
+            current = section.getAttribute('id');
+          }
+        });
+
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href').includes(current)) {
+            link.classList.add('active');
+          }
+        });
+
+        if (current === '') { 
+          document.querySelector('nav a[href="#home"]').classList.add('active');
+        }
+      });
+
+      navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const targetId = this.getAttribute('href').substring(1);
+          const targetSection = document.getElementById(targetId);
+          window.scrollTo({
+            top: targetSection.offsetTop,
+            behavior: 'smooth'
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>
