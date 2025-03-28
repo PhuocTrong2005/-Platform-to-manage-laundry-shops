@@ -1,64 +1,38 @@
-package com.laundry.controller;
+package com.laundry.controllers;
 
+import com.laundry.model.LoginRequest;
 import com.laundry.model.User;
 import com.laundry.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
-@RestController
-@RequestMapping("/api/users")
+@Controller
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    // Lấy danh sách tất cả users
-    @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    @GetMapping("/loginRole")
+    public String showLoginPage() {
+        return "admin/loginRole";
     }
 
-    // Lấy user theo ID
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Integer id) {
-        User user = userService.getUserById(id);
+    @PostMapping("/api/loginRole")
+    @ResponseBody
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        User user = userService.authenticate(loginRequest.getEmail(), loginRequest.getPassword());
         if (user != null) {
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok().body(user);
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.badRequest().body("Invalid email or password");
     }
 
-    // Tạo user mới
-    @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.saveUser(user);
-    }
-
-    // Cập nhật user
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Integer id, @RequestBody User userDetails) {
-        User user = userService.getUserById(id);
-        if (user != null) {
-            user.setFullName(userDetails.getFullName());
-            user.setEmail(userDetails.getEmail());
-            user.setPhone(userDetails.getPhone());
-            user.setRole(userDetails.getRole());
-            return ResponseEntity.ok(userService.saveUser(user));
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    // Xóa user
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
-        User user = userService.getUserById(id);
-        if (user != null) {
-            userService.deleteUser(id);
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+    @GetMapping("/users")
+    public String listUsers(Model model) {
+        model.addAttribute("users", userService.getAllUsers());
+        return "admin/users";  // This will render users.html
     }
 }

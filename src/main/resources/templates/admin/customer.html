@@ -55,11 +55,23 @@
     </style>
 </head>
 <body>
-    <!-- HEADER -->
-    <div th:replace="admin/fragments/header :: header"></div>
-
-    <!-- SIDEBAR -->
-    <div th:replace="admin/fragments/sidebarAdmin :: sidebar"></div>
+  <header>
+    <div class="Logo">
+        <a href="index.html">
+            <img alt="Company Logo" class="h-10 w-10 rounded-full shadow-md" height="50" src="https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg" width="50"/>
+        </a>
+    </div>
+    <nav>
+        <a href="index.html">Trang chủ</a>
+        <a href="cart.html">Giỏ hàng</a>
+        <a href="#">Đơn hàng</a>
+        <a href="#">Đặt dịch vụ</a>
+        <a href="#">Lịch sử giao dịch</a>
+        <a href="#">Đánh giá</a>
+        <a href="/index">Logout</a>
+      
+    </nav>
+</header>
 
     <main>
         <section id="home">

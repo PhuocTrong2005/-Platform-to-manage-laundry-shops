@@ -32,4 +32,12 @@ public class UserService {
     public void deleteUser(Integer id) {
         userRepository.deleteById(id);
     }
+    
+    public User authenticate(String email, String password) {
+        User user = userRepository.findByEmail(email);
+        if (user != null && user.getPasswordHash().equals(password)) {
+            return user;
+        }
+        return null;
+    }
 }
