@@ -1,0 +1,3 @@
+com\laundry\controllers\HomeController.class
+com\laundry\controllers\admin\AdminController.class
+com\laundry\ProjectApplication.class
