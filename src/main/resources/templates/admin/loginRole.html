@@ -24,8 +24,9 @@
   </header>
   <main class="flex flex-col justify-center items-center h-screen mt-16">
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-      <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
+      <h2 class="text-2xl font-bold mb-6 text-center">Login as <span id="roleDisplay"></span></h2>
       <form id="loginForm" onsubmit="return handleLogin(event)">
+        <input type="hidden" id="role" name="role">
         <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>
           <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
@@ -54,12 +55,91 @@
         <div id="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 hidden" role="alert">
           <span class="block sm:inline"></span>
         </div>
-        <div class="flex items-center justify-between">
-          <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">Sign In</button>
-          <a class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="#">Forgot Password?</a>
+        <div class="flex justify-center">
+          <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded focus:outline-none focus:shadow-outline" type="submit">Sign In</button>
         </div>
       </form>
     </div>
   </main>
+
+  <script>
+    // Lấy role từ URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const role = urlParams.get('role');
+    
+    // Hiển thị role trong tiêu đề
+    document.getElementById('roleDisplay').textContent = role || 'User';
+    // Lưu role vào input hidden
+    document.getElementById('role').value = role;
+
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.getElementById('toggleIcon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+
+    async function handleLogin(event) {
+        event.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const role = document.getElementById('role').value;
+        const errorMessage = document.getElementById('errorMessage');
+        
+        try {
+            const response = await fetch('/api/loginRole', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password, role })
+            });
+            
+            if (response.ok) {
+                const user = await response.json();
+                // Kiểm tra role có khớp không
+                if (user.role !== role) {
+                    errorMessage.textContent = 'Bạn không có quyền đăng nhập với vai trò này';
+                    errorMessage.classList.remove('hidden');
+                    return;
+                }
+                // Chuyển hướng dựa trên vai trò
+                switch(user.role) {
+                    case 'Admin':
+                        window.location.href = '/admin';
+                        break;
+                    case 'ShopOwner':
+                        window.location.href = '/shop-owner';
+                        break;
+                    case 'Staff':
+                        window.location.href = '/staff';
+                        break;
+                    case 'Customer':
+                        window.location.href = '/customer';
+                        break;
+                    default:
+                        window.location.href = '/';
+                }
+            } else {
+                errorMessage.textContent = 'Email hoặc mật khẩu không đúng';
+                errorMessage.classList.remove('hidden');
+            }
+        } catch (error) {
+            errorMessage.textContent = 'Có lỗi xảy ra, vui lòng thử lại';
+            errorMessage.classList.remove('hidden');
+        }
+        
+        return false;
+    }
+  </script>
 </body>
 </html>

@@ -41,5 +41,9 @@ public String loginRole() {
 public String customer() {
     return  "admin/customer";
 }
-}
 
+@RequestMapping("/shopOwner")
+public String shopOwner() {
+	return "admin/shopOwner"; 
+}
+}
