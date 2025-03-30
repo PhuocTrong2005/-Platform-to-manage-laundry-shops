@@ -37,7 +37,7 @@ async function handleLogin(event) {
                     window.location.href = '/admin';
                     break;
                 case 'ShopOwner':
-                    window.location.href = '/shop-owner';
+                    window.location.href = '/shopOwner';
                     break;
                 case 'Staff':
                     window.location.href = '/staff';

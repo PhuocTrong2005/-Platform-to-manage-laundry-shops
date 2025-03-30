@@ -38,14 +38,9 @@ public class UserController {
         return "admin/admin";
     }
 
-    @GetMapping("/shop-owner")
+    @GetMapping("/shopOwner")
     public String shopOwnerDashboard() {
-        return "admin/shop-owner";
-    }
-
-    @GetMapping("/staff")
-    public String staffDashboard() {
-        return "admin/staff";
+        return "admin/shopOwner";
     }
 
     @GetMapping("/customer")
