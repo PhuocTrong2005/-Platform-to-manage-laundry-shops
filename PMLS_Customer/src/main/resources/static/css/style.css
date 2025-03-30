@@ -1,0 +1,46 @@
+body {
+    font-family: 'Times New Roman', Times, serif;
+}
+header {
+    background-color: #4A5568;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+header .Logo img {
+    height: 50px;
+    width: 50px;
+}
+header nav a {
+    color:black;
+    margin: 0 1rem;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+header nav a:hover {
+    color: #A0AEC0;
+}
+main {
+    padding: 2rem;
+    background-color: #F7FAFC;
+}
+main section {
+    margin-bottom: 2rem;
+}
+main h1, main h2 {
+    color: #2D3748;
+}
+main p, main ul {
+    color: #4A5568;
+}
+footer {
+    background-color: #4A5568;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+}
