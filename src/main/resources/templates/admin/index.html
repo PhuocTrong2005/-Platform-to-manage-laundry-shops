@@ -4,15 +4,11 @@
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>Laundry Management - PMLS</title>
-  <link rel="stylesheet" th:href="@{static/assets/css/style.css}"/>
+  <link rel="stylesheet" th:href="@{css/style.css}"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
   <script src="script.js" defer></script>
-  <style>
-    *{
-      font-family:'Times New Roman', Times, serif;
-    }
-  </style>
+
 </head>
 <body class="bg-gray-900 text-white font-Times">
   <header class="bg-gray-800 p-4 flex justify-between items-center shadow-lg fixed w-full top-0 z-50">
@@ -44,52 +40,52 @@
     </section>
   </main>
   <section id="services" class="bg-gray-800 p-8 shadow-lg">
-    <h2 class="text-3xl font-bold text-center mb-4">Our Services</h2>
+    <h2 class="text-3xl font-bold text-center mb-4">Dịch vụ của chúng tôi</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
-        <h3 class="text-xl font-semibold mb-2">Wash &amp; Fold</h3>
-        <p>We offer professional wash and fold services to save you time and effort. Drop off your laundry and pick it up fresh and clean.</p>
+        <h3 class="text-xl font-semibold mb-2">Giặt & Gấp</h3>
+        <p>Chúng tôi cung cấp dịch vụ giặt và gấp chuyên nghiệp để tiết kiệm thời gian và sức lực. Đưa đồ giặt đến và nhận lại đồ giặt sạch và sạch sẽ.</p>
       </div>
       <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
-        <h3 class="text-xl font-semibold mb-2">Dry Cleaning</h3>
-        <p>Our dry cleaning service ensures your delicate and special garments are cleaned with care and precision.</p>
+        <h3 class="text-xl font-semibold mb-2">Giặt khô</h3>
+        <p>Dịch vụ giặt khô đảm bảo đồ giặt mềm mại và đặc biệt được chăm sóc với cẩn thận và chính xác.</p>
       </div>
       <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
-        <h3 class="text-xl font-semibold mb-2">Ironing</h3>
-        <p>Get perfectly pressed clothes with our professional ironing service. We take the wrinkles out of your day.</p>
+        <h3 class="text-xl font-semibold mb-2">Ủi quần áo</h3>
+        <p>Dịch vụ ủi quần áo chuyên nghiệp đảm bảo đồ giặt được ủi mềm mại và sạch sẽ.</p>
+      </div>  
+      <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
+        <h3 class="text-xl font-semibold mb-2">Nhận & Giao hàng</h3>
+        <p>Chúng tôi cung cấp dịch vụ nhận và giao hàng tiện ích để tiết kiệm thời gian. Đặt lịch nhận và chúng tôi sẽ xử lý phần còn lại.</p>
       </div>
       <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
-        <h3 class="text-xl font-semibold mb-2">Pickup & Delivery</h3>
-        <p>We offer convenient pickup and delivery services to save you time. Schedule a pickup and we'll handle the rest.</p>
+        <h3 class="text-xl font-semibold mb-2">Loại bỏ vết bẩn</h3>
+        <p>Dịch vụ loại bỏ vết bẩn chuyên nghiệp đảm bảo rằng thậm chí các vết bẩn khó khăn nhất cũng được xử lý với cẩn thận và chính xác.</p>
       </div>
       <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
-        <h3 class="text-xl font-semibold mb-2">Stain Removal</h3>
-        <p>Our expert stain removal services ensure that even the toughest stains are treated with care and precision.</p>
-      </div>
-      <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
-        <h3 class="text-xl font-semibold mb-2">Alterations</h3>
-        <p>We provide professional alteration services to ensure your clothes fit perfectly. From hemming to resizing, we've got you covered.</p>
+        <h3 class="text-xl font-semibold mb-2">Sự thay đổi</h3>
+        <p>Chúng tôi cung cấp dịch vụ sửa chữa chuyên nghiệp để đảm bảo quần áo của bạn phù hợp hoàn hảo. Từ cắt để phù hợp, chúng tôi đã bao phủ tất cả.</p>
       </div>
     </div>
   </section>
   <section id="about" class="bg-gray-900 p-8 shadow-lg">
-    <h2 class="text-3xl font-bold text-center mb-4">About Us</h2>
+    <h2 class="text-3xl font-bold text-center mb-4">Về chúng tôi</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
-        <h3 class="text-xl font-semibold mb-2">Our Mission</h3>
-        <p>Our mission is to provide the highest quality laundry services with a focus on customer satisfaction and environmental sustainability.</p>
+        <h3 class="text-xl font-semibold mb-2">Mục tiêu của chúng tôi</h3>
+        <p>Mục tiêu của chúng tôi là cung cấp dịch vụ giặt là cao nhất với sự tập trung vào sự hài lòng của khách hàng và tính bền vững môi trường.</p>
       </div>
       <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
-        <h3 class="text-xl font-semibold mb-2">Our Vision</h3>
-        <p>We envision a world where laundry services are convenient, affordable, and eco-friendly, making life easier for everyone.</p>
+        <h3 class="text-xl font-semibold mb-2">Tầm nhìn của chúng tôi</h3>
+        <p>Chúng tôi muốn tạo ra một thế giới mà dịch vụ giặt là tiện ích, giá cả hợp lý và bền vững, làm cho cuộc sống dễ dàng hơn cho mọi người.</p>
       </div>
       <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
-        <h3 class="text-xl font-semibold mb-2">Our Values</h3>
-        <p>We value integrity, quality, and customer satisfaction. We strive to exceed expectations with every service we provide.</p>
+        <h3 class="text-xl font-semibold mb-2">Giá trị của chúng tôi</h3>
+        <p>Chúng tôi đặt trọng tâm vào tính trung thực, chất lượng và sự hài lòng của khách hàng. Chúng tôi cố gắng vượt xa kỳ vọng với mỗi dịch vụ mà chúng tôi cung cấp.</p>
       </div>
       <div class="bg-gray-700 p-4 rounded shadow-md hover:shadow-lg transition duration-300">
-        <h3 class="text-xl font-semibold mb-2">Our Team</h3>
-        <p>Our team is composed of experienced professionals who are passionate about providing the best laundry services possible.</p>
+        <h3 class="text-xl font-semibold mb-2">Đội ngũ của chúng tôi</h3>
+          <p>Đội ngũ của chúng tôi bao gồm những chuyên gia có kinh nghiệm, họ đam mê cung cấp dịch vụ giặt là tốt nhất có thể.</p>
       </div>
     </div>
   </section>
@@ -98,7 +94,7 @@
       <div class="flex flex-col md:flex-row justify-between">
         <!-- Connect With Us -->
         <div class="mb-8 md:mb-0">
-          <h2 class="text-lg font-semibold mb-4">Connect With Us</h2>
+          <h2 class="text-lg font-semibold mb-4">Liên hệ với chúng tôi</h2>
           <div class="flex space-x-4">
             <a href="#" class="text-gray-600 hover:text-gray-800"><i class="fab fa-facebook fa-2x"></i></a>
             <a href="#" class="text-gray-600 hover:text-gray-800"><i class="fab fa-instagram fa-2x"></i></a>
@@ -106,18 +102,18 @@
         </div>
         <!-- Recent Posts -->
         <div class="mb-8 md:mb-0">
-          <h2 class="text-lg font-semibold mb-4">Tips & Guides</h2>
+          <h2 class="text-lg font-semibold mb-4">Mẹo & Hướng dẫn</h2>
           <ul class="space-y-2">
-            <li><a href="https://www.nbcnews.com/better/lifestyle/how-get-stains-out-almost-anything-ncna885806" class="text-gray-600 hover:text-gray-800">How to remove tough stains</a></li>
-            <li><a href="https://freshcleanlaundromat.com/practical-tips-to-take-care-of-different-types-of-fabrics/" class="text-gray-600 hover:text-gray-800">Best fabric care tips</a></li>
-            <li><a href="https://www.thespruce.com/laundry-hacks-4684443" class="text-gray-600 hover:text-gray-800">Laundry hacks to save time</a></li>
+            <li><a href="https://www.nbcnews.com/better/lifestyle/how-get-stains-out-almost-anything-ncna885806" class="text-gray-600 hover:text-gray-800">Cách loại bỏ vết bẩn khó khăn</a></li>
+            <li><a href="https://freshcleanlaundromat.com/practical-tips-to-take-care-of-different-types-of-fabrics/" class="text-gray-600 hover:text-gray-800">Mẹo bảo quản tốt nhất</a></li>
+            <li><a href="https://www.thespruce.com/laundry-hacks-4684443" class="text-gray-600 hover:text-gray-800">Mẹo giặt là tiết kiệm thời gian</a></li>
           </ul>
         </div>
         <div>
-          <h2 class="text-lg font-semibold mb-4">Newsletter</h2>
-          <p class="text-gray-600 mb-4">Subscribe to our newsletter for the latest updates and articles.</p>
+          <h2 class="text-lg font-semibold mb-4">Bản tin</h2>
+          <p class="text-gray-600 mb-4">Đăng ký để nhận các bản tin mới nhất và bài viết.</p>
           <form class="flex">
-            <input type="email" placeholder="Enter your email" class="w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <input type="email" placeholder="Nhập email của bạn" class="w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r-md"><i class="fas fa-envelope"></i></button>
           </form>
         </div>
