@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head th:replace="admin/fragments/head :: head">
+    <link rel="stylesheet" th:href="@{css/style.css}"/>
+    <style>
+        * {
+            font-family: 'Times New Roman', Times, serif;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-white flex flex-col min-h-screen">
+
+    <!-- HEADER -->
+    <header th:fragment="header" class="bg-gray-800 p-4 flex justify-between items-center shadow-lg fixed w-full top-0 z-50">
+        <div class="flex items-center space-x-4">
+            <img src="https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg" 
+                 alt="Logo" 
+                 class="h-10 w-10 rounded-full">
+            <span class="text-lg font-semibold text-white">Shop Owner</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <a th:href="@{/logout}" class="text-white hover:text-gray-400">Đăng xuất</a>
+        </div>
+    </header>
+    
+    <!-- SIDEBAR -->
+    <aside th:fragment="sidebar" class="w-64 h-screen bg-gray-800 fixed mt-16 p-4">
+        <nav class="mt-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#" onclick="showSection('home')" class="flex items-center space-x-2 p-2 text-white hover:bg-gray-700 rounded">
+                        <i class="fa fa-home"></i> 
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showSection('orders')" class="flex items-center space-x-2 p-2 text-white hover:bg-gray-700 rounded">
+                        <i class="fas fa-shopping-basket"></i> 
+                        <span>Quản lý cửa hàng</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showSection('customers')" class="flex items-center space-x-2 p-2 text-white hover:bg-gray-700 rounded">
+                        <i class="fas fa-user-tie"></i> 
+                        <span>Quản lý nhân viên</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showSection('services')" class="flex items-center space-x-2 p-2 text-white hover:bg-gray-700 rounded">
+                        <i class="fas fa-tags"></i> 
+                        <span>Dịch vụ & bảng giá</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showSection('reports')" class="flex items-center space-x-2 p-2 text-white hover:bg-gray-700 rounded">
+                        <i class="fas fa-chart-line"></i> 
+                        <span>Báo cáo & Doanh thu</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="ml-64 p-6 mt-16 flex-grow">
+        <section id="home" class="section">
+            <h1>Chào mừng đến với hệ thống quản lý cửa hàng</h1>
+        </section>
+
+        <section id="orders" class="section hidden">
+            <h2>Quản lý Cửa hàng</h2>
+            <p>Chỉnh sửa hồ sơ cửa hàng, cập nhật thông tin, và quản lý hoạt động.</p>
+            <button onclick="editStore()">Chỉnh sửa thông tin cửa hàng</button>
+        </section>
+
+        <section id="customers" class="section hidden">
+            <h2>Quản lý Nhân viên</h2>
+            <p>Danh sách nhân viên, thêm nhân viên mới, và phân quyền quản lý.</p>
+            <button onclick="addEmployee()">Thêm nhân viên</button>
+        </section>
+
+        <section id="services" class="section hidden">
+            <h2>Dịch vụ và Bảng giá</h2>
+            <p>Danh sách dịch vụ có sẵn và điều chỉnh bảng giá.</p>
+            <button onclick="updateService()">Cập nhật bảng giá</button>
+        </section>
+
+        <section id="reports" class="section hidden">
+            <h2>Báo cáo & Doanh thu</h2>
+            <p>Xem thống kê doanh thu, hiệu suất cửa hàng và tạo báo cáo.</p>
+            <button onclick="generateReport()">Xuất báo cáo</button>
+        </section>
+    </main>
+
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll(".section").forEach(section => {
+                section.classList.add("hidden");
+            });
+
+            let targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.remove("hidden");
+            }
+        }
+    </script>
+</body>
+</html>
