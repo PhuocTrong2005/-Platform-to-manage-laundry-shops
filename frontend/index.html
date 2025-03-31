@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopOwner Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <img src="static/logo.png" class="logo">
+            <h2>ShopOwner</h2>
+            <ul>
+                 <li><a href="index.html">Dashboard</a></li>
+                 <li><a href="orders.html">Đơn hàng</a></li>
+                 <li><a href="customers.html">Khách hàng</a></li>
+                 <li><a href="reports.html">Báo cáo</a></li>
+            </ul>
+        </aside>
+        <main class="content">
+            <header>
+                <h1>Dashboard</h1>
+            </header>
+            <section>
+                <h2>Thống kê</h2>
+                <p>Tổng số đơn hàng: <span id="total-orders">0</span></p>
+                <p>Tổng số khách hàng: <span id="total-customers">0</span></p>
+                <p>Tổng doanh thu: <span id="total-revenue">0 VND</span></p>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

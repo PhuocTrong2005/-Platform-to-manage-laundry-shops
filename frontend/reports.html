@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <img src="static/logo.png" class="logo">
+            <h2>ShopOwner</h2>
+            <ul>
+                 <li><a href="index.html">Dashboard</a></li>
+                 <li><a href="orders.html">Đơn hàng</a></li>
+                 <li><a href="customers.html">Khách hàng</a></li>
+                 <li><a href="reports.html">Báo cáo</a></li>
+            </ul>
+        </aside>
+        <main class="content">
+            <header>
+                <h1>Báo cáo doanh thu</h1>
+            </header>
+            <p>Tổng số đơn hàng: <span id="report-total-orders">0</span></p>
+            <p>Tổng số khách hàng: <span id="report-total-customers">0</span></p>
+            <p>Tổng doanh thu: <span id="report-total-revenue">0 VND</span></p>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
