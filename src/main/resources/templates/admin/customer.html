@@ -1,130 +1,391 @@
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>vi</title>
+    <title>PMLS - Khách hàng</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-    <style>
-        body {
-            font-family: 'Times New Roman', Times, serif;
-        }
-        header {
-            background-color: #4A5568;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        header .Logo img {
-            height: 50px;
-            width: 50px;
-        }
-        header nav a {
-            color: white;
-            margin: 0 1rem;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        header nav a:hover {
-            color: #A0AEC0;
-        }
-        main {
-            padding: 2rem;
-            background-color: #F7FAFC;
-        }
-        main section {
-            margin-bottom: 2rem;
-        }
-        main h1, main h2 {
-            color: #2D3748;
-        }
-        main p, main ul {
-            color: #4A5568;
-        }
-        footer {
-            background-color: #4A5568;
-            color: white;
-            text-align: center;
-            padding: 1rem;
-            position: fixed;
-            width: 100%;
-            bottom: 0;
-        }
-    </style>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body>
-  <header>
-    <div class="Logo">
-        <a href="#">
-            <img alt="Company Logo" class="h-10 w-10 rounded-full shadow-md" height="50" src="https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg" width="50"/>
-        </a>
-    </div>
-    <nav>
-        <a href="index.html">Trang chủ</a>
-        <a href="cart.html">Giỏ hàng</a>
-        <a href="#">Đơn hàng</a>
-        <a href="#">Đặt dịch vụ</a>
-        <a href="#">Lịch sử giao dịch</a>
-        <a href="#">Đánh giá</a>
-        <a href="/index">Logout</a>
-      
-    </nav>
-</header>
+<body class="bg-gray-100" x-data="{ 
+    activeSection: 'home',
+    searchQuery: '',
+    selectedLocation: '',
+    selectedRating: '',
+    selectedService: '',
+    showLoginModal: false,
+    showRegisterModal: false,
+    showOrderModal: false,
+    showReviewModal: false,
+    selectedShop: null,
+    orderStatus: 'pending',
+    orders: [
+        {
+            id: '12345',
+            shop: 'Cửa hàng A',
+            service: 'Giặt & Ủi',
+            status: 'Đang xử lý',
+            date: '2024-03-20',
+            amount: '150.000đ'
+        }
+    ]
+}">
+    <!-- Header -->
+    <header class="bg-[#1F2937] text-white">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <img src="https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg" 
+                         alt="Logo" class="w-10 h-10 rounded-full">
+                    <span class="text-xl font-semibold">PMLS</span>
+                </div>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#" @click.prevent="activeSection = 'home'" 
+                       :class="{'text-blue-400': activeSection === 'home'}"
+                       class="hover:text-blue-400 transition">Trang chủ</a>
+                    <a href="#" @click.prevent="activeSection = 'orders'" 
+                       :class="{'text-blue-400': activeSection === 'orders'}"
+                       class="hover:text-blue-400 transition">Đơn hàng</a>
+                    <a href="#" @click.prevent="activeSection = 'history'" 
+                       :class="{'text-blue-400': activeSection === 'history'}"
+                       class="hover:text-blue-400 transition">Lịch sử</a>
+                    <a href="#" @click.prevent="activeSection = 'reviews'" 
+                       :class="{'text-blue-400': activeSection === 'reviews'}"
+                       class="hover:text-blue-400 transition">Đánh giá</a>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <button @click="showLoginModal = true" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700">
+                        Đăng nhập
+                    </button>
+                    <button @click="showRegisterModal = true" class="border border-white px-4 py-2 rounded hover:bg-white hover:text-gray-900">
+                        Đăng ký
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
 
-    <main>
-        <section id="home">
-            <h1>Chào mừng bạn đến với cửa hàng giặt ủi của chúng tôi</h1>
-            <p>Chúng tôi cung cấp dịch vụ giặt ủi chuyên nghiệp, nhanh chóng và tiện lợi. Hãy khám phá các dịch vụ của chúng tôi ngay.</p>
-        </section>
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Search Section -->
+        <div x-show="activeSection === 'home'" class="mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-2xl font-semibold mb-4">Tìm kiếm cửa hàng giặt ủi</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Địa điểm</label>
+                        <select x-model="selectedLocation" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                            <option value="quan1">Quận 1</option>
+                            <option value="quan2">Quận 2</option>
+                            <option value="quan3">Quận 3</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Đánh giá</label>
+                        <select x-model="selectedRating" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                            <option value="5">5 sao</option>
+                            <option value="4">4 sao trở lên</option>
+                            <option value="3">3 sao trở lên</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Dịch vụ</label>
+                        <select x-model="selectedService" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                            <option value="giatsuoi">Giặt & Ủi</option>
+                            <option value="giatsay">Giặt sấy</option>
+                            <option value="ui">Ủi</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
+                        <input type="text" x-model="searchQuery" 
+                               placeholder="Nhập tên cửa hàng..."
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
 
-        <section id="services">
-            <h2>Dịch vụ của chúng tôi</h2>
-            <ul>
-                <li><a href="#">Giặt đồ trẻ em</a></li>
-                <li><a href="#">Giặt chăn ga, gối nệm</a></li>
-                <li><a href="#">Giặt quần áo</a></li>
-                <li><a href="#">Ủi đồ</a></li>
-            </ul>
-        </section>
+            <!-- Shop List -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                <!-- Shop Card -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <img src="https://via.placeholder.com/400x200" alt="Shop" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold">Cửa hàng giặt ủi A</h3>
+                        <p class="text-gray-600 text-sm mb-2">123 Đường ABC, Quận 1</p>
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <span class="ml-1">4.5 (120 đánh giá)</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Giặt & Ủi</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Giặt sấy</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Ủi</span>
+                        </div>
+                        <button @click="showOrderModal = true; selectedShop = {name: 'Cửa hàng giặt ủi A'}"
+                                class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+                            Đặt dịch vụ
+                        </button>
+                    </div>
+                </div>
+                <!-- More shop cards... -->
+            </div>
+        </div>
 
-        <section id="promotion">
-            <h2>Ưu đãi đặc biệt</h2>
-            <p>Nhận ngay giảm giá 10% khi sử dụng dịch vụ lần đầu. Đặt dịch vụ ngay để trải nghiệm.</p>
-        </section>
+        <!-- Orders Section -->
+        <div x-show="activeSection === 'orders'" class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-2xl font-semibold mb-6">Đơn hàng của tôi</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mã đơn</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cửa hàng</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Dịch vụ</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ngày đặt</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tổng tiền</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <template x-for="order in orders" :key="order.id">
+                            <tr>
+                                <td class="px-6 py-4" x-text="order.id"></td>
+                                <td class="px-6 py-4" x-text="order.shop"></td>
+                                <td class="px-6 py-4" x-text="order.service"></td>
+                                <td class="px-6 py-4" x-text="order.date"></td>
+                                <td class="px-6 py-4" x-text="order.amount"></td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                          :class="{
+                                              'bg-yellow-100 text-yellow-800': order.status === 'Đang xử lý',
+                                              'bg-green-100 text-green-800': order.status === 'Hoàn thành',
+                                              'bg-red-100 text-red-800': order.status === 'Đã hủy'
+                                          }"
+                                          x-text="order.status">
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <button class="text-blue-600 hover:text-blue-900">Chi tiết</button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Transaction History Section -->
+        <div x-show="activeSection === 'history'" class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-2xl font-semibold mb-6">Lịch sử giao dịch</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ngày</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mã đơn</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cửa hàng</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tổng tiền</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4">2024-03-20</td>
+                            <td class="px-6 py-4">#12345</td>
+                            <td class="px-6 py-4">Cửa hàng A</td>
+                            <td class="px-6 py-4">150.000đ</td>
+                            <td class="px-6 py-4">
+                                <button class="text-blue-600 hover:text-blue-900">Tải hóa đơn</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Reviews Section -->
+        <div x-show="activeSection === 'reviews'" class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-2xl font-semibold mb-6">Đánh giá của tôi</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Review Card -->
+                <div class="border rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="font-semibold">Cửa hàng giặt ủi A</h3>
+                            <p class="text-sm text-gray-600">Đơn hàng #12345</p>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <i class="fas fa-star text-yellow-400"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">Dịch vụ rất tốt, nhân viên phục vụ nhiệt tình. Sẽ quay lại sử dụng dịch vụ.</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">20/03/2024</span>
+                        <button class="text-blue-600 hover:text-blue-900">Chỉnh sửa</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
-    <footer class="bg-white py-8">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col md:flex-row justify-between">
-          <!-- Connect With Us -->
-          <div class="mb-8 md:mb-0">
-            <h2 class="text-lg font-semibold mb-4">Connect With Us</h2>
-            <div class="flex space-x-4">
-              <a href="#" class="text-gray-600 hover:text-gray-800"><i class="fab fa-facebook fa-2x"></i></a>
-              <a href="#" class="text-gray-600 hover:text-gray-800"><i class="fab fa-instagram fa-2x"></i></a>
+    <!-- Login Modal -->
+    <div x-show="showLoginModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Đăng nhập</h3>
+                <form class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Mật khẩu</label>
+                        <input type="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-600">Ghi nhớ đăng nhập</span>
+                        </label>
+                        <a href="#" class="text-sm text-blue-600 hover:text-blue-800">Quên mật khẩu?</a>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button @click="showLoginModal = false" 
+                                class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300">
+                            Hủy
+                        </button>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                            Đăng nhập
+                        </button>
+                    </div>
+                </form>
             </div>
-          </div>
-          <!-- Recent Posts -->
-          <div class="mb-8 md:mb-0">
-            <h2 class="text-lg font-semibold mb-4">Tips & Guides</h2>
-            <ul class="space-y-2">
-              <li><a href="https://www.nbcnews.com/better/lifestyle/how-get-stains-out-almost-anything-ncna885806" class="text-gray-600 hover:text-gray-800">How to remove tough stains</a></li>
-              <li><a href="https://freshcleanlaundromat.com/practical-tips-to-take-care-of-different-types-of-fabrics/" class="text-gray-600 hover:text-gray-800">Best fabric care tips</a></li>
-              <li><a href="https://www.thespruce.com/laundry-hacks-4684443" class="text-gray-600 hover:text-gray-800">Laundry hacks to save time</a></li>
-            </ul>
-          </div>
-          <div>
-            <h2 class="text-lg font-semibold mb-4">Newsletter</h2>
-            <p class="text-gray-600 mb-4">Subscribe to our newsletter for the latest updates and articles.</p>
-            <form class="flex">
-              <input type="email" placeholder="Enter your email" class="w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r-md"><i class="fas fa-envelope"></i></button>
-            </form>
-          </div>
         </div>
-      </div>
-    </footer>
+    </div>
+
+    <!-- Register Modal -->
+    <div x-show="showRegisterModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Đăng ký tài khoản</h3>
+                <form class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Họ và tên</label>
+                        <input type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Số điện thoại</label>
+                        <input type="tel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Mật khẩu</label>
+                        <input type="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Xác nhận mật khẩu</label>
+                        <input type="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button @click="showRegisterModal = false" 
+                                class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300">
+                            Hủy
+                        </button>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                            Đăng ký
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Modal -->
+    <div x-show="showOrderModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Đặt dịch vụ</h3>
+                <p class="text-sm text-gray-600 mb-4" x-text="selectedShop ? 'Cửa hàng: ' + selectedShop.name : ''"></p>
+                <form class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Dịch vụ</label>
+                        <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option>Giặt & Ủi</option>
+                            <option>Giặt sấy</option>
+                            <option>Ủi</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Số lượng (kg)</label>
+                        <input type="number" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Ghi chú</label>
+                        <textarea class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" rows="3"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Thời gian nhận</label>
+                        <input type="datetime-local" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button @click="showOrderModal = false" 
+                                class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300">
+                            Hủy
+                        </button>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                            Đặt dịch vụ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div x-show="showReviewModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Đánh giá dịch vụ</h3>
+                <form class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Đánh giá sao</label>
+                        <div class="flex space-x-2 mt-1">
+                            <i class="fas fa-star text-2xl text-gray-300 cursor-pointer hover:text-yellow-400"></i>
+                            <i class="fas fa-star text-2xl text-gray-300 cursor-pointer hover:text-yellow-400"></i>
+                            <i class="fas fa-star text-2xl text-gray-300 cursor-pointer hover:text-yellow-400"></i>
+                            <i class="fas fa-star text-2xl text-gray-300 cursor-pointer hover:text-yellow-400"></i>
+                            <i class="fas fa-star text-2xl text-gray-300 cursor-pointer hover:text-yellow-400"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Nhận xét</label>
+                        <textarea class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" rows="3"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button @click="showReviewModal = false" 
+                                class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300">
+                            Hủy
+                        </button>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                            Gửi đánh giá
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
