@@ -12,6 +12,7 @@
 <body class="bg-gray-100" x-data="{ 
     sidebarOpen: true, 
     activeSection: 'dashboard',
+    showProfileDropdown: false,
     // Staff management
     staff: [
         { id: 1, name: 'Nguyễn Văn A', email: 'nguyenvana@example.com', phone: '0123456789', role: 'Nhân viên giặt' }
@@ -105,7 +106,8 @@
     },
     
     saveProfile() {
-        // Here you would typically send the data to your backend   
+        // Update the shop name in the logo
+        document.querySelector('.text-xl.font-semibold').textContent = this.shopProfile.name;
         this.isEditingProfile = false;
     }
 }">
@@ -114,12 +116,30 @@
          :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}">
         <div class="p-4">
             <div class="flex items-center justify-between mb-8">
-                <div class="flex items-center space-x-4">
-                    <img th:src="${user != null ? user.avatar : 'https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg'}" 
-                         alt="Shop Logo" class="w-10 h-10 rounded-full">
-                    <div>
-                        <h2 class="text-xl font-semibold" th:text="${user != null ? user.fullName : 'Chủ cửa hàng'}">Chủ cửa hàng</h2>
-                        <p class="text-sm text-gray-300">Quản lý cửa hàng</p>
+                <div class="relative">
+                    <button @click="showProfileDropdown = !showProfileDropdown" class="flex items-center space-x-4">
+                        <img th:src="${user != null ? user.avatar : 'https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg'}" 
+                             alt="Shop Logo" class="w-10 h-10 rounded-full">
+                        <div>
+                            <h2 class="text-xl font-semibold" th:text="${user != null ? user.fullName : 'Chủ cửa hàng'}">Chủ cửa hàng</h2>
+                            <p class="text-sm text-gray-300">Quản lý cửa hàng</p>
+                        </div>
+                    </button>
+                    <!-- Profile Dropdown -->
+                    <div x-show="showProfileDropdown" 
+                         @click.away="showProfileDropdown = false"
+                         class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-cog mr-2"></i>Cài đặt
+                        </a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-bell mr-2"></i>Thông báo
+                            <span class="bg-red-500 text-white text-xs rounded-full px-2 ml-2">3</span>
+                        </a>
+                        <hr class="my-1">
+                        <a href="/index" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
+                        </a>
                     </div>
                 </div>
                 <button @click="sidebarOpen = false" class="lg:hidden">
@@ -169,35 +189,13 @@
 
     <!-- Main Content -->
     <div class="ml-0 lg:ml-64 transition-margin duration-300 ease-in-out">
-        <!-- Header -->
-        <header class="bg-[#1F2937] shadow-sm">
-            <div class="flex items-center justify-between p-4">
-                <button @click="sidebarOpen = true" class="lg:hidden text-white">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="flex items-center space-x-4">
-                    <div class="relative">
-                        <button class="text-white hover:text-gray-300">
-                            <i class="fas fa-bell"></i>
-                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
-                        </button>
-                    </div>
-                    <div class="relative" x-data="{ open: false }">
-                        <button @click="open = !open" class="flex items-center space-x-2 text-white">
-                            <img th:src="${user != null ? user.avatar : 'https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg'}" 
-                                 alt="Profile" class="w-8 h-8 rounded-full">
-                            <span th:text="${user != null ? user.fullName : 'Chủ cửa hàng'}">Chủ cửa hàng</span>
-                        </button>
-                        <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cài đặt</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Đăng xuất</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <!-- Mobile Toggle Button -->
+        <button @click="sidebarOpen = true" 
+                class="lg:hidden fixed top-4 left-4 z-50 bg-[#1F2937] text-white p-2 rounded-md">
+            <i class="fas fa-bars"></i>
+        </button>
 
-        <!-- Dashboard Content -->
+        <!-- Main Content Sections -->
         <main class="p-6">
             <!-- Dashboard Section -->
             <div x-show="activeSection === 'dashboard'">

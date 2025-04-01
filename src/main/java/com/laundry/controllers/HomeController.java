@@ -36,11 +36,7 @@ public String loginRole() {
     return  "admin/loginRole";
 }
 
-// Localhost:8080/customer
-@RequestMapping("/customer")
-public String customer() {
-    return  "admin/customer";
-}
+
 
 @RequestMapping("/shopOwner")
 public String shopOwner() {
