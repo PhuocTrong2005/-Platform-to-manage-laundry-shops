@@ -39,7 +39,7 @@ public class UserController {
     }
 
     @GetMapping("/shopOwner")
-    public String shopOwnerDashboard() {
+    public String shopOwner() {
         return "admin/shopOwner";
     }
 

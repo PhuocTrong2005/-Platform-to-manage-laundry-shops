@@ -37,7 +37,6 @@ public String loginRole() {
 }
 
 
-
 @RequestMapping("/shopOwner")
 public String shopOwner() {
 	return "admin/shopOwner"; 

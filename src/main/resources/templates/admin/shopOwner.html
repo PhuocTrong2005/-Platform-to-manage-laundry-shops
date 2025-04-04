@@ -8,709 +8,927 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        *{
+            font-family: 'Times New Roman', Times, serif;
+        }
+    </style>
 </head>
 <body class="bg-gray-100" x-data="{ 
-    sidebarOpen: true, 
+    sidebarOpen: true,
     activeSection: 'dashboard',
-    showProfileDropdown: false,
     // Staff management
-    staff: [
-        { id: 1, name: 'Nguyễn Văn A', email: 'nguyenvana@example.com', phone: '0123456789', role: 'Nhân viên giặt' }
-    ],
-    newStaff: { name: '', email: '', phone: '', role: '' },
+    staff: [],
+    newStaff: { 
+        fullName: '', 
+        email: '', 
+        phone: '', 
+        passwordHash: '', 
+        shopId: null, 
+        role: '' 
+    },
     editingStaff: null,
     showStaffModal: false,
-    
+
     // Services management
-    services: [
-        { id: 1, name: 'Giặt & Ủi', description: 'Dịch vụ giặt và ủi quần áo thông thường', price: 50000 },
-        { id: 2, name: 'Giặt khô', description: 'Dịch vụ giặt khô cho quần áo đặc biệt', price: 80000 },
-        { id: 3, name: 'Ủi', description: 'Dịch vụ ủi quần áo', price: 30000 }
-    ],
-    newService: { name: '', description: '', price: '' },
+    services: [],
+    newService: { serviceName: '', price: '' },
     editingService: null,
     showServiceModal: false,
-    
+
     // Shop profile
     shopProfile: {
-        name: 'Cửa hàng giặt ủi A',
-        address: '123 Đường ABC, Quận 1',
-        openTime: '08:00',
-        closeTime: '18:00',
-        services: ['Giặt & Ủi', 'Giặt khô', 'Ủi']
+        id: null,
+        shopName: '',
+        location: '',
+        operatingHours: '',
+        servicesOffered: '',
+        ownerId: null
     },
     isEditingProfile: false,
-    
-    // Methods
-    addStaff() {
-        if (this.newStaff.name && this.newStaff.email && this.newStaff.phone && this.newStaff.role) {
-            this.staff.push({
-                id: this.staff.length + 1,
-                ...this.newStaff
-            });
-            this.newStaff = { name: '', email: '', phone: '', role: '' };
-            this.showStaffModal = false;
-        }
+
+    // Initialize
+    async init() {
+        await this.loadServices();
+        await this.loadShopProfile();
+        await this.loadStaff();
     },
-    
-    editStaff(staff) {
-        this.editingStaff = { ...staff };
-        this.showStaffModal = true;
+
+    // Format price
+    formatPrice(price) {
+        return new Intl.NumberFormat('vi-VN').format(price);
     },
-    
-    updateStaff() {
-        if (this.editingStaff) {
-            const index = this.staff.findIndex(s => s.id === this.editingStaff.id);
-            if (index !== -1) {
-                this.staff[index] = { ...this.editingStaff };
-                this.showStaffModal = false;
-                this.editingStaff = null;
+
+    // Shop profile methods
+    async loadShopProfile() {
+        try {
+            console.log('Loading shop profile...');
+            // Lấy shopId từ URL hoặc session
+            const shopId = 1; // Thay thế bằng shopId thực tế
+            
+            const response = await fetch(`http://localhost:8080/api/shops/${shopId}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+            const data = await response.json();
+            console.log('Shop profile loaded:', data);
+            
+            // Cập nhật dữ liệu hồ sơ cửa hàng
+            this.shopProfile = {
+                id: data.id,
+                shopName: data.shopName,
+                location: data.location,
+                operatingHours: data.operatingHours,
+                servicesOffered: data.servicesOffered,
+                ownerId: data.ownerId
+            };
+
+            // Cập nhật text logo thành tên cửa hàng
+            const logoText = document.querySelector('.logo-text');
+            if (logoText) {
+                logoText.textContent = data.shopName;
+            }
+            
+            // Tách giờ mở cửa và đóng cửa
+            if (data.operatingHours) {
+                const [openTime, closeTime] = data.operatingHours.split(' - ');
+                this.shopProfile.openTime = openTime || '08:00';
+                this.shopProfile.closeTime = closeTime || '18:00';
+            } else {
+                this.shopProfile.openTime = '08:00';
+                this.shopProfile.closeTime = '18:00';
+            }
+            
+            // Tách danh sách dịch vụ
+            if (data.servicesOffered) {
+                this.shopProfile.services = data.servicesOffered.split(', ');
+            } else {
+                this.shopProfile.services = [];
+            }
+        } catch (error) {
+            console.error('Error loading shop profile:', error);
+            alert('Không thể tải thông tin cửa hàng. Vui lòng thử lại sau.');
         }
     },
-    
-    deleteStaff(id) {
-        this.staff = this.staff.filter(s => s.id !== id);
-    },
-    
-    addService() {
-        if (this.newService.name && this.newService.description && this.newService.price) {
-            this.services.push({
-                id: this.services.length + 1,
-                ...this.newService,
-                price: parseInt(this.newService.price)
+
+    async saveProfile() {
+        try {
+            if (!this.shopProfile.shopName || !this.shopProfile.location) {
+                alert('Vui lòng điền đầy đủ thông tin cửa hàng');
+                return;
+            }
+            
+            // Kết hợp giờ mở cửa và đóng cửa
+            const operatingHours = `${this.shopProfile.openTime} - ${this.shopProfile.closeTime}`;
+            
+            // Kết hợp danh sách dịch vụ
+            const servicesOffered = this.shopProfile.services.join(', ');
+            
+            const shopData = {
+                id: this.shopProfile.id,
+                shopName: this.shopProfile.shopName,
+                location: this.shopProfile.location,
+                operatingHours: operatingHours,
+                servicesOffered: servicesOffered,
+                ownerId: this.shopProfile.ownerId
+            };
+            
+            console.log('Saving shop profile:', shopData);
+            
+            const response = await fetch(`http://localhost:8080/api/shops/${this.shopProfile.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(shopData)
             });
-            this.newService = { name: '', description: '', price: '' };
-            this.showServiceModal = false;
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const updatedShop = await response.json();
+            console.log('Shop profile updated:', updatedShop);
+            
+            this.isEditingProfile = false;
+            alert('Cập nhật thông tin cửa hàng thành công!');
+        } catch (error) {
+            console.error('Error saving shop profile:', error);
+            alert('Không thể cập nhật thông tin cửa hàng. Vui lòng thử lại sau.');
         }
     },
-    
+
+    // Services methods
+    async loadServices() {
+        try {
+            console.log('Loading services...');
+            const response = await fetch('http://localhost:8080/api/services');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log('Services loaded:', data);
+            this.services = data;
+        } catch (error) {
+            console.error('Error loading services:', error);
+            alert('Không thể tải danh sách dịch vụ. Vui lòng thử lại sau.');
+        }
+    },
+
+    async addService() {
+        try {
+            if (!this.newService.serviceName || !this.newService.price) {
+                alert('Vui lòng điền đầy đủ thông tin dịch vụ');
+                return;
+            }
+
+            const response = await fetch('http://localhost:8080/api/services', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    serviceName: this.newService.serviceName,
+                    price: parseFloat(this.newService.price),
+                    shopId: this.shopProfile.id // Sử dụng shopId từ hồ sơ cửa hàng
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const newService = await response.json();
+            this.services.push(newService);
+            this.newService = { serviceName: '', price: '' };
+            this.showServiceModal = false;
+            alert('Thêm dịch vụ thành công!');
+        } catch (error) {
+            console.error('Error adding service:', error);
+            alert('Không thể thêm dịch vụ. Vui lòng thử lại sau.');
+        }
+    },
+
+    async updateService() {
+        try {
+            if (!this.editingService.serviceName || !this.editingService.price) {
+                alert('Vui lòng điền đầy đủ thông tin dịch vụ');
+                return;
+            }
+
+            const response = await fetch(`http://localhost:8080/api/services/${this.editingService.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(this.editingService)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const updatedService = await response.json();
+            const index = this.services.findIndex(s => s.id === updatedService.id);
+            if (index !== -1) {
+                this.services[index] = updatedService;
+            }
+            this.editingService = null;
+            this.showServiceModal = false;
+            alert('Cập nhật dịch vụ thành công!');
+        } catch (error) {
+            console.error('Error updating service:', error);
+            alert('Không thể cập nhật dịch vụ. Vui lòng thử lại sau.');
+        }
+    },
+
+    async deleteService(id) {
+        if (!confirm('Bạn có chắc chắn muốn xóa dịch vụ này?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/services/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            this.services = this.services.filter(s => s.id !== id);
+            alert('Xóa dịch vụ thành công!');
+        } catch (error) {
+            console.error('Error deleting service:', error);
+            alert('Không thể xóa dịch vụ. Vui lòng thử lại sau.');
+        }
+    },
+
     editService(service) {
         this.editingService = { ...service };
         this.showServiceModal = true;
     },
-    
-    updateService() {
-        if (this.editingService) {
-            const index = this.services.findIndex(s => s.id === this.editingService.id);
-            if (index !== -1) {
-                this.services[index] = { ...this.editingService };
-                this.showServiceModal = false;
-                this.editingService = null;
+
+    // Staff methods
+    async loadStaff() {
+        try {
+            console.log('Loading staff...');
+            const response = await fetch(`http://localhost:8080/api/staff/shop/${this.shopProfile.id}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+            const data = await response.json();
+            console.log('Staff loaded:', data);
+            this.staff = data;
+        } catch (error) {
+            console.error('Error loading staff:', error);
+            alert('Không thể tải danh sách nhân viên. Vui lòng thử lại sau.');
         }
     },
-    
-    deleteService(id) {
-        this.services = this.services.filter(s => s.id !== id);
+
+    async addStaff() {
+        try {
+            if (!this.newStaff.fullName || !this.newStaff.email || !this.newStaff.phone || !this.newStaff.role) {
+                alert('Vui lòng điền đầy đủ thông tin nhân viên');
+                return;
+            }
+
+            this.newStaff.shopId = this.shopProfile.id;
+            this.newStaff.passwordHash = 'default123'; // You should implement proper password hashing
+
+            const response = await fetch('http://localhost:8080/api/staff', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(this.newStaff)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const newStaff = await response.json();
+            this.staff.push(newStaff);
+            this.newStaff = { 
+                fullName: '', 
+                email: '', 
+                phone: '', 
+                passwordHash: '', 
+                shopId: null, 
+                role: '' 
+            };
+            this.showStaffModal = false;
+            alert('Thêm nhân viên thành công!');
+        } catch (error) {
+            console.error('Error adding staff:', error);
+            alert('Không thể thêm nhân viên. Vui lòng thử lại sau.');
+        }
     },
-    
-    saveProfile() {
-        // Update the shop name in the logo
-        document.querySelector('.text-xl.font-semibold').textContent = this.shopProfile.name;
-        this.isEditingProfile = false;
+
+    async updateStaff() {
+        try {
+            if (!this.editingStaff.fullName || !this.editingStaff.email || !this.editingStaff.phone || !this.editingStaff.role) {
+                alert('Vui lòng điền đầy đủ thông tin nhân viên');
+                return;
+            }
+
+            const response = await fetch(`http://localhost:8080/api/staff/${this.editingStaff.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(this.editingStaff)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const updatedStaff = await response.json();
+            const index = this.staff.findIndex(s => s.id === updatedStaff.id);
+            if (index !== -1) {
+                this.staff[index] = updatedStaff;
+            }
+            this.editingStaff = null;
+            this.showStaffModal = false;
+            alert('Cập nhật nhân viên thành công!');
+        } catch (error) {
+            console.error('Error updating staff:', error);
+            alert('Không thể cập nhật nhân viên. Vui lòng thử lại sau.');
+        }
+    },
+
+    async deleteStaff(id) {
+        if (!confirm('Bạn có chắc chắn muốn xóa nhân viên này?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/staff/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            this.staff = this.staff.filter(s => s.id !== id);
+            alert('Xóa nhân viên thành công!');
+        } catch (error) {
+            console.error('Error deleting staff:', error);
+            alert('Không thể xóa nhân viên. Vui lòng thử lại sau.');
+        }
+    },
+
+    editStaff(staff) {
+        this.editingStaff = { ...staff };
+        this.showStaffModal = true;
     }
 }">
-    <!-- Sidebar -->
-    <div class="fixed inset-y-0 left-0 bg-[#1F2937] text-white w-64 transform transition-transform duration-300 ease-in-out z-50"
-         :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}">
-        <div class="p-4">
-            <div class="flex items-center justify-between mb-8">
-                <div class="relative">
-                    <button @click="showProfileDropdown = !showProfileDropdown" class="flex items-center space-x-4">
-                        <img th:src="${user != null ? user.avatar : 'https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg'}" 
-                             alt="Shop Logo" class="w-10 h-10 rounded-full">
-                        <div>
-                            <h2 class="text-xl font-semibold" th:text="${user != null ? user.fullName : 'Chủ cửa hàng'}">Chủ cửa hàng</h2>
-                            <p class="text-sm text-gray-300">Quản lý cửa hàng</p>
+<!-- Sidebar -->
+<div class="fixed inset-y-0 left-0 bg-[#1F2937] text-white w-64 transform transition-transform duration-300 ease-in-out z-50"
+     :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}">
+    <div class="p-4">
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center space-x-4">
+                <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open" class="flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <img src="https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg" 
+                                 alt="Shop Logo" class="w-10 h-10 rounded-full">
+                            <span class="logo-text ml-2 text-xl font-bold">Chủ cửa hàng</span>
                         </div>
                     </button>
-                    <!-- Profile Dropdown -->
-                    <div x-show="showProfileDropdown" 
-                         @click.away="showProfileDropdown = false"
+                    <div x-show="open" @click.away="open = false"
                          class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-user mr-2"></i>Thông tin cá nhân
+                        </a>
                         <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             <i class="fas fa-cog mr-2"></i>Cài đặt
                         </a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            <i class="fas fa-bell mr-2"></i>Thông báo
-                            <span class="bg-red-500 text-white text-xs rounded-full px-2 ml-2">3</span>
-                        </a>
-                        <hr class="my-1">
-                        <a href="/index" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                        <a href="/index" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
                         </a>
                     </div>
                 </div>
-                <button @click="sidebarOpen = false" class="lg:hidden">
-                    <i class="fas fa-times text-white"></i>
-                </button>
             </div>
-            <nav class="space-y-2">
-                <a href="#" @click.prevent="activeSection = 'dashboard'" 
-                   class="flex items-center space-x-2 p-2 rounded hover:bg-gray-700"
-                   :class="{'bg-gray-700': activeSection === 'dashboard'}">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span>Tổng quan</span>
-                </a>
-                <a href="#" @click.prevent="activeSection = 'profile'" 
-                   class="flex items-center space-x-2 p-2 rounded hover:bg-gray-700"
-                   :class="{'bg-gray-700': activeSection === 'profile'}">
-                    <i class="fas fa-store"></i>
-                    <span>Hồ sơ cửa hàng</span>
-                </a>
-                <a href="#" @click.prevent="activeSection = 'staff'" 
-                   class="flex items-center space-x-2 p-2 rounded hover:bg-gray-700"
-                   :class="{'bg-gray-700': activeSection === 'staff'}">
-                    <i class="fas fa-users"></i>
-                    <span>Quản lý nhân viên</span>
-                </a>
-                <a href="#" @click.prevent="activeSection = 'services'" 
-                   class="flex items-center space-x-2 p-2 rounded hover:bg-gray-700"
-                   :class="{'bg-gray-700': activeSection === 'services'}">
-                    <i class="fas fa-list"></i>
-                    <span>Dịch vụ & Bảng giá</span>
-                </a>
-                <a href="#" @click.prevent="activeSection = 'orders'" 
-                   class="flex items-center space-x-2 p-2 rounded hover:bg-gray-700"
-                   :class="{'bg-gray-700': activeSection === 'orders'}">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Đơn hàng</span>
-                </a>
-                <a href="#" @click.prevent="activeSection = 'reports'" 
-                   class="flex items-center space-x-2 p-2 rounded hover:bg-gray-700"
-                   :class="{'bg-gray-700': activeSection === 'reports'}">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>Báo cáo</span>
-                </a>
-            </nav>
+            <button @click="sidebarOpen = false" class="lg:hidden">
+                <i class="fas fa-times text-white"></i>
+            </button>
+        </div>
+        <nav class="space-y-2">
+            <a href="#" @click.prevent="activeSection = 'dashboard'"
+               class="flex items-center space-x-2 p-2 rounded hover:bg-gray-700"
+               :class="{'bg-gray-700': activeSection === 'dashboard'}">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Tổng quan</span>
+            </a>
+            <a href="#" @click.prevent="activeSection = 'profile'"
+               class="flex items-center space-x-2 p-2 rounded hover:bg-gray-700"
+               :class="{'bg-gray-700': activeSection === 'profile'}">
+                <i class="fas fa-store"></i>
+                <span>Hồ sơ cửa hàng</span>
+            </a>
+            <a href="#" @click.prevent="activeSection = 'staff'"
+               class="flex items-center space-x-2 p-2 rounded hover:bg-gray-700"
+               :class="{'bg-gray-700': activeSection === 'staff'}">
+                <i class="fas fa-users"></i>
+                <span>Quản lý nhân viên</span>
+            </a>
+            <a href="#" @click.prevent="activeSection = 'services'"
+               class="flex items-center space-x-2 p-2 rounded hover:bg-gray-700"
+               :class="{'bg-gray-700': activeSection === 'services'}">
+                <i class="fas fa-list"></i>
+                <span>Dịch vụ & Bảng giá</span>
+            </a>
+            <a href="#" @click.prevent="activeSection = 'orders'"
+               class="flex items-center space-x-2 p-2 rounded hover:bg-gray-700"
+               :class="{'bg-gray-700': activeSection === 'orders'}">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Đơn hàng</span>
+            </a>
+            <a href="#" @click.prevent="activeSection = 'reports'"
+               class="flex items-center space-x-2 p-2 rounded hover:bg-gray-700"
+               :class="{'bg-gray-700': activeSection === 'reports'}">
+                <i class="fas fa-chart-bar"></i>
+                <span>Báo cáo</span>
+            </a>
+        </nav>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="ml-0 lg:ml-64 transition-margin duration-300 ease-in-out">
+    <!-- Top Bar -->
+    <div class="bg-white shadow-sm p-4">
+        <div class="flex items-center justify-between">
+            <button @click="sidebarOpen = true" class="lg:hidden text-gray-600">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="flex items-center space-x-4">
+                <!-- Notifications -->
+                <div class="relative">
+                    <button class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-bell"></i>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="ml-0 lg:ml-64 transition-margin duration-300 ease-in-out">
-        <!-- Mobile Toggle Button -->
-        <button @click="sidebarOpen = true" 
-                class="lg:hidden fixed top-4 left-4 z-50 bg-[#1F2937] text-white p-2 rounded-md">
-            <i class="fas fa-bars"></i>
-        </button>
-
-        <!-- Main Content Sections -->
-        <main class="p-6">
-            <!-- Dashboard Section -->
-            <div x-show="activeSection === 'dashboard'">
-                <!-- Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-600">Tổng đơn hàng</p>
-                                <h3 class="text-2xl font-semibold">1,234</h3>
-                            </div>
-                            <div class="bg-blue-100 p-3 rounded-full">
-                                <i class="fas fa-shopping-cart text-blue-600"></i>
-                            </div>
+    <!-- Dashboard Content -->
+    <main class="p-6">
+        <!-- Dashboard Section -->
+        <div x-show="activeSection === 'dashboard'">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">Tổng đơn hàng</p>
+                            <h3 class="text-2xl font-semibold">1,234</h3>
                         </div>
-                        <div class="mt-4">
-                            <span class="text-green-500 text-sm">+12.5%</span>
-                            <span class="text-gray-500 text-sm ml-2">so với tháng trước</span>
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <i class="fas fa-shopping-cart text-blue-600"></i>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-600">Doanh thu</p>
-                                <h3 class="text-2xl font-semibold">$12,345</h3>
-                            </div>
-                            <div class="bg-green-100 p-3 rounded-full">
-                                <i class="fas fa-dollar-sign text-green-600"></i>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <span class="text-green-500 text-sm">+8.2%</span>
-                            <span class="text-gray-500 text-sm ml-2">so với tháng trước</span>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-600">Khách hàng mới</p>
-                                <h3 class="text-2xl font-semibold">89</h3>
-                            </div>
-                            <div class="bg-purple-100 p-3 rounded-full">
-                                <i class="fas fa-users text-purple-600"></i>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <span class="text-green-500 text-sm">+5.3%</span>
-                            <span class="text-gray-500 text-sm ml-2">so với tháng trước</span>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-600">Đơn hàng đang xử lý</p>
-                                <h3 class="text-2xl font-semibold">45</h3>
-                            </div>
-                            <div class="bg-yellow-100 p-3 rounded-full">
-                                <i class="fas fa-clock text-yellow-600"></i>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <span class="text-red-500 text-sm">-2.1%</span>
-                            <span class="text-gray-500 text-sm ml-2">so với tháng trước</span>
-                        </div>
+                    <div class="mt-4">
+                        <span class="text-green-500 text-sm">+12.5%</span>
+                        <span class="text-gray-500 text-sm ml-2">so với tháng trước</span>
                     </div>
                 </div>
-
-                <!-- Charts -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h3 class="text-lg font-semibold mb-4">Doanh thu theo tháng</h3>
-                        <canvas id="revenueChart"></canvas>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">Doanh thu</p>
+                            <h3 class="text-2xl font-semibold">$12,345</h3>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <i class="fas fa-dollar-sign text-green-600"></i>
+                        </div>
                     </div>
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h3 class="text-lg font-semibold mb-4">Phân bố dịch vụ</h3>
-                        <canvas id="servicesChart"></canvas>
+                    <div class="mt-4">
+                        <span class="text-green-500 text-sm">+8.2%</span>
+                        <span class="text-gray-500 text-sm ml-2">so với tháng trước</span>
                     </div>
                 </div>
-
-                <!-- Recent Orders -->
-                <div class="bg-white rounded-lg shadow">
-                    <div class="p-6 border-b">
-                        <h3 class="text-lg font-semibold">Đơn hàng gần đây</h3>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">Khách hàng mới</p>
+                            <h3 class="text-2xl font-semibold">89</h3>
+                        </div>
+                        <div class="bg-purple-100 p-3 rounded-full">
+                            <i class="fas fa-users text-purple-600"></i>
+                        </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã đơn</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách hàng</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dịch vụ</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng tiền</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#12345</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Nguyễn Văn A</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Giặt & Ủi</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$50.00</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="mt-4">
+                        <span class="text-green-500 text-sm">+5.3%</span>
+                        <span class="text-gray-500 text-sm ml-2">so với tháng trước</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">Đơn hàng đang xử lý</p>
+                            <h3 class="text-2xl font-semibold">45</h3>
+                        </div>
+                        <div class="bg-yellow-100 p-3 rounded-full">
+                            <i class="fas fa-clock text-yellow-600"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-red-500 text-sm">-2.1%</span>
+                        <span class="text-gray-500 text-sm ml-2">so với tháng trước</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">Doanh thu theo tháng</h3>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">Phân bố dịch vụ</h3>
+                    <canvas id="servicesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-6 border-b">
+                    <h3 class="text-lg font-semibold">Đơn hàng gần đây</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã đơn</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách hàng</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dịch vụ</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng tiền</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#12345</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Nguyễn Văn A</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Giặt & Ủi</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$50.00</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                             Hoàn thành
                                         </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <button class="text-blue-600 hover:text-blue-900">Chi tiết</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Profile Section -->
-            <div x-show="activeSection === 'profile'" class="bg-white rounded-lg shadow p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold">Hồ sơ cửa hàng</h2>
-                    <button @click="isEditingProfile = !isEditingProfile" 
-                            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                        <i :class="isEditingProfile ? 'fas fa-times' : 'fas fa-edit'" class="mr-2"></i>
-                        <span x-text="isEditingProfile ? 'Hủy' : 'Chỉnh sửa'"></span>
-                    </button>
-                </div>
-                <form @submit.prevent="saveProfile" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Tên cửa hàng</label>
-                            <input type="text" x-model="shopProfile.name" 
-                                   :disabled="!isEditingProfile"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Địa chỉ</label>
-                            <input type="text" x-model="shopProfile.address"
-                                   :disabled="!isEditingProfile"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Giờ hoạt động</label>
-                        <div class="mt-1 grid grid-cols-2 gap-4">
-                            <input type="time" x-model="shopProfile.openTime"
-                                   :disabled="!isEditingProfile"
-                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            <input type="time" x-model="shopProfile.closeTime"
-                                   :disabled="!isEditingProfile"
-                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Dịch vụ cung cấp</label>
-                        <div class="mt-2 space-y-2">
-                            <template x-for="service in services" :key="service.id">
-                                <label class="inline-flex items-center">
-                                    <input type="checkbox" 
-                                           :disabled="!isEditingProfile"
-                                           :checked="shopProfile.services.includes(service.name)"
-                                           @change="isEditingProfile && (shopProfile.services.includes(service.name) ? 
-                                                shopProfile.services = shopProfile.services.filter(s => s !== service.name) : 
-                                                shopProfile.services.push(service.name))"
-                                           class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                    <span class="ml-2" x-text="service.name"></span>
-                                </label>
-                            </template>
-                        </div>
-                    </div>
-                    <div class="flex justify-end" x-show="isEditingProfile">
-                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                            Lưu thay đổi
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Staff Section -->
-            <div x-show="activeSection === 'staff'" class="bg-white rounded-lg shadow p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold">Quản lý nhân viên</h2>
-                    <button @click="showStaffModal = true" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                        <i class="fas fa-plus mr-2"></i>Thêm nhân viên
-                    </button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tên</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Số điện thoại</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vai trò</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            <template x-for="staffMember in staff" :key="staffMember.id">
-                                <tr>
-                                    <td class="px-6 py-4" x-text="staffMember.name"></td>
-                                    <td class="px-6 py-4" x-text="staffMember.email"></td>
-                                    <td class="px-6 py-4" x-text="staffMember.phone"></td>
-                                    <td class="px-6 py-4" x-text="staffMember.role"></td>
-                                    <td class="px-6 py-4">
-                                        <button @click="editStaff(staffMember)" class="text-blue-600 hover:text-blue-900 mr-3">Sửa</button>
-                                        <button @click="deleteStaff(staffMember.id)" class="text-red-600 hover:text-red-900">Xóa</button>
-                                    </td>
-                                </tr>
-                            </template>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <button class="text-blue-600 hover:text-blue-900">Chi tiết</button>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
 
-                <!-- Staff Modal -->
-                <div x-show="showStaffModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-                    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                        <div class="mt-3">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">
-                                <span x-text="editingStaff ? 'Chỉnh sửa nhân viên' : 'Thêm nhân viên mới'"></span>
-                            </h3>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Tên</label>
-                                    <input type="text" 
-                                           x-model="editingStaff ? editingStaff.name : newStaff.name"
-                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Email</label>
-                                    <input type="email" 
-                                           x-model="editingStaff ? editingStaff.email : newStaff.email"
-                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Số điện thoại</label>
-                                    <input type="tel" 
-                                           x-model="editingStaff ? editingStaff.phone : newStaff.phone"
-                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Vai trò</label>
-                                    <input type="text" 
-                                           x-model="editingStaff ? editingStaff.role : newStaff.role"
-                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                </div>
-                            </div>
-                            <div class="mt-5 flex justify-end space-x-3">
-                                <button @click="showStaffModal = false" 
-                                        class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300">
-                                    Hủy
-                                </button>
-                                <button @click="editingStaff ? updateStaff() : addStaff()"
-                                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                                    <span x-text="editingStaff ? 'Cập nhật' : 'Thêm'"></span>
-                                </button>
-                            </div>
-                        </div>
+        <!-- Profile Section -->
+        <div x-show="activeSection === 'profile'" class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Hồ sơ cửa hàng</h2>
+                <button @click="isEditingProfile = !isEditingProfile"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                    <i :class="isEditingProfile ? 'fas fa-times' : 'fas fa-edit'" class="mr-2"></i>
+                    <span x-text="isEditingProfile ? 'Hủy' : 'Chỉnh sửa'"></span>
+                </button>
+            </div>
+            <form @submit.prevent="saveProfile" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Tên cửa hàng</label>
+                        <input type="text" x-model="shopProfile.shopName"
+                               :disabled="!isEditingProfile"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Địa chỉ</label>
+                        <input type="text" x-model="shopProfile.location"
+                               :disabled="!isEditingProfile"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                     </div>
                 </div>
-            </div>
-
-            <!-- Services Section -->
-            <div x-show="activeSection === 'services'" class="bg-white rounded-lg shadow p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold">Dịch vụ & Bảng giá</h2>
-                    <button @click="showServiceModal = true" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                        <i class="fas fa-plus mr-2"></i>Thêm dịch vụ
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Giờ hoạt động</label>
+                    <div class="mt-1 grid grid-cols-2 gap-4">
+                        <input type="time" x-model="shopProfile.openTime"
+                               :disabled="!isEditingProfile"
+                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <input type="time" x-model="shopProfile.closeTime"
+                               :disabled="!isEditingProfile"
+                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Dịch vụ cung cấp</label>
+                    <div class="mt-2 space-y-2">
+                        <template x-for="service in services" :key="service.id">
+                            <label class="inline-flex items-center">
+                                <input type="checkbox"
+                                       :disabled="!isEditingProfile"
+                                       :checked="shopProfile.services.includes(service.serviceName)"
+                                       @change="isEditingProfile && (shopProfile.services.includes(service.serviceName) ?
+                                                shopProfile.services = shopProfile.services.filter(s => s !== service.serviceName) :
+                                                shopProfile.services.push(service.serviceName))"
+                                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <span class="ml-2" x-text="service.serviceName"></span>
+                            </label>
+                        </template>
+                    </div>
+                </div>
+                <div class="flex justify-end" x-show="isEditingProfile">
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                        <i class="fas fa-save mr-2"></i>Lưu thay đổi
                     </button>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <template x-for="service in services" :key="service.id">
-                        <div class="border rounded-lg p-4">
-                            <h3 class="text-lg font-semibold mb-2" x-text="service.name"></h3>
-                            <p class="text-gray-600 mb-4" x-text="service.description"></p>
-                            <div class="flex justify-between items-center">
-                                <span class="text-xl font-bold" x-text="service.price.toLocaleString() + 'đ/kg'"></span>
-                                <div>
-                                    <button @click="editService(service)" class="text-blue-600 hover:text-blue-900 mr-3">Sửa</button>
-                                    <button @click="deleteService(service.id)" class="text-red-600 hover:text-red-900">Xóa</button>
-                                </div>
+            </form>
+        </div>
+
+        <!-- Staff Section -->
+        <div x-show="activeSection === 'staff'" class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Quản lý nhân viên</h2>
+                <button @click="showStaffModal = true" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                    <i class="fas fa-plus mr-2"></i>Thêm nhân viên
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="py-2 px-4 border-b">Tên</th>
+                            <th class="py-2 px-4 border-b">Email</th>
+                            <th class="py-2 px-4 border-b">Số điện thoại</th>
+                            <th class="py-2 px-4 border-b">Vai trò</th>
+                            <th class="py-2 px-4 border-b">Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="member in staff" :key="member.id">
+                            <tr>
+                                <td class="py-2 px-4 border-b" x-text="member.fullName"></td>
+                                <td class="py-2 px-4 border-b" x-text="member.email"></td>
+                                <td class="py-2 px-4 border-b" x-text="member.phone"></td>
+                                <td class="py-2 px-4 border-b" x-text="member.role"></td>
+                                <td class="py-2 px-4 border-b">
+                                    <button @click="editStaff(member)" class="bg-blue-500 text-white px-2 py-1 rounded mr-2">Sửa</button>
+                                    <button @click="deleteStaff(member.id)" class="bg-red-500 text-white px-2 py-1 rounded">Xóa</button>
+                            </td>
+                        </tr>
+                    </template>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Staff Modal -->
+            <div x-show="showStaffModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+                <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                    <div class="mt-3">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">
+                            <span x-text="editingStaff ? 'Chỉnh sửa nhân viên' : 'Thêm nhân viên mới'"></span>
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Tên</label>
+                                <input type="text"
+                                       x-model="editingStaff ? editingStaff.fullName : newStaff.fullName"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Email</label>
+                                <input type="email"
+                                       x-model="editingStaff ? editingStaff.email : newStaff.email"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Số điện thoại</label>
+                                <input type="tel"
+                                       x-model="editingStaff ? editingStaff.phone : newStaff.phone"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Vai trò</label>
+                                <input type="text"
+                                       x-model="editingStaff ? editingStaff.role : newStaff.role"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                             </div>
                         </div>
-                    </template>
-                </div>
-
-                <!-- Service Modal -->
-                <div x-show="showServiceModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-                    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                        <div class="mt-3">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">
-                                <span x-text="editingService ? 'Chỉnh sửa dịch vụ' : 'Thêm dịch vụ mới'"></span>
-                            </h3>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Tên dịch vụ</label>
-                                    <input type="text" 
-                                           x-model="editingService ? editingService.name : newService.name"
-                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Mô tả</label>
-                                    <textarea 
-                                        x-model="editingService ? editingService.description : newService.description"
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                        rows="3"></textarea>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Giá (đ/kg)</label>
-                                    <input type="number" 
-                                           x-model="editingService ? editingService.price : newService.price"
-                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                </div>
-                            </div>
-                            <div class="mt-5 flex justify-end space-x-3">
-                                <button @click="showServiceModal = false" 
-                                        class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300">
-                                    Hủy
-                                </button>
-                                <button @click="editingService ? updateService() : addService()"
-                                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                                    <span x-text="editingService ? 'Cập nhật' : 'Thêm'"></span>
-                                </button>
-                            </div>
+                        <div class="mt-5 flex justify-end space-x-3">
+                            <button @click="showStaffModal = false"
+                                    class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300">
+                                Hủy
+                            </button>
+                            <button @click="editingStaff ? updateStaff() : addStaff()"
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                                <span x-text="editingStaff ? 'Cập nhật' : 'Thêm'"></span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Orders Section -->
-            <div x-show="activeSection === 'orders'" class="bg-white rounded-lg shadow p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold">Quản lý đơn hàng</h2>
-                    <div class="flex space-x-4">
-                        <select class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            <option>Tất cả trạng thái</option>
-                            <option>Chờ xử lý</option>
-                            <option>Đang xử lý</option>
-                            <option>Hoàn thành</option>
-                            <option>Đã hủy</option>
-                        </select>
-                        <input type="date" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+        <!-- Services Section -->
+        <div x-show="activeSection === 'services'" class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Dịch vụ & Bảng giá</h2>
+                <button @click="showServiceModal = true" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                    <i class="fas fa-plus mr-2"></i>Thêm dịch vụ
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <template x-for="service in services" :key="service.id">
+                    <div class="border rounded-lg p-4">
+                        <h3 class="text-lg font-semibold mb-2" x-text="service.serviceName"></h3>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl font-bold" x-text="formatPrice(service.price) + 'đ/kg'"></span>
+                            <div>
+                                <button @click="editService(service)" class="text-blue-600 hover:text-blue-900 mr-3">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </button>
+                                <button @click="deleteService(service.id)" class="text-red-600 hover:text-red-900">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Modal dịch vụ -->
+            <div x-show="showServiceModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                    <div class="mt-3">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">
+                            <span x-text="editingService ? 'Chỉnh sửa dịch vụ' : 'Thêm dịch vụ mới'"></span>
+                        </h3>
+                        <form @submit.prevent="editingService ? updateService() : addService()" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Tên dịch vụ</label>
+                                <input type="text"
+                                       x-model="editingService ? editingService.serviceName : newService.serviceName"
+                                       required
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Giá (đ/kg)</label>
+                                <input type="number"
+                                       x-model="editingService ? editingService.price : newService.price"
+                                       required
+                                       min="0"
+                                       step="1000"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                        <div class="mt-5 flex justify-end space-x-3">
+                                <button type="button" @click="showServiceModal = false"
+                                    class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300">
+                                Hủy
+                            </button>
+                                <button type="submit"
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                                <span x-text="editingService ? 'Cập nhật' : 'Thêm'"></span>
+                            </button>
+                        </div>
+                        </form>
                     </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mã đơn</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Khách hàng</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Dịch vụ</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tổng tiền</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ngày tạo</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            <tr>
-                                <td class="px-6 py-4">#12345</td>
-                                <td class="px-6 py-4">Nguyễn Văn A</td>
-                                <td class="px-6 py-4">Giặt & Ủi</td>
-                                <td class="px-6 py-4">150.000đ</td>
-                                <td class="px-6 py-4">2024-03-20</td>
-                                <td class="px-6 py-4">
+            </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div x-show="activeSection === 'orders'" class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Quản lý đơn hàng</h2>
+                <div class="flex space-x-4">
+                    <select class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option>Tất cả trạng thái</option>
+                        <option>Chờ xử lý</option>
+                        <option>Đang xử lý</option>
+                        <option>Hoàn thành</option>
+                        <option>Đã hủy</option>
+                    </select>
+                    <input type="date" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mã đơn</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Khách hàng</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Dịch vụ</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tổng tiền</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ngày tạo</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                    <tr>
+                        <td class="px-6 py-4">#12345</td>
+                        <td class="px-6 py-4">Nguyễn Văn A</td>
+                        <td class="px-6 py-4">Giặt & Ủi</td>
+                        <td class="px-6 py-4">150.000đ</td>
+                        <td class="px-6 py-4">2024-03-20</td>
+                        <td class="px-6 py-4">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                         Hoàn thành
                                     </span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <button class="text-blue-600 hover:text-blue-900">Chi tiết</button>
-                                </td>
-                            </tr>
+                        </td>
+                        <td class="px-6 py-4">
+                            <button class="text-blue-600 hover:text-blue-900">Chi tiết</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div x-show="activeSection === 'reports'" class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-2xl font-semibold mb-6">Báo cáo & Thống kê</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Doanh thu theo tháng</h3>
+                    <canvas id="monthlyRevenueChart"></canvas>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Top dịch vụ bán chạy</h3>
+                    <canvas id="topServicesChart"></canvas>
+                </div>
+            </div>
+            <div class="mt-6">
+                <h3 class="text-lg font-semibold mb-4">Báo cáo chi tiết</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thời gian</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Doanh thu</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Số đơn</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Khách hàng mới</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4">Tháng 3/2024</td>
+                            <td class="px-6 py-4">15.000.000đ</td>
+                            <td class="px-6 py-4">150</td>
+                            <td class="px-6 py-4">25</td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+        </div>
+    </main>
+</div>
 
-            <!-- Reports Section -->
-            <div x-show="activeSection === 'reports'" class="bg-white rounded-lg shadow p-6">
-                <h2 class="text-2xl font-semibold mb-6">Báo cáo & Thống kê</h2>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div>
-                        <h3 class="text-lg font-semibold mb-4">Doanh thu theo tháng</h3>
-                        <canvas id="monthlyRevenueChart"></canvas>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-semibold mb-4">Top dịch vụ bán chạy</h3>
-                        <canvas id="topServicesChart"></canvas>
-                    </div>
-                </div>
-                <div class="mt-6">
-                    <h3 class="text-lg font-semibold mb-4">Báo cáo chi tiết</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thời gian</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Doanh thu</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Số đơn</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Khách hàng mới</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                <tr>
-                                    <td class="px-6 py-4">Tháng 3/2024</td>
-                                    <td class="px-6 py-4">15.000.000đ</td>
-                                    <td class="px-6 py-4">150</td>
-                                    <td class="px-6 py-4">25</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-    
-    <script>
-        // Revenue Chart
-        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-        new Chart(revenueCtx, {
-            type: 'line',
-            data: {
-                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
-                datasets: [{
-                    label: 'Doanh thu',
-                    data: [12000, 19000, 15000, 25000, 22000, 30000, 28000, 32000, 35000, 38000, 42000, 45000],
-                    borderColor: 'rgb(59, 130, 246)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                }
-            }
-        });
+<script th:inline="javascript">
+// Hàm quản lý dịch vụ
+function formatPrice(price) {
+    return new Intl.NumberFormat('vi-VN').format(price);
+}
 
-        // Services Chart
-        const servicesCtx = document.getElementById('servicesChart').getContext('2d');
-        new Chart(servicesCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Giặt & Ủi', 'Giặt khô', 'Ủi', 'Sửa chữa'],
-                datasets: [{
-                    data: [40, 25, 20, 15],
-                    backgroundColor: [
-                        'rgb(59, 130, 246)',
-                        'rgb(16, 185, 129)',
-                        'rgb(245, 158, 11)',
-                        'rgb(139, 92, 246)'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                }
-            }
-        });
+async function loadServices() {
+    try {
+        console.log('Đang tải danh sách dịch vụ...');
+        const response = await fetch('/api/services');
+        console.log('Trạng thái phản hồi:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Phản hồi lỗi:', errorText);
+            throw new Error(`Không thể tải danh sách dịch vụ: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('Danh sách dịch vụ đã tải:', data);
+        services = data;
+    } catch (error) {
+        console.error('Lỗi khi tải danh sách dịch vụ:', error);
+        alert('Không thể tải danh sách dịch vụ: ' + error.message);
+    }
+}
 
-        // Monthly Revenue Chart
-        const monthlyRevenueCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
-        new Chart(monthlyRevenueCtx, {
-            type: 'bar',
-            data: {
-                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
-                datasets: [{
-                    label: 'Doanh thu',
-                    data: [12000000, 19000000, 15000000, 25000000, 22000000, 30000000, 28000000, 32000000, 35000000, 38000000, 42000000, 45000000],
-                    backgroundColor: 'rgb(59, 130, 246)',
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                }
-            }
-        });
-
-        // Top Services Chart
-        const topServicesCtx = document.getElementById('topServicesChart').getContext('2d');
-        new Chart(topServicesCtx, {
-            type: 'pie',
-            data: {
-                labels: ['Giặt & Ủi', 'Giặt khô', 'Ủi', 'Sửa chữa'],
-                datasets: [{
-                    data: [40, 25, 20, 15],
-                    backgroundColor: [
-                        'rgb(59, 130, 246)',
-                        'rgb(16, 185, 129)',
-                        'rgb(245, 158, 11)',
-                        'rgb(139, 92, 246)'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                }
-            }
-        });
-    </script>
+// Khởi tạo danh sách dịch vụ khi trang được tải
+document.addEventListener('DOMContentLoaded', function() {
+    loadServices();
+    });
+</script>
 </body>
 </html>

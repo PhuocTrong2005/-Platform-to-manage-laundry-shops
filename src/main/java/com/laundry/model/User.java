@@ -27,8 +27,7 @@ public class User {
     private String role;
     
     @Column(name = "CreatedAt")
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime CreatedAt;
+    private LocalDateTime createdAt;
 
 
     // Getters and Setters
@@ -81,10 +80,10 @@ public class User {
     }
 
     public LocalDateTime getCreatedAt() {
-        return CreatedAt;
+        return createdAt;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
-        this.CreatedAt = CreatedAt;
+        this.createdAt = createdAt;
     }
 }

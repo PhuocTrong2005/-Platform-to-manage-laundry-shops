@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class customerController {
     
     @RequestMapping("/customer")
-    public String customer() {
+    public String customer() {  
         return "admin/customer";
     }
 }

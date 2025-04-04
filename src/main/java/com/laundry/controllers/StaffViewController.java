@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/staff")
-public class StaffController {
+public class StaffViewController {
 
     @Autowired
     private UserService userService;
