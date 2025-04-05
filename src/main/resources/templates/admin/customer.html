@@ -1,14 +1,88 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PMLS - Khách hàng</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Thư viện chính cần tải trước -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stomp-websocket@2.3.4/lib/stomp.min.js"></script>
+    
+    <!-- Script ứng dụng - đảm bảo tải theo thứ tự đúng -->
+    <script>
+    // Cấu hình ứng dụng
+    window.laundryConfig = {
+        simulationMode: true,  // Bật chế độ giả lập khi API chưa hoàn thiện
+        debug: false           // Cấu hình debug
+    };
+    </script>
+    <script src="/js/orderManager.js"></script>
+    
+    <script>
+        // Đảm bảo OrderManager được khởi tạo khi trang tải xong
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.orderManager && typeof window.orderManager.init === 'function') {
+                console.log('Khởi tạo OrderManager...');
+                window.orderManager.init();
+            } else {
+                console.error('Không tìm thấy OrderManager!');
+            }
+        });
+    </script>
+    
     <script src="/js/customer.js" defer></script>
+    <script src="/js/reviewManager.js" defer></script>
     <link rel="stylesheet" th:href="@{css/styleCustomer.css}">
+    <link rel="stylesheet" href="/css/chat.css">
+    <style>
+        [x-cloak] { display: none !important; }
+        /* Cart sidebar animation */
+        .cart-sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        /* Service tag hover effect */
+        .service-tag {
+            transition: all 0.2s ease;
+        }
+        
+        .service-tag:hover {
+            transform: scale(1.1);
+            background-color: #E5E7EB;
+        }
+        
+        /* Shop card hover effect */
+        .shop-card {
+            transition: all 0.3s ease;
+        }
+        
+        .shop-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        /* Cart badge */
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #EF4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body class="bg-gray-100" x-data="{ 
     activeTab: 'search',
@@ -21,39 +95,131 @@
     cartOpen: false,
     selectedDate: '',
     selectedTime: '',
+    loyaltyPoints: 1250,
+    loyaltyTier: 'Bạc',
     orders: [
         { 
-            id: '12345', 
+            id: 'ORD12345', 
             status: 'Đang xử lý', 
-            date: '2024-03-20', 
-            total: '150.000đ', 
-            items: ['Giặt & Ủi', 'Giặt khô'],
+            date: '2024-04-01', 
+            total: '150.000 ₫', 
+            items: ['Giặt ủi thường', 'Giặt nhanh'],
             tracking: {
-                current: 'Đang giặt',
+                current: 'Đang xử lý',
                 history: [
-                    { status: 'Chờ xác nhận', time: '10:00' },
-                    { status: 'Đã xác nhận', time: '10:30' },
-                    { status: 'Đang giặt', time: '11:00' }
+                    { status: 'Đã tiếp nhận', time: '10:30' },
+                    { status: 'Đang xử lý', time: '11:15' }
+                ]
+            }
+        },
+        {
+            id: 'ORD12346',
+            date: '2024-03-28',
+            status: 'Hoàn thành',
+            total: '250.000 ₫',
+            items: ['Giặt khô', 'Giặt đồ da'],
+            tracking: {
+                current: 'Hoàn thành',
+                history: [
+                    { status: 'Đã tiếp nhận', time: '09:15' },
+                    { status: 'Đang xử lý', time: '10:30' },
+                    { status: 'Đang giao', time: '15:45' },
+                    { status: 'Hoàn thành', time: '17:20' }
                 ]
             }
         }
     ],
-    reviews: [
-        { 
-            shop: 'Cửa hàng A', 
-            rating: 5, 
-            comment: 'Dịch vụ rất tốt!', 
-            date: '2024-03-19',
-            images: ['https://via.placeholder.com/150']
-        }
-    ],
-    loyaltyPoints: 500,
-    loyaltyTier: 'Silver',
+    reviews: [],
     chatOpen: false,
     notifications: [
         { id: 1, title: 'Đơn hàng #12345 đang được xử lý', time: '5 phút trước' },
         { id: 2, title: 'Bạn đã nhận được 50 điểm thưởng', time: '1 giờ trước' }
-    ]
+    ],
+    user: null,
+    newReview: {
+        rating: 0,
+        comment: '',
+        shopId: null,
+        customerId: null
+    },
+    init() {
+        // Lấy thông tin người dùng từ localStorage
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            try {
+                this.user = JSON.parse(userData);
+            } catch (error) {
+                console.error('Lỗi khi parse dữ liệu user:', error);
+                this.user = null;
+            }
+        }
+        
+        // Lấy trạng thái giỏ hàng từ orderManager
+        this.syncCartWithOrderManager();
+        
+        // Xử lý toggle giỏ hàng
+        this.$watch('cartOpen', (value) => {
+            const cartSidebar = document.querySelector('.cart-sidebar');
+            if (cartSidebar) {
+                if (value) {
+                    cartSidebar.classList.remove('translate-x-full');
+                } else {
+                    cartSidebar.classList.add('translate-x-full');
+                }
+            }
+        });
+        
+        // Thiết lập event listeners
+        const closeCartBtn = document.getElementById('close-cart-btn');
+        if (closeCartBtn) {
+            closeCartBtn.addEventListener('click', () => {
+                this.cartOpen = false;
+            });
+        }
+
+        // Khởi tạo shopId cho review nếu có
+        const urlParams = new URLSearchParams(window.location.search);
+        const shopId = urlParams.get('shopId');
+        if (shopId) {
+            this.newReview.shopId = parseInt(shopId);
+        }
+
+        // Khởi tạo customerId nếu user đã đăng nhập
+        if (this.user) {
+            this.newReview.customerId = this.user.userId;
+        }
+
+        if (window.customerManager) {
+            window.customerManager.init();
+        }
+    },
+    handleImageUpload(event) {
+        // Xử lý upload ảnh
+        console.log('Image upload:', event.target.files);
+    },
+    submitReview() {
+        if (window.reviewManager) {
+            window.reviewManager.submitReview(this.newReview);
+        }
+    },
+    // Đồng bộ giỏ hàng với orderManager
+    syncCartWithOrderManager() {
+        if (window.orderManager && window.orderManager.orderData) {
+            this.cart = [...window.orderManager.orderData.cart];
+        }
+    },
+    // Hiển thị tổng tiền giỏ hàng
+    cartTotal() {
+        return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    },
+    // Định dạng giá tiền
+    formatPrice(price) {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+            maximumFractionDigits: 0
+        }).format(price);
+    }
 }">
     <!-- Sidebar -->
     <div class="fixed inset-y-0 left-0 bg-[#1F2937] text-white w-64 transform transition-transform duration-300 ease-in-out z-50"
@@ -65,7 +231,7 @@
                         <button @click="open = !open" class="flex items-center space-x-4">
                             <img src="https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg"
                                  alt="Logo" class="w-10 h-10 rounded-full">
-                            <h1 class="text-xl font-semibold">PMLS</h1>
+                            <h1 class="text-xl font-semibold" id="user-logo">PMLS</h1>
                         </button>
                         <div x-show="open" @click.away="open = false"
                              class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
@@ -129,6 +295,11 @@
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="flex items-center space-x-4">
+                    <!-- Welcome Message -->
+                    <div class="text-gray-700 hidden md:block">
+                        <span>Xin chào, </span>
+                        <span id="welcome-name" class="font-semibold" x-text="user ? user.fullName : 'Khách'"></span>
+                    </div>
                     <!-- Cart Button -->
                     <div class="relative">
                         <button @click="cartOpen = !cartOpen" class="text-gray-600 hover:text-gray-800">
@@ -150,75 +321,43 @@
         <!-- Content -->
         <main class="container mx-auto px-4 py-8">
             <!-- Search Section -->
-            <div x-show="activeTab === 'search'" class="bg-white rounded-lg shadow p-6">
-                <div class="mb-6">
-                    <h2 class="text-2xl font-semibold mb-4">Tìm kiếm cửa hàng</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Từ khóa</label>
-                            <input type="text" x-model="searchQuery"
-                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                   placeholder="Tên cửa hàng...">
+            <div x-show="activeTab === 'search'" class="p-4">
+                <h2 class="text-xl font-bold mb-4">Tìm kiếm cửa hàng</h2>
+                
+                <div class="bg-white p-4 rounded-lg shadow mb-6">
+                    <div class="flex flex-col md:flex-row gap-4 mb-4">
+                        <div class="flex-grow">
+                            <input id="shop-search" type="text" placeholder="Tìm theo tên, địa chỉ hoặc dịch vụ..." 
+                                class="w-full p-2 border rounded" 
+                                oninput="customerManager.filterShops()">
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Địa điểm</label>
-                            <input type="text" x-model="location"
-                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                   placeholder="Quận/Huyện...">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Đánh giá</label>
-                            <select x-model="rating"
-                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="">Tất cả</option>
-                                <option value="5">5 sao</option>
-                                <option value="4">4 sao trở lên</option>
-                                <option value="3">3 sao trở lên</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Dịch vụ</label>
-                            <select x-model="service"
-                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="">Tất cả</option>
-                                <option value="washing">Giặt & Ủi</option>
-                                <option value="dry">Giặt khô</option>
-                                <option value="iron">Ủi</option>
+                        <div class="w-full md:w-1/3">
+                            <select id="service-filter" class="w-full p-2 border rounded"
+                                onchange="customerManager.filterShops()">
+                                <option value="">Tất cả dịch vụ</option>
+                                <option value="Giặt ủi thường">Giặt ủi thường</option>
+                                <option value="Giặt khô">Giặt khô</option>
+                                <option value="Giặt nhanh">Giặt nhanh</option>
+                                <option value="Giặt đồ da">Giặt đồ da</option>
+                                <option value="Giặt màn cửa">Giặt màn cửa</option>
                             </select>
                         </div>
                     </div>
-                    <button class="mt-4 bg-[#1F2937] text-white px-6 py-2 rounded-md hover:bg-gray-800">
-                        <i class="fas fa-search mr-2"></i>Tìm kiếm
-                    </button>
                 </div>
 
-                <!-- Search Results -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Shop Card 1 -->
-                    <div class="shop-card border rounded-lg overflow-hidden shadow-md">
-                        <img th:src="@{img/Shop A.jpg}" alt="Shop" class="w-full h-48 object-cover">
-                        <div class="p-4">
-                            <h3 class="text-lg font-semibold mb-2">Cửa hàng giặt ủi A</h3>
-                            <p class="text-gray-600 mb-2"><i class="fas fa-map-marker-alt mr-2"></i>123 Đường ABC, Quận 1</p>
-                            <div class="flex items-center mb-2">
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <span class="ml-1">4.8 (120 đánh giá)</span>
-                            </div>
-                            <div class="flex flex-wrap gap-2 mb-4">
-                                <span class="service-tag bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Giặt & Ủi</span>
-                                <span class="service-tag bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Giặt khô</span>
-                                <span class="service-tag bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Ủi</span>
-                            </div>
-                            <button class="btn-hover w-full bg-[#1F2937] text-white py-2 rounded-md hover:bg-gray-800">
-                                Xem chi tiết
-                            </button>
-                        </div>
+                <!-- Danh sách cửa hàng -->
+                <div id="shops-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Shop cards sẽ được thêm vào đây bởi JavaScript -->
+                    <div class="text-center p-8 text-gray-500">
+                        <i class="fas fa-spinner fa-pulse text-3xl mb-2"></i>
+                        <p>Đang tải danh sách cửa hàng...</p>
                     </div>
                 </div>
             </div>
 
             <!-- Orders Section -->
-            <div x-show="activeTab === 'orders'" class="bg-white rounded-lg shadow p-6">
+            <div x-show="activeTab === 'orders'" x-cloak class="space-y-6">
+                <div class="bg-white rounded-lg shadow p-6">
                 <h2 class="text-2xl font-semibold mb-6">Đơn hàng của tôi</h2>
                 <div class="space-y-4">
                     <template x-for="order in orders" :key="order.id">
@@ -268,11 +407,13 @@
                             </div>
                         </div>
                     </template>
+                    </div>
                 </div>
             </div>
 
             <!-- History Section -->
-            <div x-show="activeTab === 'history'" class="bg-white rounded-lg shadow p-6">
+            <div x-show="activeTab === 'history'" x-cloak class="space-y-6">
+                <div class="bg-white rounded-lg shadow p-6">
                 <h2 class="text-2xl font-semibold mb-6">Lịch sử giao dịch</h2>
                 <div class="overflow-x-auto">
                     <table class="w-full">
@@ -299,103 +440,87 @@
                             </tr>
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
 
             <!-- Reviews Section -->
-            <div x-show="activeTab === 'reviews'" class="bg-white rounded-lg shadow p-6">
+            <div x-show="activeTab === 'reviews'" x-cloak class="space-y-6">
+                <div class="bg-white rounded-lg shadow p-6">
                 <h2 class="text-2xl font-semibold mb-6">Đánh giá của tôi</h2>
-                <div class="space-y-4">
-                    <template x-for="review in reviews" :key="review.shop">
-                        <div class="review-card border rounded-lg p-4 shadow-sm">
-                            <div class="flex justify-between items-start mb-4">
+                    
+                    <!-- Review Form -->
+                    <div class="mb-6 p-4 border rounded-lg">
+                        <h3 class="text-lg font-medium mb-4">Viết đánh giá mới</h3>
+                        <form @submit.prevent="submitReview" class="space-y-4">
                                 <div>
-                                    <h3 class="font-semibold" x-text="review.shop"></h3>
-                                    <p class="text-gray-600">Ngày đánh giá: <span x-text="review.date"></span></p>
-                                </div>
-                                <div class="flex items-center">
+                                <label class="block text-sm font-medium text-gray-700">Đánh giá</label>
+                                <div class="flex items-center mt-1">
                                     <template x-for="i in 5" :key="i">
-                                        <i class="fas fa-star"
-                                           :class="i <= review.rating ? 'text-yellow-400' : 'text-gray-300'"></i>
+                                        <button type="button" @click="newReview.rating = i"
+                                                class="text-2xl focus:outline-none"
+                                                :class="i <= newReview.rating ? 'text-yellow-400' : 'text-gray-300'">
+                                            <i class="fas fa-star"></i>
+                                        </button>
                                     </template>
                                 </div>
                             </div>
-                            <p class="text-gray-700" x-text="review.comment"></p>
-                            <!-- Review Images -->
-                            <div class="mt-4 flex gap-2">
-                                <template x-for="(image, index) in review.images" :key="index">
-                                    <img :src="image" alt="Review" class="w-24 h-24 object-cover rounded">
-                                </template>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Nhận xét</label>
+                                <textarea x-model="newReview.comment"
+                                          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                          rows="3"
+                                          placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
                             </div>
-                            <div class="mt-4 flex justify-end space-x-4">
-                                <button class="btn-hover text-blue-600 hover:text-blue-800">
-                                    <i class="fas fa-edit mr-1"></i>Sửa
-                                </button>
-                                <button class="btn-hover text-red-600 hover:text-red-800">
-                                    <i class="fas fa-trash mr-1"></i>Xóa
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Hình ảnh</label>
+                                <input type="file" multiple
+                                       @change="handleImageUpload"
+                                       class="mt-1 block w-full text-sm text-gray-500
+                                              file:mr-4 file:py-2 file:px-4
+                                              file:rounded-md file:border-0
+                                              file:text-sm file:font-semibold
+                                              file:bg-blue-50 file:text-blue-700
+                                              hover:file:bg-blue-100">
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit"
+                                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                                    <i class="fas fa-paper-plane mr-2"></i>Gửi đánh giá
                                 </button>
                             </div>
+                        </form>
+                    </div>
+
+                    <!-- Reviews Container -->
+                    <div class="reviews-container space-y-4">
+                        <!-- Reviews will be rendered here by JavaScript -->
                         </div>
-                    </template>
                 </div>
             </div>
 
-            <!-- Loyalty Program Section -->
-            <div x-show="activeTab === 'loyalty'" class="bg-white rounded-lg shadow p-6">
+            <!-- Loyalty Section -->
+            <div x-show="activeTab === 'loyalty'" x-cloak class="space-y-6">
+                <div class="bg-white rounded-lg shadow p-6">
                 <h2 class="text-2xl font-semibold mb-6">Chương trình thành viên</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Current Status -->
-                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-6">
-                        <h3 class="text-xl font-semibold mb-4">Trạng thái hiện tại</h3>
-                        <div class="flex items-center space-x-4">
-                            <i class="fas fa-crown text-3xl"></i>
-                            <div>
-                                <p class="text-2xl font-bold" x-text="loyaltyTier"></p>
-                                <p class="text-sm opacity-75">Cấp độ thành viên</p>
-                            </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white">
+                            <h3 class="text-lg font-semibold mb-2">Điểm thưởng</h3>
+                            <p class="text-3xl font-bold" x-text="loyaltyPoints"></p>
+                            <p class="mt-2">Hạng thành viên: <span x-text="loyaltyTier"></span></p>
                         </div>
-                        <div class="mt-6">
-                            <p class="text-2xl font-bold" x-text="loyaltyPoints"></p>
-                            <p class="text-sm opacity-75">Điểm tích lũy</p>
-                        </div>
-                    </div>
-                    <!-- Benefits -->
-                    <div class="bg-gray-50 rounded-lg p-6">
-                        <h3 class="text-xl font-semibold mb-4">Quyền lợi</h3>
+                        <div class="bg-white border rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-4">Ưu đãi hiện có</h3>
             <ul class="space-y-2">
                             <li class="flex items-center">
-                                <i class="fas fa-check text-green-500 mr-2"></i>
-                                Giảm giá 5% cho mọi đơn hàng
+                                    <i class="fas fa-gift text-blue-500 mr-2"></i>
+                                    <span>Giảm 10% cho đơn hàng tiếp theo</span>
                             </li>
                             <li class="flex items-center">
-                                <i class="fas fa-check text-green-500 mr-2"></i>
-                                Ưu tiên xử lý đơn hàng
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-green-500 mr-2"></i>
-                                Tích điểm nhanh hơn
+                                    <i class="fas fa-percentage text-blue-500 mr-2"></i>
+                                    <span>Tích điểm x2 trong tháng sinh nhật</span>
                             </li>
             </ul>
-          </div>
-                    <!-- Progress -->
-                    <div class="bg-gray-50 rounded-lg p-6">
-                        <h3 class="text-xl font-semibold mb-4">Tiến độ</h3>
-                        <div class="relative pt-1">
-                            <div class="flex mb-2 items-center justify-between">
-                                <div>
-                                    <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-blue-600 bg-blue-200">
-                                        Tiến độ
-                                    </span>
-                                </div>
-                                <div class="text-right">
-                                    <span class="text-xs font-semibold inline-block text-blue-600">
-                                        50%
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-blue-200">
-                                <div style="width:50%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"></div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -404,76 +529,326 @@
     </div>
 
     <!-- Cart Sidebar -->
-    <div x-show="cartOpen"
-         class="fixed inset-y-0 right-0 w-96 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50">
-        <div class="p-4">
-            <div class="flex justify-between items-center mb-4">
+    <div class="cart-sidebar fixed right-0 top-0 h-full w-80 bg-white shadow-lg transform translate-x-full transition-transform duration-300 z-50">
+        <div class="h-full flex flex-col">
+            <div class="p-4 border-b flex justify-between items-center">
                 <h3 class="text-lg font-semibold">Giỏ hàng</h3>
-                <button @click="cartOpen = false" class="text-gray-500 hover:text-gray-700">
+                <button id="close-cart-btn" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="space-y-4">
-                <template x-for="item in cart" :key="item.id">
-                    <div class="flex justify-between items-center">
-          <div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-4" id="cart-items">
+                <!-- Cart items will be rendered here dynamically -->
+                <template x-for="item in cart" :key="item.id + '-' + item.shopId">
+                    <div class="border rounded p-3 relative">
+                        <button @click="orderManager.removeFromCart(item.id, item.shopId)" 
+                                class="absolute top-2 right-2 text-gray-400 hover:text-red-500">
+                            <i class="fas fa-times"></i>
+                        </button>
                             <p class="font-medium" x-text="item.name"></p>
-                            <p class="text-sm text-gray-500" x-text="item.price"></p>
+                        <p class="text-sm text-gray-500" x-text="'Shop: ' + item.shopName"></p>
+                        <div class="flex justify-between items-center mt-2">
+                            <div class="flex items-center">
+                                <button @click="item.quantity > 1 ? orderManager.updateCartItemQuantity(item.id, item.shopId, item.quantity - 1) : null" 
+                                        class="w-8 h-8 border rounded-l flex items-center justify-center bg-gray-100">-</button>
+                                <input type="number" min="1" max="20" x-model="item.quantity" 
+                                       @change="orderManager.updateCartItemQuantity(item.id, item.shopId, item.quantity)"
+                                       class="w-10 h-8 border-t border-b text-center">
+                                <button @click="orderManager.updateCartItemQuantity(item.id, item.shopId, item.quantity + 1)" 
+                                        class="w-8 h-8 border rounded-r flex items-center justify-center bg-gray-100">+</button>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <button class="text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <span x-text="item.quantity"></span>
-                            <button class="text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-plus"></i>
-                            </button>
+                            <p class="font-medium" x-text="formatPrice(item.price * item.quantity)"></p>
                         </div>
                     </div>
                 </template>
-            </div>
-            <div class="mt-6 border-t pt-4">
-                <div class="flex justify-between mb-4">
-                    <span class="font-medium">Tổng cộng:</span>
-                    <span class="font-semibold">0đ</span>
+                
+                <div x-show="cart.length === 0" class="text-center py-8 text-gray-500">
+                    <i class="fas fa-shopping-cart text-4xl mb-2"></i>
+                    <p>Giỏ hàng của bạn đang trống</p>
                 </div>
-                <button class="w-full bg-[#1F2937] text-white py-2 rounded-md hover:bg-gray-800">
-                    Tiến hành đặt hàng
+            </div>
+            <div class="p-4 border-t">
+                <div class="mb-4">
+                    <div class="flex justify-between mb-2">
+                        <span>Tổng tiền hàng:</span>
+                        <span x-text="formatPrice(cartTotal())"></span>
+                    </div>
+                    <div class="flex justify-between mb-2">
+                        <span>Phí vận chuyển:</span>
+                        <span x-text="cart.length > 0 ? formatPrice(15000) : '0 ₫'"></span>
+                    </div>
+                    <div class="flex justify-between font-semibold">
+                        <span>Tổng thanh toán:</span>
+                        <span x-text="formatPrice(cartTotal() + (cart.length > 0 ? 15000 : 0))"></span>
+                    </div>
+                </div>
+                <button id="checkout-button" @click="orderManager.showCheckoutForm()" 
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
+                        :disabled="cart.length === 0">
+                    Tiến hành thanh toán
+                </button>
+                <button @click="orderManager.clearCart()" x-show="cart.length > 0" 
+                        class="w-full mt-2 bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 rounded-md">
+                    Xóa giỏ hàng
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Chat Widget -->
-    <div class="chat-widget">
-        <button @click="chatOpen = !chatOpen"
-                class="bg-[#1F2937] text-white rounded-full p-4 shadow-lg hover:bg-gray-800">
-            <i class="fas fa-comments"></i>
+    <!-- Template for Shop Detail Modal -->
+<template id="shop-detail-modal-template">
+    <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center border-b pb-4 mb-4">
+          <h3 class="text-2xl font-semibold shop-name">Tên cửa hàng</h3>
+          <button class="close-shop-modal text-gray-400 hover:text-gray-600">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <div class="mb-3">
+              <span class="text-sm text-gray-500">Địa chỉ:</span>
+              <p class="shop-location">Địa chỉ cửa hàng</p>
+            </div>
+            <div class="mb-3">
+              <span class="text-sm text-gray-500">Giờ hoạt động:</span>
+              <p class="shop-hours">08:00 - 18:00</p>
+            </div>
+            <div class="mb-3">
+              <span class="text-sm text-gray-500">Đánh giá:</span>
+              <div class="flex items-center">
+                <span class="text-yellow-400 mr-1"><i class="fas fa-star"></i></span>
+                <span class="shop-rating">4.5</span>
+                <span class="text-gray-500 ml-1 shop-reviews">(120)</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col justify-between">
+            <div>
+              <span class="text-sm text-gray-500 mb-2 block">Thời gian giao nhận:</span>
+              <div class="flex gap-2 mb-4">
+                <input type="date" id="schedule-date" class="border p-2 rounded">
+                <input type="time" id="schedule-time" class="border p-2 rounded">
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mb-6">
+          <h4 class="text-lg font-medium mb-4">Dịch vụ có sẵn</h4>
+          <div class="space-y-4 services-container">
+            <!-- Services will be added here dynamically -->
+          </div>
+        </div>
+        
+        <div class="border-t pt-4 flex justify-between">
+          <button class="schedule-pickup-btn bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md">
+            <i class="fas fa-calendar-alt mr-1"></i>Đặt lịch hẹn
+          </button>
+          <button class="view-cart-btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+            <i class="fas fa-shopping-cart mr-1"></i>Xem giỏ hàng
+          </button>
+        </div>
+      </div>
+    </div>
+  </template>
+  
+  <!-- Template for Service Item -->
+  <template id="service-item-template">
+    <div class="border p-4 rounded-lg service-item">
+      <div class="flex justify-between items-center mb-2">
+        <h5 class="font-medium service-name">Tên dịch vụ</h5>
+        <span class="font-semibold service-price">150.000 ₫</span>
+      </div>
+      <p class="text-gray-600 text-sm mb-3 service-description">Mô tả dịch vụ</p>
+      <div class="flex justify-between items-center">
+        <div class="flex items-center">
+          <input type="number" class="service-quantity w-16 border rounded p-1 text-center" min="1" max="20" value="1">
+          <span class="ml-2 text-sm text-gray-500">số lượng</span>
+        </div>
+        <button class="add-to-cart-btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+          <i class="fas fa-cart-plus mr-1"></i>Thêm vào giỏ
         </button>
-        <div x-show="chatOpen"
-             class="fixed bottom-20 right-20 w-80 bg-white rounded-lg shadow-lg">
-            <div class="p-4 border-b">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-semibold">Chat với cửa hàng</h3>
-                    <button @click="chatOpen = false" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="p-4 h-64 overflow-y-auto">
-                <!-- Chat messages will go here -->
-            </div>
-            <div class="p-4 border-t">
-                <div class="flex space-x-2">
-                    <input type="text"
-                           class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                           placeholder="Nhập tin nhắn...">
-                    <button class="bg-[#1F2937] text-white px-4 py-2 rounded-md hover:bg-gray-800">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Template for Shop Card -->
+  <template id="shop-card-template">
+    <div class="shop-card bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md">
+      <div class="relative h-40 overflow-hidden">
+        <img src="" alt="" class="shop-image w-full h-full object-cover">
+        <div class="absolute top-2 right-2 bg-white rounded-full p-1 shadow">
+          <div class="flex items-center">
+            <span class="text-yellow-400 mr-1"><i class="fas fa-star"></i></span>
+            <span class="shop-rating font-medium">4.5</span>
+            <span class="text-xs text-gray-500 shop-reviews">(120)</span>
           </div>
         </div>
       </div>
+      <div class="p-4">
+        <h3 class="shop-name text-lg font-semibold mb-1">Tên cửa hàng</h3>
+        <p class="shop-address text-gray-600 text-sm mb-2">Địa chỉ cửa hàng</p>
+        <div class="flex items-center text-gray-500 text-sm mb-3">
+          <i class="far fa-clock mr-1"></i>
+          <span class="shop-hours">08:00 - 20:00</span>
+        </div>
+        <div class="shop-services flex flex-wrap gap-1 mb-3">
+          <!-- Service tags will be added here -->
+        </div>
+        <div class="flex justify-between items-center">
+          <button class="text-blue-600 hover:text-blue-800 text-sm">
+            <i class="fas fa-comment-alt mr-1"></i>Chat
+          </button>
+          <button class="view-shop-btn bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">
+            <i class="fas fa-eye mr-1"></i>Xem dịch vụ
+          </button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <button class="toggle-chat-button bg-[#1F2937] text-white">
+            <i class="fas fa-comments"></i>
+            <span class="chat-unread-badge bg-red-500 text-white hidden">0</span>
+        </button>
+        <div class="chat-container bg-white" style="display: none;">
+            <div class="chat-header bg-[#1F2937] text-white">
+                <div class="chat-title">Chat với cửa hàng</div>
+                <div class="chat-close-button">
+                        <i class="fas fa-times"></i>
+                </div>
+            </div>
+            <div class="chat-messages">
+                <!-- Tin nhắn sẽ được render bởi JavaScript -->
+            </div>
+            <div class="chat-footer">
+                <form class="chat-form">
+                    <input type="text" class="chat-input" placeholder="Nhập tin nhắn...">
+                    <button type="submit" class="chat-send-button bg-[#1F2937] text-white">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+          </div>
+        </div>
+      </div>
+
+    <!-- Các script bổ sung -->
+    <script src="/js/chatManager.js"></script>
+</main>
+</div>
+
+<!-- Alpine.js Data Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Alpine.js data
+    window.Alpine.data('customerApp', () => ({
+        sidebarOpen: false,
+        cartOpen: false,
+        activeTab: 'search',
+        user: null,
+        cart: [],
+        orders: [
+            {
+                id: 'ORD12345',
+                date: '2024-04-01',
+                status: 'Đang xử lý',
+                total: '150.000 ₫',
+                items: ['Giặt ủi thường', 'Giặt nhanh'],
+                tracking: {
+                    current: 'Đang xử lý',
+                    history: [
+                        { status: 'Đã tiếp nhận', time: '10:30' },
+                        { status: 'Đang xử lý', time: '11:15' }
+                    ]
+                }
+            },
+            {
+                id: 'ORD12346',
+                date: '2024-03-28',
+                status: 'Hoàn thành',
+                total: '250.000 ₫',
+                items: ['Giặt khô', 'Giặt đồ da'],
+                tracking: {
+                    current: 'Hoàn thành',
+                    history: [
+                        { status: 'Đã tiếp nhận', time: '09:15' },
+                        { status: 'Đang xử lý', time: '10:30' },
+                        { status: 'Đang giao', time: '15:45' },
+                        { status: 'Hoàn thành', time: '17:20' }
+                    ]
+                }
+            }
+        ],
+        
+        init() {
+            // Lấy thông tin người dùng từ localStorage
+            const userData = localStorage.getItem('user');
+            if (userData) {
+                try {
+                    this.user = JSON.parse(userData);
+                } catch (error) {
+                    console.error('Lỗi khi parse dữ liệu user:', error);
+                    this.user = null;
+                }
+            }
+            
+            // Lấy trạng thái giỏ hàng từ orderManager
+            this.syncCartWithOrderManager();
+            
+            // Xử lý toggle giỏ hàng
+            this.$watch('cartOpen', (value) => {
+                const cartSidebar = document.querySelector('.cart-sidebar');
+                if (cartSidebar) {
+                    if (value) {
+                        cartSidebar.classList.remove('translate-x-full');
+                    } else {
+                        cartSidebar.classList.add('translate-x-full');
+                    }
+                }
+            });
+            
+            // Thiết lập event listeners
+            const closeCartBtn = document.getElementById('close-cart-btn');
+            if (closeCartBtn) {
+                closeCartBtn.addEventListener('click', () => {
+                    this.cartOpen = false;
+                });
+            }
+            
+            // Khởi tạo customerManager nếu có
+            if (window.customerManager) {
+                console.log('Khởi tạo customerManager');
+                window.customerManager.init();
+            }
+        },
+        
+        // Đồng bộ giỏ hàng với orderManager
+        syncCartWithOrderManager() {
+            if (window.orderManager && window.orderManager.orderData) {
+                this.cart = [...window.orderManager.orderData.cart];
+            }
+        },
+        
+        // Hiển thị tổng tiền giỏ hàng
+        cartTotal() {
+            return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+        },
+        
+        // Định dạng giá tiền
+        formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND',
+                maximumFractionDigits: 0
+            }).format(price);
+        }
+    }));
+});
+</script>
 </body>
 </html>

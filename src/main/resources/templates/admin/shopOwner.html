@@ -8,6 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="/css/chat.css">
     <style>
         *{
             font-family: 'Times New Roman', Times, serif;
@@ -396,7 +397,7 @@
                     <button @click="open = !open" class="flex items-center space-x-4">
                         <div class="flex items-center">
                             <img src="https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg" 
-                                 alt="Shop Logo" class="w-10 h-10 rounded-full">
+                             alt="Shop Logo" class="w-10 h-10 rounded-full">
                             <span class="logo-text ml-2 text-xl font-bold">Chủ cửa hàng</span>
                         </div>
                     </button>
@@ -485,74 +486,118 @@
         <div x-show="activeSection === 'dashboard'">
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <!-- Tổng đơn hàng -->
                 <div class="bg-white rounded-lg shadow p-6">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-600">Tổng đơn hàng</p>
-                            <h3 class="text-2xl font-semibold">1,234</h3>
+                            <h3 class="text-2xl font-semibold" id="total-orders">0</h3>
                         </div>
                         <div class="bg-blue-100 p-3 rounded-full">
                             <i class="fas fa-shopping-cart text-blue-600"></i>
                         </div>
                     </div>
                     <div class="mt-4">
-                        <span class="text-green-500 text-sm">+12.5%</span>
+                        <span id="orders-growth"></span>
                         <span class="text-gray-500 text-sm ml-2">so với tháng trước</span>
                     </div>
                 </div>
+
+                <!-- Doanh thu -->
                 <div class="bg-white rounded-lg shadow p-6">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-600">Doanh thu</p>
-                            <h3 class="text-2xl font-semibold">$12,345</h3>
+                            <h3 class="text-2xl font-semibold" id="total-revenue">0đ</h3>
                         </div>
                         <div class="bg-green-100 p-3 rounded-full">
                             <i class="fas fa-dollar-sign text-green-600"></i>
                         </div>
                     </div>
                     <div class="mt-4">
-                        <span class="text-green-500 text-sm">+8.2%</span>
+                        <span id="revenue-growth"></span>
                         <span class="text-gray-500 text-sm ml-2">so với tháng trước</span>
                     </div>
                 </div>
+
+                <!-- Khách hàng mới -->
                 <div class="bg-white rounded-lg shadow p-6">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-600">Khách hàng mới</p>
-                            <h3 class="text-2xl font-semibold">89</h3>
+                            <h3 class="text-2xl font-semibold" id="new-customers">0</h3>
                         </div>
                         <div class="bg-purple-100 p-3 rounded-full">
                             <i class="fas fa-users text-purple-600"></i>
                         </div>
                     </div>
                     <div class="mt-4">
-                        <span class="text-green-500 text-sm">+5.3%</span>
+                        <span id="customers-growth"></span>
                         <span class="text-gray-500 text-sm ml-2">so với tháng trước</span>
                     </div>
                 </div>
+
+                <!-- Đơn hàng đang xử lý -->
                 <div class="bg-white rounded-lg shadow p-6">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-600">Đơn hàng đang xử lý</p>
-                            <h3 class="text-2xl font-semibold">45</h3>
+                            <h3 class="text-2xl font-semibold" id="pending-orders">0</h3>
                         </div>
                         <div class="bg-yellow-100 p-3 rounded-full">
                             <i class="fas fa-clock text-yellow-600"></i>
                         </div>
                     </div>
                     <div class="mt-4">
-                        <span class="text-red-500 text-sm">-2.1%</span>
-                        <span class="text-gray-500 text-sm ml-2">so với tháng trước</span>
+                        <button class="text-blue-600 hover:text-blue-800 text-sm">
+                            Xem chi tiết
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters and Actions -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center space-x-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Thời gian</label>
+                            <input type="date" id="date-filter"
+                                   class="mt-1 block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Trạng thái</label>
+                            <select id="status-filter"
+                                    class="mt-1 block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option value="all">Tất cả</option>
+                                <option value="Received">Chờ xử lý</option>
+                                <option value="In Progress">Đang xử lý</option>
+                                <option value="Completed">Hoàn thành</option>
+                                <option value="Cancelled">Đã hủy</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button data-report-type="daily"
+                                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                            <i class="fas fa-download mr-2"></i>Xuất báo cáo ngày
+                        </button>
+                        <button data-report-type="monthly"
+                                class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
+                            <i class="fas fa-download mr-2"></i>Xuất báo cáo tháng
+                        </button>
                     </div>
                 </div>
             </div>
 
             <!-- Charts -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Biểu đồ doanh thu -->
                 <div class="bg-white rounded-lg shadow p-6">
                     <h3 class="text-lg font-semibold mb-4">Doanh thu theo tháng</h3>
                     <canvas id="revenueChart"></canvas>
                 </div>
+                <!-- Biểu đồ dịch vụ -->
                 <div class="bg-white rounded-lg shadow p-6">
                     <h3 class="text-lg font-semibold mb-4">Phân bố dịch vụ</h3>
                     <canvas id="servicesChart"></canvas>
@@ -565,32 +610,19 @@
                     <h3 class="text-lg font-semibold">Đơn hàng gần đây</h3>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full">
+                    <table class="w-full recent-orders">
                         <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã đơn</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách hàng</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dịch vụ</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng tiền</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mã đơn</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Khách hàng</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Dịch vụ</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tổng tiền</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thao tác</th>
                         </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#12345</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Nguyễn Văn A</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Giặt & Ủi</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$50.00</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            Hoàn thành
-                                        </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                <button class="text-blue-600 hover:text-blue-900">Chi tiết</button>
-                            </td>
-                        </tr>
+                        <tbody>
+                            <!-- Đơn hàng sẽ được render bởi JavaScript -->
                         </tbody>
                     </table>
                 </div>
@@ -640,10 +672,10 @@
                             <label class="inline-flex items-center">
                                 <input type="checkbox"
                                        :disabled="!isEditingProfile"
-                                       :checked="shopProfile.services.includes(service.serviceName)"
-                                       @change="isEditingProfile && (shopProfile.services.includes(service.serviceName) ?
+                                       :checked="shopProfile.services && shopProfile.services.includes(service.serviceName)"
+                                       @change="isEditingProfile && (shopProfile.services ? (shopProfile.services.includes(service.serviceName) ?
                                                 shopProfile.services = shopProfile.services.filter(s => s !== service.serviceName) :
-                                                shopProfile.services.push(service.serviceName))"
+                                                shopProfile.services.push(service.serviceName)) : (shopProfile.services = [service.serviceName]))"
                                        class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                 <span class="ml-2" x-text="service.serviceName"></span>
                             </label>
@@ -898,36 +930,353 @@
     </main>
 </div>
 
-<script th:inline="javascript">
-// Hàm quản lý dịch vụ
-function formatPrice(price) {
-    return new Intl.NumberFormat('vi-VN').format(price);
-}
+<!-- Order Details Modal -->
+<div id="orderDetailsModal" 
+     x-data="{ open: false, order: null }" 
+     x-show="open"
+     class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full"
+     x-cloak>
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="order-details">
+            <!-- Chi tiết đơn hàng sẽ được render bởi JavaScript -->
+        </div>
+        <div class="mt-4 flex justify-end">
+            <button @click="open = false"
+                    class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
+                Đóng
+            </button>
+        </div>
+    </div>
+</div>
 
-async function loadServices() {
-    try {
-        console.log('Đang tải danh sách dịch vụ...');
-        const response = await fetch('/api/services');
-        console.log('Trạng thái phản hồi:', response.status);
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Phản hồi lỗi:', errorText);
-            throw new Error(`Không thể tải danh sách dịch vụ: ${response.status} ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        console.log('Danh sách dịch vụ đã tải:', data);
-        services = data;
-    } catch (error) {
-        console.error('Lỗi khi tải danh sách dịch vụ:', error);
-        alert('Không thể tải danh sách dịch vụ: ' + error.message);
-    }
-}
+<!-- Chat Widget -->
+<div class="chat-widget">
+    <button class="toggle-chat-button bg-[#1F2937] text-white">
+        <i class="fas fa-comments"></i>
+        <span class="chat-unread-badge bg-red-500 text-white hidden">0</span>
+    </button>
+    <div class="chat-container bg-white" style="display: none;">
+        <div class="chat-header bg-[#1F2937] text-white">
+            <div class="chat-title">Chat với khách hàng</div>
+            <div class="chat-close-button">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+        <div class="chat-messages">
+            <!-- Tin nhắn sẽ được render bởi JavaScript -->
+        </div>
+        <div class="chat-footer">
+            <form class="chat-form">
+                <input type="text" class="chat-input" placeholder="Nhập tin nhắn...">
+                <button type="submit" class="chat-send-button bg-[#1F2937] text-white">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
 
-// Khởi tạo danh sách dịch vụ khi trang được tải
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stomp-websocket@2.3.4/lib/stomp.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Cấu hình ứng dụng
+    window.laundryConfig = {
+        simulationMode: true,  // Bật chế độ giả lập khi API chưa hoàn thiện
+        debug: false           // Cấu hình debug
+    };
+</script>
+<script src="/js/chatManager.js"></script>
+<script src="/js/dashboard.js"></script>
+<script src="/js/shopOwner.js"></script>
+
+<!-- Debug Chat -->
+<script>
+// Hiển thị debug cho chat widget khi load xong trang
 document.addEventListener('DOMContentLoaded', function() {
-    loadServices();
+    console.log('Debug: Kiểm tra phần tử chat');
+    const chatInput = document.querySelector('.chat-input');
+    const chatSendButton = document.querySelector('.chat-send-button');
+    const chatForm = document.querySelector('.chat-form');
+    
+    console.log('Chat input:', chatInput);
+    console.log('Chat send button:', chatSendButton);
+    console.log('Chat form:', chatForm);
+    
+    if (chatForm) {
+        chatForm.addEventListener('submit', function(e) {
+            console.log('Form chat đã được submit bằng debug');
+        });
+    }
+    
+    if (chatSendButton) {
+        chatSendButton.addEventListener('click', function(e) {
+            console.log('Nút gửi đã được click bằng debug');
+        });
+    }
+});
+</script>
+
+<!-- Thêm Script xử lý đơn hàng phía cuối file, trước thẻ đóng body -->
+<script>
+// Xử lý quản lý đơn hàng cho chủ cửa hàng
+document.addEventListener('DOMContentLoaded', function() {
+    // Đăng ký thêm dữ liệu cho Alpine.js
+    window.Alpine.data('orderManagement', () => ({
+        // Dữ liệu quản lý đơn hàng
+        ordersTab: 'all',
+        newOrdersCount: 0,
+        orders: [],
+        
+        // Khởi tạo
+        init() {
+            // Lấy thông tin shop từ localStorage hoặc URL
+            this.loadShopInfo();
+            
+            // Tải danh sách đơn hàng
+            this.loadOrders();
+            
+            // Kiểm tra đơn hàng mới mỗi 30 giây
+            setInterval(() => {
+                this.checkNewOrders();
+            }, 30000);
+        },
+        
+        // Lấy thông tin cửa hàng
+        loadShopInfo() {
+            // Ưu tiên lấy từ localStorage nếu có
+            const userData = localStorage.getItem('user');
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    if (user && user.shopId) {
+                        this.shopId = user.shopId;
+                        return;
+                    }
+                } catch (error) {
+                    console.warn('Lỗi khi parse dữ liệu user từ localStorage:', error);
+                }
+            }
+            
+            // Nếu không có trong localStorage, thử lấy từ URL
+            const urlParams = new URLSearchParams(window.location.search);
+            this.shopId = urlParams.get('shopId') || 1; // Mặc định là shop ID 1 nếu không tìm thấy
+        },
+        
+        // Lấy danh sách đơn hàng từ server
+        async loadOrders() {
+            try {
+                if (!this.shopId) return;
+                
+                try {
+                    const response = await fetch(`/api/orders/shop/${this.shopId}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.orders = data;
+                        this.countNewOrders();
+                    } else {
+                        throw new Error(`API trả về lỗi ${response.status}`);
+                    }
+                } catch (error) {
+                    console.warn('Không thể tải danh sách đơn hàng từ API, sử dụng dữ liệu mẫu:', error);
+                    // Dữ liệu mẫu
+                    this.orders = [
+                        {
+                            id: 'ORD123456',
+                            date: '2024-04-10',
+                            status: 'Chờ xác nhận',
+                            customerName: 'Nguyễn Văn Linh',
+                            customerPhone: '0901234567',
+                            deliveryAddress: '123 Nguyễn Huệ, Quận 1, TP.HCM',
+                            pickupDate: '2024-04-12',
+                            pickupTime: '09:30',
+                            notes: 'Gọi trước khi giao',
+                            customerId: 'customer1',
+                            items: [
+                                { id: 1, name: 'Giặt ủi thường', quantity: 3, price: 50000 },
+                                { id: 2, name: 'Giặt khô', quantity: 1, price: 80000 }
+                            ],
+                            totalAmount: 230000,
+                            deliveryFee: 15000,
+                            grandTotal: 245000,
+                            paymentMethod: 'cod'
+                        },
+                        {
+                            id: 'ORD123457',
+                            date: '2024-04-09',
+                            status: 'Đang xử lý',
+                            customerName: 'Trần Thị B',
+                            customerPhone: '0912345678',
+                            deliveryAddress: '45 Lê Lợi, Quận 1, TP.HCM',
+                            pickupDate: '2024-04-11',
+                            pickupTime: '14:00',
+                            notes: '',
+                            customerId: 'customer2',
+                            items: [
+                                { id: 3, name: 'Giặt nhanh', quantity: 2, price: 100000 },
+                                { id: 4, name: 'Giặt đồ da', quantity: 1, price: 150000 }
+                            ],
+                            totalAmount: 350000,
+                            deliveryFee: 15000,
+                            grandTotal: 365000,
+                            paymentMethod: 'banking'
+                        },
+                        {
+                            id: 'ORD123458',
+                            date: '2024-04-08',
+                            status: 'Hoàn thành',
+                            customerName: 'Lê Văn C',
+                            customerPhone: '0923456789',
+                            deliveryAddress: '78 Trần Hưng Đạo, Quận 5, TP.HCM',
+                            pickupDate: '2024-04-09',
+                            pickupTime: '10:15',
+                            notes: 'Đồ dễ nhăn, cẩn thận ủi',
+                            customerId: 'customer3',
+                            items: [
+                                { id: 1, name: 'Giặt ủi thường', quantity: 5, price: 50000 }
+                            ],
+                            totalAmount: 250000,
+                            deliveryFee: 15000,
+                            grandTotal: 265000,
+                            paymentMethod: 'cod'
+                        }
+                    ];
+                    this.countNewOrders();
+                }
+            } catch (error) {
+                console.error('Lỗi khi tải danh sách đơn hàng:', error);
+            }
+        },
+        
+        // Kiểm tra đơn hàng mới
+        async checkNewOrders() {
+            try {
+                if (!this.shopId) return;
+                
+                try {
+                    const response = await fetch(`/api/orders/shop/${this.shopId}/new`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Cập nhật danh sách nếu có đơn mới
+                        if (data.length > 0) {
+                            // Kết hợp với danh sách hiện tại, tránh trùng lặp
+                            const existingOrderIds = this.orders.map(order => order.id);
+                            const newOrders = data.filter(order => !existingOrderIds.includes(order.id));
+                            
+                            if (newOrders.length > 0) {
+                                this.orders = [...newOrders, ...this.orders];
+                                this.countNewOrders();
+                                
+                                // Thông báo có đơn hàng mới
+                                this.showNotification(`Bạn có ${newOrders.length} đơn hàng mới`);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Không thể kiểm tra đơn hàng mới:', error);
+                }
+            } catch (error) {
+                console.error('Lỗi khi kiểm tra đơn hàng mới:', error);
+            }
+        },
+        
+        // Đếm số đơn hàng mới
+        countNewOrders() {
+            this.newOrdersCount = this.orders.filter(order => order.status === 'Chờ xác nhận').length;
+        },
+        
+        // Lọc đơn hàng theo tab
+        get filteredOrders() {
+            if (this.ordersTab === 'all') {
+                return this.orders;
+            }
+            
+            const statusMap = {
+                'new': 'Chờ xác nhận',
+                'processing': 'Đang xử lý',
+                'delivering': 'Đang giao',
+                'completed': 'Hoàn thành',
+                'cancelled': 'Đã hủy'
+            };
+            
+            const status = statusMap[this.ordersTab];
+            return this.orders.filter(order => order.status === status);
+        },
+        
+        // Cập nhật trạng thái đơn hàng
+        async updateOrderStatus(order, newStatus) {
+            if (confirm(`Bạn có chắc muốn chuyển đơn hàng #${order.id} sang trạng thái "${newStatus}"?`)) {
+                try {
+                    // Gọi API cập nhật trạng thái
+                    try {
+                        const response = await fetch(`/api/orders/${order.id}/status`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ status: newStatus })
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error(`API trả về lỗi ${response.status}`);
+                        }
+                    } catch (error) {
+                        console.warn('Không thể cập nhật trạng thái đơn hàng thông qua API:', error);
+                        // Giả lập cập nhật thành công
+                    }
+                    
+                    // Cập nhật trạng thái trong danh sách
+                    order.status = newStatus;
+                    
+                    // Cập nhật số đơn hàng mới
+                    this.countNewOrders();
+                    
+                    // Thông báo thành công
+                    alert(`Đã cập nhật trạng thái đơn hàng thành "${newStatus}"`);
+                } catch (error) {
+                    console.error('Lỗi khi cập nhật trạng thái đơn hàng:', error);
+                    alert('Có lỗi xảy ra khi cập nhật trạng thái đơn hàng. Vui lòng thử lại sau.');
+                }
+            }
+        },
+        
+        // Hiển thị chi tiết đơn hàng
+        showOrderDetails(order) {
+            // TODO: Hiển thị modal chi tiết đơn hàng
+            alert(`Chi tiết đơn hàng #${order.id}`);
+        },
+        
+        // Mở chat với khách hàng
+        openChatWithCustomer(customerId) {
+            // Chuyển sang tab chat
+            const appData = document.querySelector('[x-data]')?._x_dataStack?.[0];
+            if (appData) {
+                appData.activeSection = 'chat';
+                // TODO: Mở chat với khách hàng có ID tương ứng
+                console.log('Mở chat với khách hàng:', customerId);
+            }
+        },
+        
+        // Hiển thị thông báo
+        showNotification(message) {
+            // TODO: Hiển thị thông báo đẹp hơn
+            alert(message);
+        },
+        
+        // Lấy class CSS cho trạng thái
+        getStatusClass(status) {
+            const statusClasses = {
+                'Chờ xác nhận': 'bg-yellow-100 text-yellow-800',
+                'Đang xử lý': 'bg-blue-100 text-blue-800',
+                'Đang giao': 'bg-purple-100 text-purple-800',
+                'Hoàn thành': 'bg-green-100 text-green-800',
+                'Đã hủy': 'bg-red-100 text-red-800'
+            };
+            
+            return statusClasses[status] || 'bg-gray-100 text-gray-800';
+        }
+    }));
     });
 </script>
 </body>

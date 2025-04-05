@@ -82,7 +82,6 @@ CREATE TABLE Reviews (
     CreatedAt DATETIME DEFAULT GETDATE()
 );
 
-
 INSERT INTO Users (FullName, Email, Phone, PasswordHash, Role) VALUES
 ('Huynh Phuoc Trong', 'tronghp@gmail.com', '0901234567', 'sh1', 'ShopOwner'),
 ('Nguyen Minh Man','minhmann@gmail.com', '0847572638', 'sh2','ShopOwner'),
@@ -142,4 +141,3 @@ INSERT INTO Reviews (CustomerID, ShopID, Rating, Comment) VALUES
 (3, 1, 5, 'Dịch vụ tốt, giặt sạch!'),
 (4, 2, 5, 'Rất sạch và thơm.'),
 (5, 3, 4, 'Nhanh chóng và tiện lợi');
-
