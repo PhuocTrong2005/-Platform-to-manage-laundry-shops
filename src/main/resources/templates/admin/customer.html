@@ -22,6 +22,7 @@
     };
     </script>
     <script src="/js/orderManager.js"></script>
+    <script src="/js/debug/debugHelper.js"></script>
     
     <script>
         // Đảm bảo OrderManager được khởi tạo khi trang tải xong
@@ -582,7 +583,8 @@
                         <span x-text="formatPrice(cartTotal() + (cart.length > 0 ? 15000 : 0))"></span>
                     </div>
                 </div>
-                <button id="checkout-button" @click="orderManager.showCheckoutForm()" 
+                <button id="checkout-button" 
+                        onclick="if(window.debugShowCheckout) window.debugShowCheckout(); else if(window.orderManager) window.orderManager.showCheckoutForm()" 
                         class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
                         :disabled="cart.length === 0">
                     Tiến hành thanh toán

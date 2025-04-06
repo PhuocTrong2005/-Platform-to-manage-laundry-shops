@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/pmls_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=pmls_user
+      - SPRING_DATASOURCE_PASSWORD=pmls_password
+    depends_on:
+      - db
+    networks:
+      - pmls-network
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      - MYSQL_DATABASE=pmls_db
+      - MYSQL_USER=pmls_user
+      - MYSQL_PASSWORD=pmls_password
+      - MYSQL_ROOT_PASSWORD=root_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - pmls-network
+
+networks:
+  pmls-network:
+    driver: bridge
+
+volumes:
+  mysql-data: 

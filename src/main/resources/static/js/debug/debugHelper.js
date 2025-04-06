@@ -409,6 +409,147 @@ const debugHelper = {
 // Khởi tạo debug helper khi trang load xong
 document.addEventListener('DOMContentLoaded', () => {
     debugHelper.init();
+});
+
+// Giám sát DOM để kiểm tra các sự kiện
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Debug: DOM Loaded');
+    
+    // Kiểm tra orderManager
+    if (window.orderManager) {
+        console.log('Debug: OrderManager tồn tại');
+        if (typeof window.orderManager.showCheckoutForm === 'function') {
+            console.log('Debug: Phương thức showCheckoutForm tồn tại');
+        } else {
+            console.error('Debug: Phương thức showCheckoutForm KHÔNG tồn tại');
+        }
+    } else {
+        console.error('Debug: OrderManager KHÔNG tồn tại trong window');
+    }
+    
+    // Thêm ghi đè tạm thời cho showCheckoutForm nếu có vấn đề
+    window.debugShowCheckout = function() {
+        console.log('Debug: Đang gọi showCheckoutForm từ debug helper');
+        try {
+            if (window.orderManager && typeof window.orderManager.showCheckoutForm === 'function') {
+                window.orderManager.showCheckoutForm();
+            } else {
+                createFallbackCheckoutModal();
+            }
+        } catch (error) {
+            console.error('Debug: Lỗi khi gọi showCheckoutForm:', error);
+            createFallbackCheckoutModal();
+        }
+    };
+    
+    // Tạo modal thanh toán dự phòng
+    function createFallbackCheckoutModal() {
+        console.log('Debug: Tạo modal thanh toán dự phòng');
+        
+        // Lấy giỏ hàng từ localStorage
+        let cart = [];
+        try {
+            const savedCart = localStorage.getItem('cart');
+            if (savedCart) {
+                cart = JSON.parse(savedCart);
+            }
+        } catch (error) {
+            console.error('Debug: Lỗi khi đọc giỏ hàng từ localStorage:', error);
+        }
+        
+        if (cart.length === 0) {
+            alert('Giỏ hàng của bạn đang trống');
+            return;
+        }
+        
+        // Tính tổng tiền
+        const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+        
+        // Tạo modal
+        const modal = document.createElement('div');
+        modal.id = 'debug-checkout-modal';
+        modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50';
+        modal.style.display = 'block';
+        
+        modal.innerHTML = `
+            <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+                <div class="flex justify-between items-center border-b pb-4 mb-4">
+                    <h3 class="text-2xl font-semibold">Thanh toán (Debug Mode)</h3>
+                    <button id="debug-close-checkout" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="p-4 text-center">
+                    <p class="mb-4">Debug checkout form - Chức năng dự phòng</p>
+                    <p>Tổng số món hàng: ${cart.length}</p>
+                    <p>Tổng tiền: ${formatPrice(totalAmount)}</p>
+                    <p>Phí vận chuyển: ${formatPrice(15000)}</p>
+                    <p class="font-bold">Tổng thanh toán: ${formatPrice(totalAmount + 15000)}</p>
+                </div>
+                
+                <div class="flex justify-end mt-4">
+                    <button id="debug-submit-order" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md">
+                        Xác nhận đặt hàng
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Xử lý sự kiện đóng
+        document.getElementById('debug-close-checkout').addEventListener('click', () => {
+            modal.remove();
+        });
+        
+        // Xử lý sự kiện xác nhận đặt hàng
+        document.getElementById('debug-submit-order').addEventListener('click', () => {
+            alert('Đã đặt hàng thành công (Debug Mode)');
+            localStorage.removeItem('cart');
+            modal.remove();
+            
+            // Cập nhật UI nếu cần
+            try {
+                if (window.Alpine) {
+                    const alpineData = document.querySelector('[x-data]')?._x_dataStack?.[0];
+                    if (alpineData && alpineData.cart !== undefined) {
+                        alpineData.cart = [];
+                    }
+                }
+            } catch (error) {
+                console.error('Debug: Lỗi khi cập nhật UI:', error);
+            }
+        });
+    }
+    
+    function formatPrice(price) {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+            maximumFractionDigits: 0
+        }).format(price);
+    }
+    
+    // Kiểm tra nút thanh toán
+    setTimeout(function() {
+        const checkoutButton = document.getElementById('checkout-button');
+        if (checkoutButton) {
+            console.log('Debug: Nút thanh toán tồn tại');
+            
+            // Thêm một sự kiện lắng nghe dự phòng
+            checkoutButton.addEventListener('click', function() {
+                console.log('Debug: Nút thanh toán đã được nhấp');
+                window.debugShowCheckout();
+            });
+        } else {
+            console.error('Debug: Nút thanh toán KHÔNG tồn tại');
+        }
+    }, 1000);
 }); 
+ 
+ 
+ 
+ 
  
  

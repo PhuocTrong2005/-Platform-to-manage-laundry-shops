@@ -990,4 +990,4 @@ document.addEventListener('DOMContentLoaded', () => {
                          window.location.pathname.includes('/shopOwner');
     
     chatManager.init(isShopOwner);
-}); 
+});

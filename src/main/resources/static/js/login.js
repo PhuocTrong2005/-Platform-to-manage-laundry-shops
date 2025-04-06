@@ -31,6 +31,30 @@ async function handleLogin(event) {
         
         if (response.ok) {
             const user = await response.json();
+            
+            // Assign shopId based on email for ShopOwner role
+            if (user.role === 'ShopOwner') {
+                // Map specific emails to shop IDs
+                const shopEmailMap = {
+                    'tronghp@gmail.com  ': 2,
+                    'tvi@gmail.com': 3
+                };
+                
+                // If email exists in map, assign shopId, otherwise use a default
+                if (shopEmailMap[email]) {
+                    user.shopId = shopEmailMap[email];
+                } else {
+                    // Extract numbers from email as fallback (e.g. owner2@domain.com → shopId: 2)
+                    const numMatch = email.match(/\d+/);
+                    user.shopId = numMatch ? parseInt(numMatch[0]) : 1;
+                }
+                
+                console.log('Assigned shopId:', user.shopId, 'to user:', user.email);
+            }
+            
+            // Store user data in localStorage
+            localStorage.setItem('user', JSON.stringify(user));
+            
             // Chuyển hướng dựa trên vai trò
             switch(user.role) {
                 case 'Admin':

@@ -476,150 +476,178 @@ window.orderManager = {
 
     // Hiển thị form thanh toán
     showCheckoutForm() {
+        console.log('DEBUG: Đang mở form thanh toán...');
         if (this.orderData.cart.length === 0) {
             alert('Giỏ hàng của bạn đang trống');
             return;
         }
         
-        // Tìm hoặc tạo modal
-        let checkoutModal = document.getElementById('checkout-modal');
-        if (!checkoutModal) {
-            checkoutModal = document.createElement('div');
+        // Cập nhật tổng tiền trước khi hiển thị form
+        this.updateTotalAmount();
+        console.log('DEBUG: Tổng tiền:', this.orderData.totalAmount);
+        
+        try {
+            // Xóa modal cũ nếu tồn tại
+            const oldModal = document.getElementById('checkout-modal');
+            if (oldModal) {
+                document.body.removeChild(oldModal);
+                console.log('DEBUG: Đã xóa modal cũ');
+            }
+            
+            // Tạo modal mới
+            const checkoutModal = document.createElement('div');
             checkoutModal.id = 'checkout-modal';
             checkoutModal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50';
-            checkoutModal.style.display = 'none';
-            document.body.appendChild(checkoutModal);
-        }
-        
-        // Tạo nội dung modal
-        checkoutModal.innerHTML = `
-            <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-                <div class="flex justify-between items-center border-b pb-4 mb-4">
-                    <h3 class="text-2xl font-semibold">Thanh toán</h3>
-                    <button id="close-checkout-modal" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <form id="checkout-form" class="space-y-4">
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">Thông tin liên hệ</label>
-                        <input type="text" id="contact-name" class="w-full p-2 border rounded" placeholder="Họ và tên" required>
-                    </div>
-                    
-                    <div>
-                        <input type="tel" id="contact-phone" class="w-full p-2 border rounded" placeholder="Số điện thoại" required>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">Địa chỉ giao nhận</label>
-                        <textarea id="delivery-address" class="w-full p-2 border rounded" rows="3" placeholder="Địa chỉ đến lấy/giao đồ" required></textarea>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">Thời gian</label>
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="date" id="pickup-date" class="p-2 border rounded" required>
-                            <input type="time" id="pickup-time" class="p-2 border rounded" required>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">Ghi chú</label>
-                        <textarea id="order-notes" class="w-full p-2 border rounded" rows="2" placeholder="Ghi chú thêm (nếu có)"></textarea>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">Phương thức thanh toán</label>
-                        <div class="space-y-2">
-                            <label class="flex items-center">
-                                <input type="radio" name="payment-method" value="cod" checked>
-                                <span class="ml-2">Thanh toán khi nhận hàng (COD)</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="radio" name="payment-method" value="banking">
-                                <span class="ml-2">Chuyển khoản ngân hàng</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="radio" name="payment-method" value="momo">
-                                <span class="ml-2">Ví MoMo</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="border-t pt-4">
-                        <div class="flex justify-between mb-2">
-                            <span>Tổng tiền hàng:</span>
-                            <span>${this.formatPrice(this.orderData.totalAmount)}</span>
-                        </div>
-                        <div class="flex justify-between mb-2">
-                            <span>Phí vận chuyển:</span>
-                            <span>${this.formatPrice(15000)}</span>
-                        </div>
-                        <div class="flex justify-between font-bold text-lg">
-                            <span>Tổng thanh toán:</span>
-                            <span>${this.formatPrice(this.orderData.totalAmount + 15000)}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-end">
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md">
-                            Xác nhận đặt hàng
+            checkoutModal.style.display = 'block';
+            console.log('DEBUG: Đã tạo modal mới');
+            
+            // Tạo nội dung modal
+            checkoutModal.innerHTML = `
+                <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+                    <div class="flex justify-between items-center border-b pb-4 mb-4">
+                        <h3 class="text-2xl font-semibold">Thanh toán</h3>
+                        <button id="close-checkout-modal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times"></i>
                         </button>
                     </div>
-                </form>
-            </div>
-        `;
-        
-        // Hiển thị modal
-        checkoutModal.style.display = 'block';
-        
-        // Xử lý các sự kiện trong modal
-        document.getElementById('close-checkout-modal').addEventListener('click', () => {
-            checkoutModal.style.display = 'none';
-        });
-        
-        // Khởi tạo giá trị mặc định cho form
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('pickup-date').value = today;
-        document.getElementById('pickup-date').min = today;
-        
-        // Điền thông tin người dùng vào form nếu có
-        if (this.userData) {
-            document.getElementById('contact-name').value = this.userData.fullName || '';
-            document.getElementById('contact-phone').value = this.userData.phone || '';
-        }
-        
-        // Xử lý sự kiện submit form
-        document.getElementById('checkout-form').addEventListener('submit', (e) => {
-            e.preventDefault();
+                    
+                    <form id="checkout-form" class="space-y-4">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Thông tin liên hệ</label>
+                            <input type="text" id="contact-name" class="w-full p-2 border rounded" placeholder="Họ và tên" required>
+                        </div>
+                        
+                        <div>
+                            <input type="tel" id="contact-phone" class="w-full p-2 border rounded" placeholder="Số điện thoại" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Địa chỉ giao nhận</label>
+                            <textarea id="delivery-address" class="w-full p-2 border rounded" rows="3" placeholder="Địa chỉ đến lấy/giao đồ" required></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Thời gian</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="date" id="pickup-date" class="p-2 border rounded" required>
+                                <input type="time" id="pickup-time" class="p-2 border rounded" required>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Ghi chú</label>
+                            <textarea id="order-notes" class="w-full p-2 border rounded" rows="2" placeholder="Ghi chú thêm (nếu có)"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Phương thức thanh toán</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="payment-method" value="cod" checked>
+                                    <span class="ml-2">Thanh toán khi nhận hàng (COD)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="payment-method" value="banking">
+                                    <span class="ml-2">Chuyển khoản ngân hàng</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="payment-method" value="momo">
+                                    <span class="ml-2">Ví MoMo</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t pt-4">
+                            <div class="flex justify-between mb-2">
+                                <span>Tổng tiền hàng:</span>
+                                <span>${this.formatPrice(this.orderData.totalAmount)}</span>
+                            </div>
+                            <div class="flex justify-between mb-2">
+                                <span>Phí vận chuyển:</span>
+                                <span>${this.formatPrice(15000)}</span>
+                            </div>
+                            <div class="flex justify-between font-bold text-lg">
+                                <span>Tổng thanh toán:</span>
+                                <span>${this.formatPrice(this.orderData.totalAmount + 15000)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md">
+                                Xác nhận đặt hàng
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
             
-            // Lấy dữ liệu từ form
-            const orderData = {
-                customerName: document.getElementById('contact-name').value,
-                customerPhone: document.getElementById('contact-phone').value,
-                deliveryAddress: document.getElementById('delivery-address').value,
-                pickupDate: document.getElementById('pickup-date').value,
-                pickupTime: document.getElementById('pickup-time').value,
-                notes: document.getElementById('order-notes').value,
-                paymentMethod: document.querySelector('input[name="payment-method"]:checked').value,
-                items: this.orderData.cart,
-                totalAmount: this.orderData.totalAmount,
-                deliveryFee: 15000,
-                grandTotal: this.orderData.totalAmount + 15000
-            };
+            // Thêm modal vào DOM
+            document.body.appendChild(checkoutModal);
+            console.log('DEBUG: Đã thêm modal vào DOM');
             
-            // Gửi dữ liệu đơn hàng lên server
-            this.submitOrder(orderData, () => {
-                // Đóng modal khi hoàn tất
+            // Xử lý các sự kiện trong modal
+            document.getElementById('close-checkout-modal').addEventListener('click', () => {
                 checkoutModal.style.display = 'none';
+                console.log('DEBUG: Đã đóng modal thanh toán');
             });
-        });
+            
+            // Khởi tạo giá trị mặc định cho form
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('pickup-date').value = today;
+            document.getElementById('pickup-date').min = today;
+            
+            // Điền thông tin người dùng vào form nếu có
+            if (this.userData) {
+                document.getElementById('contact-name').value = this.userData.fullName || '';
+                document.getElementById('contact-phone').value = this.userData.phone || '';
+            }
+            
+            // Xử lý sự kiện submit form
+            const form = document.getElementById('checkout-form');
+            if (form) {
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    console.log('DEBUG: Form thanh toán đã submit');
+                    
+                    // Lấy dữ liệu từ form
+                    const orderData = {
+                        customerName: document.getElementById('contact-name').value,
+                        customerPhone: document.getElementById('contact-phone').value,
+                        deliveryAddress: document.getElementById('delivery-address').value,
+                        pickupDate: document.getElementById('pickup-date').value,
+                        pickupTime: document.getElementById('pickup-time').value,
+                        notes: document.getElementById('order-notes').value,
+                        paymentMethod: document.querySelector('input[name="payment-method"]:checked').value,
+                        items: this.orderData.cart,
+                        totalAmount: this.orderData.totalAmount,
+                        deliveryFee: 15000,
+                        grandTotal: this.orderData.totalAmount + 15000
+                    };
+                    
+                    console.log('DEBUG: Dữ liệu form:', orderData);
+                    
+                    // Gửi dữ liệu đơn hàng lên server
+                    this.submitOrder(orderData, () => {
+                        // Đóng modal khi hoàn tất
+                        checkoutModal.style.display = 'none';
+                    });
+                });
+            } else {
+                console.error('DEBUG: Không tìm thấy form thanh toán');
+            }
+            
+            console.log('DEBUG: Modal thanh toán đã được thiết lập hoàn tất');
+        } catch (error) {
+            console.error('DEBUG: Lỗi khi hiển thị modal thanh toán:', error);
+            alert('Có lỗi xảy ra khi mở form thanh toán. Vui lòng thử lại sau.');
+        }
     },
 
     // Gửi đơn hàng lên server
     async submitOrder(orderData, callback) {
         try {
+            console.log('DEBUG: Bắt đầu gửi đơn hàng:', orderData);
+            
             // Kiểm tra người dùng đã đăng nhập chưa
             if (!this.userData) {
                 if (confirm('Vui lòng đăng nhập để đặt hàng. Đến trang đăng nhập?')) {
@@ -628,11 +656,11 @@ window.orderManager = {
                 return;
             }
             
-            console.log('Gửi đơn hàng:', orderData);
             let orderResponse = null;
             
             // Gửi đơn hàng lên API
             try {
+                console.log('DEBUG: Gửi request tới API...');
                 const response = await fetch('/api/orders', {
                     method: 'POST',
                     headers: {
@@ -649,10 +677,10 @@ window.orderManager = {
                 }
                 
                 orderResponse = await response.json();
-                console.log('Đặt hàng thành công:', orderResponse);
+                console.log('DEBUG: Đặt hàng thành công:', orderResponse);
             } catch (error) {
-                console.warn('Không thể gửi đơn hàng lên API, giả lập thành công:', error.message);
-                // Giả lập thành công
+                console.warn('DEBUG: Không thể gửi đơn hàng lên API, sử dụng chế độ giả lập:', error.message);
+                // Giả lập thành công trong môi trường development
                 orderResponse = {
                     id: 'ORD' + Date.now(),
                     status: 'Đang xử lý',
@@ -672,12 +700,12 @@ window.orderManager = {
             }
             
             // Chuyển đến trang đơn hàng
-            document.querySelector('[x-data]')?._x_dataStack?.[0]?.activeTab = 'orders';
-            
-            // Thêm đơn hàng mới vào danh sách đơn hàng
-            if (window.Alpine) {
-                const alpineData = document.querySelector('[x-data]')?._x_dataStack?.[0];
-                if (alpineData && Array.isArray(alpineData.orders)) {
+            const alpineData = document.querySelector('[x-data]')?._x_dataStack?.[0];
+            if (alpineData) {
+                alpineData.activeTab = 'orders';
+                
+                // Thêm đơn hàng mới vào danh sách
+                if (Array.isArray(alpineData.orders)) {
                     const newOrder = {
                         id: orderResponse.id,
                         date: new Date().toISOString().split('T')[0],
@@ -697,8 +725,16 @@ window.orderManager = {
                 }
             }
             
+            // Đóng modal thanh toán
+            const checkoutModal = document.getElementById('checkout-modal');
+            if (checkoutModal) {
+                checkoutModal.style.display = 'none';
+            }
+            
+            console.log('DEBUG: Hoàn tất quy trình đặt hàng');
+            
         } catch (error) {
-            console.error('Lỗi khi gửi đơn hàng:', error);
+            console.error('DEBUG: Lỗi khi gửi đơn hàng:', error);
             alert('Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại sau.');
         }
     },

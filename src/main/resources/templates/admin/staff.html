@@ -1,55 +1,324 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh sách nhân viên</title>
+    <title>PMLS - Quản Lý Đơn Hàng</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    
+    <!-- Alpine.js -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    
+    <!-- WebSocket -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stomp-websocket@2.3.4/lib/stomp.min.js"></script>
+    
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
-<body class="bg-gray-100">
-<div class="container mx-auto mt-10">
-    <div class="bg-white p-6 rounded shadow-md">
-        <h2 class="text-2xl font-bold mb-6">Danh sách nhân viên</h2>
+<body class="bg-gray-100 flex" x-data="staffOrderManager">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-md h-screen fixed left-0 top-0 z-40 flex flex-col">
+        <!-- Logo Section -->
+        <div class="flex items-center justify-center h-20 border-b">
+            <img src="https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg" 
+                 alt="PMLS Logo" 
+                 class="h-16 w-auto object-contain">
+        </div>
+        
+        <!-- Navigation Menu -->
+        <nav class="flex-grow pt-6">
+            <ul>
+                <li>
+                    <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 
+                        border-l-4 border-transparent hover:border-blue-500">
+                        <i class="fas fa-chart-pie mr-3"></i>
+                        Tổng Quan
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 
+                        border-l-4 border-blue-500 bg-gray-100 text-blue-600">
+                        <i class="fas fa-shopping-cart mr-3"></i>
+                        Quản Lý Đơn Hàng
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 
+                        border-l-4 border-transparent hover:border-blue-500">
+                        <i class="fas fa-users mr-3"></i>
+                        Khách Hàng
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 
+                        border-l-4 border-transparent hover:border-blue-500">
+                        <i class="fas fa-cog mr-3"></i>
+                        Cài Đặt
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- User Profile Section -->
+        <div class="border-t p-6">
+            <div class="flex items-center">
+                <img src="/images/avatar-placeholder.png" 
+                     alt="User Avatar" 
+                     class="w-10 h-10 rounded-full mr-3">
+                <div>
+                    <p class="font-semibold text-gray-800">Nhân Viên</p>
+                    <p class="text-sm text-gray-500">Staff</p>
+                </div>
+                <button class="ml-auto text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
 
-        <!-- Bảng danh sách nhân viên -->
-        <table class="table-auto w-full bg-gray-200">
-            <thead>
-            <tr class="bg-gray-800 text-white">
-                <th class="px-4 py-2">Tên</th>
-                <th class="px-4 py-2">Email</th>
-                <th class="px-4 py-2">Vai trò</th>
-                <th class="px-4 py-2">Xóa</th>
+    <!-- Main Content Area -->
+    <main class="ml-64 flex-grow p-8 overflow-auto">
+        <div class="container mx-auto px-4 py-8">
+            <header class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-800">Quản Lý Đơn Hàng</h1>
+                <p class="text-gray-600">Xử lý và theo dõi các đơn hàng đang chờ</p>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Thống kê nhanh -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">Tổng Quan</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Đơn hàng mới</span>
+                            <span class="font-bold text-blue-600" x-text="orderStats.newOrders">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Đang xử lý</span>
+                            <span class="font-bold text-yellow-600" x-text="orderStats.processingOrders">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Hoàn thành</span>
+                            <span class="font-bold text-green-600" x-text="orderStats.completedOrders">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bộ lọc đơn hàng -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">Bộ Lọc</h3>
+                    <div class="space-y-3">
+                        <select @change="filterOrders" x-model="filters.status" class="w-full p-2 border rounded">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="Mới">Đơn hàng mới</option>
+                            <option value="Đang xử lý">Đang xử lý</option>
+                            <option value="Hoàn thành">Hoàn thành</option>
+                            <option value="Hủy">Đã hủy</option>
+                        </select>
+                        <input type="date" @change="filterOrders" x-model="filters.date" 
+                               class="w-full p-2 border rounded" placeholder="Chọn ngày">
+                    </div>
+                </div>
+
+                <!-- Thống kê doanh thu -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">Doanh Thu</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Hôm nay</span>
+                            <span class="font-bold text-green-600" x-text="formatPrice(revenueStats.today)">0 ₫</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Tuần này</span>
+                            <span class="font-bold text-blue-600" x-text="formatPrice(revenueStats.thisWeek)">0 ₫</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Tháng này</span>
+                            <span class="font-bold text-purple-600" x-text="formatPrice(revenueStats.thisMonth)">0 ₫</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danh sách đơn hàng -->
+            <div class="bg-white rounded-lg shadow mt-6">
+                <div class="p-6 border-b flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">Danh Sách Đơn Hàng</h3>
+                    <div class="flex items-center space-x-2">
+                        <input type="text" x-model="searchQuery" @input="searchOrders"
+                               placeholder="Tìm kiếm đơn hàng..." 
+                               class="p-2 border rounded w-64">
+                        <button @click="refreshOrders" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                            <i class="fas fa-sync"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="p-4 text-left">Mã ĐH</th>
+                                <th class="p-4 text-left">Khách Hàng</th>
+                                <th class="p-4 text-left">Ngày Đặt</th>
+                                <th class="p-4 text-left">Tổng Tiền</th>
+                                <th class="p-4 text-left">Trạng Thái</th>
+                                <th class="p-4 text-left">Thao Tác</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="staff : ${staffList}" class="bg-white border-b">
-                <td class="px-4 py-2" th:text="${staff.user.fullName}"></td>
-                <td class="px-4 py-2" th:text="${staff.user.email}"></td>
-                <td class="px-4 py-2" th:text="${staff.role}"></td>
-                <td class="px-4 py-2">
-                    <a th:href="@{'/staff/delete/' + ${staff.staffID}}" class="text-red-500">Xóa</a>
+                            <template x-for="order in filteredOrders" :key="order.id">
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4" x-text="order.id"></td>
+                                    <td class="p-4" x-text="order.customerName"></td>
+                                    <td class="p-4" x-text="order.date"></td>
+                                    <td class="p-4" x-text="formatPrice(order.total)"></td>
+                                    <td class="p-4">
+                                        <span 
+                                            :class="{
+                                                'bg-blue-100 text-blue-800': order.status === 'Mới',
+                                                'bg-yellow-100 text-yellow-800': order.status === 'Đang xử lý',
+                                                'bg-green-100 text-green-800': order.status === 'Hoàn thành',
+                                                'bg-red-100 text-red-800': order.status === 'Hủy'
+                                            }"
+                                            class="px-3 py-1 rounded-full text-sm"
+                                            x-text="order.status">
+                                        </span>
+                                    </td>
+                                    <td class="p-4">
+                                        <div class="flex space-x-2">
+                                            <button @click="viewOrderDetails(order)" 
+                                                    class="text-blue-600 hover:text-blue-800">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button @click="updateOrderStatus(order)" 
+                                                    class="text-green-600 hover:text-green-800">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
                 </td>
             </tr>
+                            </template>
             </tbody>
         </table>
+                </div>
+            </div>
+        </div>
 
-        <!-- Form thêm mới nhân viên -->
-        <div class="mt-6">
-            <h3 class="text-lg font-bold mb-4">Thêm mới nhân viên</h3>
-            <form th:action="@{/staff/add}" method="post" class="space-y-4">
-                <input type="hidden" th:value="${shopID}" name="shopID">
-                <div>
-                    <label class="block text-sm font-medium">User ID:</label>
-                    <input type="text" name="userID" class="w-full border rounded px-4 py-2">
+        <!-- Modal Chi Tiết Đơn Hàng -->
+        <div x-show="selectedOrder" x-cloak 
+             class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+                <div class="flex justify-between items-center border-b pb-4 mb-4">
+                    <h3 class="text-2xl font-semibold">Chi Tiết Đơn Hàng</h3>
+                    <button @click="selectedOrder = null" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div x-show="selectedOrder">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="font-medium">Mã Đơn Hàng:</p>
+                            <p x-text="selectedOrder.id"></p>
+                        </div>
+                        <div>
+                            <p class="font-medium">Ngày Đặt:</p>
+                            <p x-text="selectedOrder.date"></p>
+                        </div>
+                        <div>
+                            <p class="font-medium">Khách Hàng:</p>
+                            <p x-text="selectedOrder.customerName"></p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium">Vai trò:</label>
-                    <input type="text" name="role" class="w-full border rounded px-4 py-2" placeholder="Nhân viên, Quản lý...">
+                            <p class="font-medium">Số Điện Thoại:</p>
+                            <p x-text="selectedOrder.customerPhone"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h4 class="font-semibold mb-2">Danh Sách Dịch Vụ</h4>
+                        <table class="w-full border">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="p-2 text-left">Dịch Vụ</th>
+                                    <th class="p-2 text-left">Số Lượng</th>
+                                    <th class="p-2 text-left">Đơn Giá</th>
+                                    <th class="p-2 text-left">Thành Tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="item in selectedOrder.items" :key="item.id">
+                                    <tr>
+                                        <td class="p-2" x-text="item.name"></td>
+                                        <td class="p-2" x-text="item.quantity"></td>
+                                        <td class="p-2" x-text="formatPrice(item.price)"></td>
+                                        <td class="p-2" x-text="formatPrice(item.price * item.quantity)"></td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="border-t pt-4">
+                        <div class="flex justify-between mb-2">
+                            <span>Tổng Tiền Hàng:</span>
+                            <span x-text="formatPrice(selectedOrder.totalAmount)"></span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span>Phí Vận Chuyển:</span>
+                            <span x-text="formatPrice(selectedOrder.deliveryFee)"></span>
+                        </div>
+                        <div class="flex justify-between font-bold text-lg">
+                            <span>Tổng Thanh Toán:</span>
+                            <span x-text="formatPrice(selectedOrder.grandTotal)"></span>
+                        </div>
+                    </div>
                 </div>
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Thêm</button>
-            </form>
+            </div>
+        </div>
+
+        <!-- Modal Cập Nhật Trạng Thái -->
+        <div x-show="orderStatusModal" x-cloak 
+             class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <h3 class="text-xl font-semibold mb-4">Cập Nhật Trạng Thái Đơn Hàng</h3>
+                
+                <div class="space-y-4">
+                    <select x-model="newOrderStatus" class="w-full p-2 border rounded">
+                        <option value="Mới">Mới</option>
+                        <option value="Đang xử lý">Đang xử lý</option>
+                        <option value="Hoàn thành">Hoàn thành</option>
+                        <option value="Hủy">Hủy</option>
+                    </select>
+                    
+                    <textarea x-model="orderStatusNote" 
+                              class="w-full p-2 border rounded" 
+                              placeholder="Ghi chú (nếu có)"></textarea>
+                    
+                    <div class="flex justify-end space-x-2">
+                        <button @click="orderStatusModal = false" 
+                                class="bg-gray-200 text-gray-800 px-4 py-2 rounded">
+                            Hủy
+                        </button>
+                        <button @click="confirmOrderStatusUpdate" 
+                                class="bg-blue-600 text-white px-4 py-2 rounded">
+                            Xác Nhận
+                        </button>
+                    </div>
         </div>
     </div>
 </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="/js/staffOrderManager.js"></script>
 </body>
 </html>

@@ -64,8 +64,21 @@
     async loadShopProfile() {
         try {
             console.log('Loading shop profile...');
-            // Lấy shopId từ URL hoặc session
-            const shopId = 1; // Thay thế bằng shopId thực tế
+            // Lấy shopId từ localStorage
+            const userData = localStorage.getItem('user');
+            let shopId = 1; // Mặc định là shop 1
+            
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    if (user && user.shopId) {
+                        shopId = user.shopId;
+                        console.log('Using shopId from localStorage:', shopId);
+                    }
+                } catch (error) {
+                    console.warn('Error parsing user data from localStorage:', error);
+                }
+            }
             
             const response = await fetch(`http://localhost:8080/api/shops/${shopId}`);
             if (!response.ok) {
@@ -872,7 +885,7 @@
                     <tbody class="divide-y divide-gray-200">
                     <tr>
                         <td class="px-6 py-4">#12345</td>
-                        <td class="px-6 py-4">Nguyễn Văn A</td>
+                        <td class="px-6 py-4">Nguyễn Văn Linh</td>
                         <td class="px-6 py-4">Giặt & Ủi</td>
                         <td class="px-6 py-4">150.000đ</td>
                         <td class="px-6 py-4">2024-03-20</td>
