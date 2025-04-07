@@ -14,7 +14,7 @@ Nền tảng web đa người dùng, nơi các cửa hàng giặt ủi có thể
 
 •	Quản trị viên: Giám sát hệ thống, kiểm soát bảo mật, quản lý thông báo.
 
-
+Giao diện đăng kí và đăng nhập hệ thống.
 ![image alt](https://github.com/PhuocTrong2005/-Platform-to-manage-laundry-shops/blob/1f8b2efe2533ece5ad3b43e6b18b7a18b6642568/z6457843889437_023930cdde701888fe48991c0cf0e07c.jpg)
 ![image alt](https://github.com/PhuocTrong2005/-Platform-to-manage-laundry-shops/blob/bff624110ac1adef3727bf0a282aa19796b24ca3/3.jpg)
 ![image alt](https://github.com/PhuocTrong2005/-Platform-to-manage-laundry-shops/blob/9be728f16c6dbf98f476a62aeb526e2d67019efa/z6457844425428_db9b9242c4fe810ab0a20424ddc44149.jpg)
