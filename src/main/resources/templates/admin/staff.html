@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý nhân viên - PMLS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Times New Roman', Times, serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <header class="bg-gray-800 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <img src="https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg" 
+                     alt="Logo" 
+                     class="h-10 w-10 rounded-full">
+                <span class="text-xl font-semibold">Quản lý nhân viên</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span id="staffName" class="text-sm">Xin chào, <span th:text="${user != null ? user.fullName : 'Nhân viên'}">Nhân viên</span></span>
+                <a href="/index" class="text-sm hover:text-gray-300">Đăng xuất</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Dashboard Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-500">
+                        <i class="fas fa-tasks text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold">Đơn hàng mới</h3>
+                        <p class="text-2xl font-bold" id="newOrders">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 text-green-500">
+                        <i class="fas fa-check-circle text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold">Đơn hoàn thành</h3>
+                        <p class="text-2xl font-bold" id="completedOrders">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-500">
+                        <i class="fas fa-clock text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold">Đang xử lý</h3>
+                        <p class="text-2xl font-bold" id="processingOrders">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold">Danh sách đơn hàng</h2>
+                <div class="flex space-x-4">
+                    <select id="orderStatus" class="border rounded px-3 py-2">
+                        <option value="all">Tất cả</option>
+                        <option value="new">Mới</option>
+                        <option value="processing">Đang xử lý</option>
+                        <option value="completed">Hoàn thành</option>
+                    </select>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã đơn</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách hàng</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dịch vụ</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày tạo</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="ordersTableBody">
+                        <!-- Orders will be loaded here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Order Details Modal -->
+    <div id="orderModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Chi tiết đơn hàng</h3>
+                <div id="orderDetails" class="space-y-4">
+                    <!-- Order details will be loaded here -->
+                </div>
+                <div class="mt-4 flex justify-end space-x-3">
+                    <button onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                        Đóng
+                    </button>
+                    <button onclick="updateOrderStatus()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                        Cập nhật trạng thái
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load orders when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrders();
+        });
+
+        // Filter orders by status
+        document.getElementById('orderStatus').addEventListener('change', function() {
+            loadOrders();
+        });
+
+        function loadOrders() {
+            const status = document.getElementById('orderStatus').value;
+            // TODO: Implement API call to load orders
+            // This is a placeholder for demonstration
+            const orders = [
+                {
+                    id: 'ORD001',
+                    customer: 'Nguyễn Văn A',
+                    service: 'Giặt ủi',
+                    status: 'Mới',
+                    date: '2024-03-29'
+                },
+                // Add more sample orders
+            ];
+
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = orders.map(order => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">${order.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${order.customer}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${order.service}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            ${order.status === 'Mới' ? 'bg-green-100 text-green-800' : 
+                              order.status === 'Đang xử lý' ? 'bg-yellow-100 text-yellow-800' : 
+                              'bg-blue-100 text-blue-800'}">
+                            ${order.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">${order.date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <button onclick="showOrderDetails('${order.id}')" 
+                                class="text-blue-600 hover:text-blue-900">
+                            Chi tiết
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function showOrderDetails(orderId) {
+            // TODO: Implement API call to get order details
+            document.getElementById('orderModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('orderModal').classList.add('hidden');
+        }
+
+        function updateOrderStatus() {
+            // TODO: Implement API call to update order status
+            closeModal();
+            loadOrders();
+        }
+    </script>
+</body>
+</html>

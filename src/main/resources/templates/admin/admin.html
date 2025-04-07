@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PMLS - Hệ thống Quản lý Giặt ủi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <style>
+        .sidebar-link.active {
+            background-color: rgba(55, 65, 81, 1);
+            border-left: 4px solid #60A5FA;
+        }
+        .dashboard-card {
+            transition: all 0.3s ease;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 40;
+                transition: transform 0.3s ease;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+        .testimonial {
+            transition: all 0.3s ease;
+        }
+        .testimonial:hover {
+            background-color: rgba(55, 65, 81, 1);
+        }
+        .price-item:hover {
+            background-color: #4B5563;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-white flex flex-col sm:flex-row min-h-screen">
+
+<!-- Mobile menu button -->
+<div class="sm:hidden fixed top-4 left-4 z-50">
+    <button id="menu-toggle" class="text-white focus:outline-none">
+        <i class="fas fa-bars text-2xl"></i>
+    </button>
+</div>
+
+<!-- SIDEBAR -->
+<div id="sidebar" class="sidebar w-64 bg-gray-800 h-screen p-4 shadow-lg flex flex-col">
+    <div class="flex items-center justify-center mb-8 mt-4">
+        <i class="fas fa-tshirt text-blue-400 text-2xl mr-2"></i>
+        <h2 class="text-xl font-bold text-blue-400">PMLS</h2>
+    </div>
+
+    <div class="flex-grow">
+        <nav>
+            <ul>
+                <li class="mt-2">
+                    <a href="#" class="sidebar-link active flex items-center p-3 rounded hover:bg-gray-700 transition-all">
+                        <i class="fas fa-home mr-3 text-blue-400"></i>
+                        Trang chính
+                    </a>
+                </li>
+                <li class="mt-2">
+                    <a th:href="@{/orders}" class="sidebar-link flex items-center p-3 rounded hover:bg-gray-700 transition-all">
+                        <i class="fas fa-shopping-cart mr-3 text-blue-400"></i>
+                        Quản lý Đơn hàng
+                    </a>
+                </li>
+                <li class="mt-2">
+                    <a th:href="@{/stores}" class="sidebar-link flex items-center p-3 rounded hover:bg-gray-700 transition-all">
+                        <i class="fas fa-store mr-3 text-blue-400"></i>
+                        Quản lý Cửa hàng
+                    </a>
+                </li>
+                <li class="mt-2">
+                    <a th:href="@{/report}" class="sidebar-link flex items-center p-3 rounded hover:bg-gray-700 transition-all">
+                        <i class="fas fa-chart-line mr-3 text-blue-400"></i>
+                        Báo cáo
+                    </a>
+                </li>
+                <li class="mt-2">
+                    <a href="settings.html" class="sidebar-link flex items-center p-3 rounded hover:bg-gray-700 transition-all">
+                        <i class="fas fa-cog mr-3 text-blue-400"></i>
+                        Cài đặt
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="mt-auto mb-4">
+        <div class="bg-gray-700 p-3 rounded text-sm">
+            <p>Đang đăng nhập với vai trò</p>
+            <p class="font-bold">Quản trị viên</p>
+        </div>
+        <button class="mt-4 w-full flex items-center justify-center p-2 bg-red-600 hover:bg-red-700 rounded transition-all">
+            <i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất
+        </button>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="main-content flex-grow p-6 sm:ml-64">
+    <!-- Header with search and notification -->
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-2xl font-semibold">Bảng điều khiển</h2>
+        <div class="flex items-center space-x-4">
+            <div class="relative">
+                <input type="text" class="bg-gray-800 rounded-full px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tìm kiếm...">
+                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+            </div>
+            <div class="relative">
+                <i class="fas fa-bell text-xl cursor-pointer hover:text-blue-400 transition-colors"></i>
+                <span class="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="dashboard-card bg-gradient-to-r from-blue-500 to-blue-700 p-6 rounded-xl shadow-lg">
+            <div class="flex justify-between">
+                <div>
+                    <p class="text-sm text-blue-100">Đơn hàng hôm nay</p>
+                    <h3 class="text-3xl font-bold mt-1">24</h3>
+                </div>
+                <div class="bg-blue-400 bg-opacity-30 p-3 rounded-full">
+                    <i class="fas fa-shopping-bag text-2xl"></i>
+                </div>
+            </div>
+            <p class="text-sm mt-4 text-blue-100"><i class="fas fa-arrow-up"></i> 12% so với hôm qua</p>
+        </div>
+
+        <div class="dashboard-card bg-gradient-to-r from-green-500 to-green-700 p-6 rounded-xl shadow-lg">
+            <div class="flex justify-between">
+                <div>
+                    <p class="text-sm text-green-100">Doanh thu hôm nay</p>
+                    <h3 class="text-3xl font-bold mt-1">2.5M</h3>
+                </div>
+                <div class="bg-green-400 bg-opacity-30 p-3 rounded-full">
+                    <i class="fas fa-coins text-2xl"></i>
+                </div>
+            </div>
+            <p class="text-sm mt-4 text-green-100"><i class="fas fa-arrow-up"></i> 8% so với hôm qua</p>
+        </div>
+
+        <div class="dashboard-card bg-gradient-to-r from-yellow-500 to-yellow-700 p-6 rounded-xl shadow-lg">
+            <div class="flex justify-between">
+                <div>
+                    <p class="text-sm text-yellow-100">Khách hàng mới</p>
+                    <h3 class="text-3xl font-bold mt-1">6</h3>
+                </div>
+                <div class="bg-yellow-400 bg-opacity-30 p-3 rounded-full">
+                    <i class="fas fa-user-plus text-2xl"></i>
+                </div>
+            </div>
+            <p class="text-sm mt-4 text-yellow-100"><i class="fas fa-arrow-down"></i> 4% so với hôm qua</p>
+        </div>
+
+        <div class="dashboard-card bg-gradient-to-r from-purple-500 to-purple-700 p-6 rounded-xl shadow-lg">
+            <div class="flex justify-between">
+                <div>
+                    <p class="text-sm text-purple-100">Đơn đang xử lý</p>
+                    <h3 class="text-3xl font-bold mt-1">18</h3>
+                </div>
+                <div class="bg-purple-400 bg-opacity-30 p-3 rounded-full">
+                    <i class="fas fa-spinner text-2xl"></i>
+                </div>
+            </div>
+            <p class="text-sm mt-4 text-purple-100"><i class="fas fa-check"></i> 5 đơn đã hoàn thành hôm nay</p>
+        </div>
+    </div>
+
+    <!-- Thông báo quan trọng -->
+    <div class="bg-red-600 p-4 rounded-lg shadow-lg mb-8 flex items-center">
+        <i class="fas fa-exclamation-circle text-2xl mr-4"></i>
+        <div>
+            <h3 class="font-bold">Thông báo bảo trì hệ thống</h3>
+            <p>Cập nhật bảo trì hệ thống sẽ diễn ra vào 10:00 sáng ngày 5/4. Trong thời gian này, dịch vụ sẽ tạm ngừng hoạt động.</p>
+        </div>
+        <button class="ml-auto bg-white text-red-600 hover:bg-gray-200 px-3 py-1 rounded-full text-sm transition-colors">
+            Xem chi tiết
+        </button>
+    </div>
+
+    <!-- Giới thiệu hệ thống -->
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+        <h3 class="text-xl font-semibold mb-4 flex items-center">
+            <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+            Giới thiệu Hệ thống
+        </h3>
+        <p class="leading-relaxed">
+            PMLS là hệ thống quản lý giặt ủi toàn diện giúp bạn dễ dàng quản lý các đơn hàng, theo dõi tình trạng dịch vụ,
+            và cung cấp trải nghiệm tốt nhất cho khách hàng. Với giao diện trực quan và tính năng mạnh mẽ,
+            chúng tôi cam kết mang lại sự hài lòng tối đa với dịch vụ chuyên nghiệp và nhanh chóng.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            <div class="bg-gray-700 p-4 rounded-lg text-center">
+                <i class="fas fa-bolt text-yellow-400 text-3xl mb-2"></i>
+                <h4 class="font-semibold mb-1">Nhanh chóng</h4>
+                <p class="text-sm text-gray-300">Xử lý đơn hàng trong thời gian ngắn nhất</p>
+            </div>
+            <div class="bg-gray-700 p-4 rounded-lg text-center">
+                <i class="fas fa-shield-alt text-green-400 text-3xl mb-2"></i>
+                <h4 class="font-semibold mb-1">An toàn</h4>
+                <p class="text-sm text-gray-300">Bảo quản đồ của khách hàng cẩn thận</p>
+            </div>
+            <div class="bg-gray-700 p-4 rounded-lg text-center">
+                <i class="fas fa-star text-purple-400 text-3xl mb-2"></i>
+                <h4 class="font-semibold mb-1">Chất lượng</h4>
+                <p class="text-sm text-gray-300">Dịch vụ giặt ủi đạt chuẩn quốc tế</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thông tin quảng cáo -->
+    <div class="bg-gradient-to-r from-blue-800 to-indigo-900 rounded-lg shadow-lg p-6 mb-8 relative overflow-hidden">
+        <div class="absolute top-0 right-0 opacity-10">
+            <i class="fas fa-tag text-9xl transform rotate-45 translate-x-4 -translate-y-4"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-4 flex items-center">
+            <i class="fas fa-bullhorn text-yellow-400 mr-2"></i>
+            Khuyến mãi đặc biệt
+        </h3>
+        <div class="bg-blue-900 bg-opacity-50 p-5 rounded-lg border-l-4 border-yellow-400">
+            <h4 class="text-2xl font-bold text-yellow-300 mb-2">Giảm giá 20% cho đơn hàng đầu tiên!</h4>
+            <p class="text-blue-100 mb-3">Đặt hàng ngay hôm nay để tận hưởng dịch vụ giặt ủi chất lượng cao với mức giá ưu đãi. Chương trình khuyến mãi chỉ áp dụng cho 100 khách hàng đầu tiên!</p>
+            <div class="flex items-center text-blue-100">
+                <i class="fas fa-truck mr-2 text-blue-300"></i>
+                <p>Miễn phí giao hàng cho đơn hàng từ 200.000 VNĐ.</p>
+            </div>
+            <button class="mt-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-6 rounded-full transition-colors inline-flex items-center">
+                <i class="fas fa-check-circle mr-2"></i> Đặt hàng ngay
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Đánh giá khách hàng -->
+        <div class="bg-gray-800 rounded-lg shadow-lg p-6">
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-comments text-blue-400 mr-2"></i>
+                Đánh giá Khách hàng
+            </h3>
+            <div class="space-y-4">
+                <div class="testimonial bg-gray-700 p-4 rounded-lg">
+                    <div class="flex items-center mb-2">
+                        <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center mr-3">
+                            <span class="font-bold">NA</span>
+                        </div>
+                        <div>
+                            <p class="font-bold">Nguyễn Văn A</p>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="italic">"Dịch vụ nhanh chóng và chất lượng tốt! Tôi rất hài lòng với cách phục vụ."</p>
+                </div>
+
+                <div class="testimonial bg-gray-700 p-4 rounded-lg">
+                    <div class="flex items-center mb-2">
+                        <div class="w-10 h-10 rounded-full bg-pink-600 flex items-center justify-center mr-3">
+                            <span class="font-bold">TB</span>
+                        </div>
+                        <div>
+                            <p class="font-bold">Trần Thị B</p>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="italic">"Mình đã sử dụng dịch vụ ở đây nhiều lần và luôn cảm thấy thoải mái. Rất đáng để thử!"</p>
+                </div>
+
+                <div class="testimonial bg-gray-700 p-4 rounded-lg">
+                    <div class="flex items-center mb-2">
+                        <div class="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center mr-3">
+                            <span class="font-bold">LC</span>
+                        </div>
+                        <div>
+                            <p class="font-bold">Lê Thị C</p>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="italic">"Giá cả hợp lý và nhân viên rất thân thiện. Tôi sẽ giới thiệu cho bạn bè!"</p>
+                </div>
+            </div>
+            <button class="mt-4 text-blue-400 hover:text-blue-300 transition-colors flex items-center">
+                <span>Xem tất cả đánh giá</span>
+                <i class="fas fa-chevron-right ml-2"></i>
+            </button>
+        </div>
+
+        <!-- Bảng giá giặt ủi -->
+        <div class="bg-gray-800 rounded-lg shadow-lg p-6">
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-tag text-blue-400 mr-2"></i>
+                Bảng giá Giặt ủi
+            </h3>
+            <div class="space-y-2">
+                <div class="price-item flex justify-between items-center p-3 bg-gray-700 rounded-lg hover:shadow-md transition-all">
+                    <div class="flex items-center">
+                        <i class="fas fa-tshirt text-blue-400 mr-3"></i>
+                        <span>Giặt áo sơ mi</span>
+                    </div>
+                    <span class="font-bold">15.000 VNĐ</span>
+                </div>
+
+                <div class="price-item flex justify-between items-center p-3 bg-gray-700 rounded-lg hover:shadow-md transition-all">
+                    <div class="flex items-center">
+                        <i class="fas fa-male text-blue-400 mr-3"></i>
+                        <span>Giặt quần</span>
+                    </div>
+                    <span class="font-bold">20.000 VNĐ</span>
+                </div>
+
+                <div class="price-item flex justify-between items-center p-3 bg-gray-700 rounded-lg hover:shadow-md transition-all">
+                    <div class="flex items-center">
+                        <i class="fas fa-bed text-blue-400 mr-3"></i>
+                        <span>Giặt chăn</span>
+                    </div>
+                    <span class="font-bold">50.000 VNĐ</span>
+                </div>
+
+                <div class="price-item flex justify-between items-center p-3 bg-gray-700 rounded-lg hover:shadow-md transition-all">
+                    <div class="flex items-center">
+                        <i class="fas fa-socks text-blue-400 mr-3"></i>
+                        <span>Giặt đồ len</span>
+                    </div>
+                    <span class="font-bold">30.000 VNĐ</span>
+                </div>
+
+                <div class="price-item flex justify-between items-center p-3 bg-gray-700 rounded-lg hover:shadow-md transition-all">
+                    <div class="flex items-center">
+                        <i class="fas fa-rug text-blue-400 mr-3"></i>
+                        <span>Giặt thảm</span>
+                    </div>
+                    <span class="font-bold">100.000 VNĐ</span>
+                </div>
+
+                <div class="price-item flex justify-between items-center p-3 bg-gray-700 rounded-lg hover:shadow-md transition-all">
+                    <div class="flex items-center">
+                        <i class="fas fa-shopping-bag text-blue-400 mr-3"></i>
+                        <span>Giặt túi xách</span>
+                    </div>
+                    <span class="font-bold">40.000 VNĐ</span>
+                </div>
+            </div>
+            <button class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors flex items-center justify-center w-full">
+                <i class="fas fa-list-ul mr-2"></i>
+                Xem đầy đủ bảng giá
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 rounded-lg p-6 mt-8">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center mb-4 md:mb-0">
+                <i class="fas fa-tshirt text-blue-400 text-2xl mr-2"></i>
+                <h2 class="text-xl font-bold text-blue-400">PMLS</h2>
+            </div>
+            <div class="flex space-x-4">
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fab fa-youtube"></i>
+                </a>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 mt-4 pt-4 text-center text-gray-400 text-sm">
+            <p>© 2025 PMLS - Hệ thống Quản lý Giặt ủi. Đã đăng ký bản quyền.</p>
+        </div>
+    </footer>
+</main>
+
+<script>
+    // Mobile menu toggle
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+
+    menuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+    });
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth < 640) {
+            if (!sidebar.contains(e.target) && e.target !== menuToggle) {
+                sidebar.classList.remove('open');
+            }
+        }
+    });
+
+    // Sidebar active link
+    const sidebarLinks = document.querySelectorAll('.sidebar-link');
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            sidebarLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+        });
+    });
+</script>
+
+</body>
+</html>

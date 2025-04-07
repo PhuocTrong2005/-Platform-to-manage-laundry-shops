@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý cửa hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h2><i class="bi bi-shop"></i> Quản lý cửa hàng</h2>
+
+    <div id="alertMessage" class="alert d-none" role="alert"></div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">Thêm / Sửa cửa hàng</div>
+        <div class="card-body">
+            <form id="shopForm">
+                <input type="hidden" id="shopId">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Tên cửa hàng</label>
+                        <input type="text" class="form-control" id="shopName" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Địa chỉ</label>
+                        <input type="text" class="form-control" id="shopAddress" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Số điện thoại</label>
+                        <input type="text" class="form-control" id="shopPhone" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="shopEmail">
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Lưu</button>
+                    <button type="reset" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i> Đặt lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-success text-white">Danh sách cửa hàng</div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên cửa hàng</th>
+                    <th>Địa chỉ</th>
+                    <th>Số điện thoại</th>
+                    <th>Email</th>
+                    <th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody id="shopTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        loadShops();
+
+        $("#shopForm").on("submit", function(event) {
+            event.preventDefault();
+            saveShop();
+        });
+    });
+
+    function loadShops() {
+        $.get("/admin/laundry-shops", function(shops) {
+            let rows = "";
+            shops.forEach(shop => {
+                rows += `<tr>
+                    <td>${shop.id}</td>
+                    <td>${shop.name}</td>
+                    <td>${shop.address}</td>
+                    <td>${shop.phone}</td>
+                    <td>${shop.email || 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="editShop(${shop.id})">Sửa</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteShop(${shop.id})">Xóa</button>
+                    </td>
+                </tr>`;
+            });
+            $("#shopTableBody").html(rows);
+        });
+    }
+
+    function saveShop() {
+        let shopData = {
+            id: $("#shopId").val(),
+            name: $("#shopName").val(),
+            address: $("#shopAddress").val(),
+            phone: $("#shopPhone").val(),
+            email: $("#shopEmail").val()
+        };
+
+        let method = shopData.id ? "PUT" : "POST";
+        let url = shopData.id ? `/admin/laundry-shops/update/${shopData.id}` : "/admin/laundry-shops/save";
+
+        $.ajax({
+            url: url,
+            type: method,
+            contentType: "application/json",
+            data: JSON.stringify(shopData),
+            success: function(response) {
+                showAlert("Lưu cửa hàng thành công!", "success");
+                $("#shopForm")[0].reset();
+                loadShops();
+            },
+            error: function() {
+                showAlert("Có lỗi xảy ra khi lưu cửa hàng!", "danger");
+            }
+        });
+    }
+
+    function editShop(id) {
+        $.get(`/admin/laundry-shops/${id}`, function(shop) {
+            $("#shopId").val(shop.id);
+            $("#shopName").val(shop.name);
+            $("#shopAddress").val(shop.address);
+            $("#shopPhone").val(shop.phone);
+            $("#shopEmail").val(shop.email);
+        });
+    }
+
+    function deleteShop(id) {
+        if (confirm("Bạn có chắc muốn xóa cửa hàng này?")) {
+            $.ajax({
+                url: `/admin/laundry-shops/delete/${id}`,
+                type: "DELETE",
+                success: function() {
+                    showAlert("Xóa cửa hàng thành công!", "danger");
+                    loadShops();
+                },
+                error: function() {
+                    showAlert("Có lỗi xảy ra khi xóa cửa hàng!", "danger");
+                }
+            });
+        }
+    }
+
+    function showAlert(message, type) {
+        let alertBox = $("#alertMessage");
+        alertBox.removeClass("d-none alert-success alert-danger alert-info alert-warning")
+            .addClass(`alert-${type}`)
+            .text(message);
+        setTimeout(() => alertBox.addClass("d-none"), 3000);
+    }
+</script>
+</body>
+</html>

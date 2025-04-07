@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Báo cáo</h1>
+
+    <!-- Danh sách đơn hàng -->
+    <div class="mb-4">
+        <h2 class="h4 mb-3">Danh sách đơn hàng</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Tên khách hàng</th>
+                    <th>Ngày đặt</th>
+                    <th>Trạng thái</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${orders}">
+                    <td th:text="${order.id}"></td>
+                    <td th:text="${order.customerName}"></td>
+                    <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${order.status}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Danh sách cửa hàng -->
+    <div class="mb-4">
+        <h2 class="h4 mb-3">Danh sách cửa hàng</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Tên cửa hàng</th>
+                    <th>Địa chỉ</th>
+                    <th>Số điện thoại</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="shop : ${shops}">
+                    <td th:text="${shop.id}"></td>
+                    <td th:text="${shop.name}"></td>
+                    <td th:text="${shop.address}"></td>
+                    <td th:text="${shop.phone}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Danh sách người dùng -->
+    <div class="mb-4">
+        <h2 class="h4 mb-3">Danh sách người dùng</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Họ tên</th>
+                    <th>Email</th>
+                    <th>Số điện thoại</th>
+                    <th>Vai trò</th>
+                    <th>Ngày tạo</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users}">
+                    <td th:text="${user.userId}"></td>
+                    <td th:text="${user.fullName}"></td>
+                    <td th:text="${user.email}"></td>
+                    <td th:text="${user.phone}"></td>
+                    <td th:text="${user.role}"></td>
+                    <td th:text="${#dates.format(user.createdAt, 'dd/MM/yyyy')}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PMLS - Đăng ký</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Time new roman', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gray-800">
+  <header class="bg-gray-800 p-4 flex justify-between items-center shadow-lg fixed w-full top-0 z-50">
+    <div class="flex items-center space-x-4">
+      <a href="/index">
+        <img alt="Company Logo" class="h-10 w-10 rounded-full shadow-md" height="50" src="https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg" width="50"/>
+      </a>
+    </div>
+  </header>
+  <main class="flex flex-col justify-center items-center h-screen mt-16">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+      <h2 class="text-2xl font-bold mb-6 text-center">Đăng ký tài khoản</h2>
+      <form id="registerForm" onsubmit="return handleRegister(event)">
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Họ và tên</label>
+          <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                 id="name" 
+                 name="fullName"
+                 type="text" 
+                 required
+                 placeholder="Nhập họ và tên"/>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>
+          <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                 id="email" 
+                 name="email"
+                 type="email" 
+                 required
+                 placeholder="Nhập email"/>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="phone">Số điện thoại</label>
+          <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                 id="phone" 
+                 name="phone"
+                 type="tel" 
+                 required
+                 placeholder="Nhập số điện thoại"/>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Mật khẩu</label>
+          <div class="relative">
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                   id="password" 
+                   name="password"
+                   type="password" 
+                   required
+                   placeholder="Nhập mật khẩu"/>
+            <button type="button" 
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800"
+                    onclick="togglePassword('password', 'toggleIcon1')">
+              <i class="fas fa-eye" id="toggleIcon1"></i>
+            </button>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="confirm-password">Xác nhận mật khẩu</label>
+          <div class="relative">
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                   id="confirm-password" 
+                   type="password" 
+                   required
+                   placeholder="Xác nhận mật khẩu"/>
+            <button type="button" 
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800"
+                    onclick="togglePassword('confirm-password', 'toggleIcon2')">
+              <i class="fas fa-eye" id="toggleIcon2"></i>
+            </button>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="role">Vai trò</label>
+          <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                  id="role" 
+                  name="role"
+                  required>
+            <option value="">Chọn vai trò</option>
+            <option value="Staff">Staff</option>
+            <option value="Customer">Customer</option>
+            <option value="ShopOwner">Shop Owner</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </div>
+        <div id="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 hidden">
+          <span class="block sm:inline"></span>
+        </div>
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full" 
+                type="submit">Đăng ký</button>
+      </form>
+    </div>
+  </main>
+  <script>
+  async function handleRegister(event) {
+    event.preventDefault();
+    
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    const role = document.getElementById('role').value;
+    const errorMessage = document.getElementById('errorMessage');
+    
+    // Kiểm tra mật khẩu xác nhận
+    if (password !== confirmPassword) {
+      errorMessage.textContent = 'Mật khẩu xác nhận không khớp';
+      errorMessage.classList.remove('hidden');
+      return false;
+    }
+    
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          fullName: name,
+          email: email,
+          phone: phone,
+          password: password,
+          role: role
+        })
+      });
+      
+      if (response.ok) {
+        // Đăng ký thành công
+        window.location.href = '/loginRole';  // Chuyển đến trang đăng nhập
+      } else {
+        const error = await response.text();
+        errorMessage.textContent = error;
+        errorMessage.classList.remove('hidden');
+      }
+    } catch (error) {
+      errorMessage.textContent = 'Có lỗi xảy ra, vui lòng thử lại';
+      errorMessage.classList.remove('hidden');
+    }
+    
+    return false;
+  }
+
+  function togglePassword(inputId, iconId) {
+    const passwordInput = document.getElementById(inputId);
+    const toggleIcon = document.getElementById(iconId);
+    
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      toggleIcon.classList.remove('fa-eye');
+      toggleIcon.classList.add('fa-eye-slash');
+    } else {
+      passwordInput.type = 'password';
+      toggleIcon.classList.remove('fa-eye-slash');
+      toggleIcon.classList.add('fa-eye');
+    }
+  }
+  </script>
+</body>
+</html>
