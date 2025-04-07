@@ -23,6 +23,6 @@ Nền tảng web đa người dùng, nơi các cửa hàng giặt ủi có thể
 
 
 [B]Giao diện đăng nhập trang dành cho admin.
-![image alt](![image](https://github.com/user-attachments/assets/a62f58f6-b389-47ab-a79e-7fdd4a634f7a)
-![image alt](![image](https://github.com/user-attachments/assets/fc6568c7-a647-45ca-96e9-eb3f1bfa80ed)
+![image](https://github.com/user-attachments/assets/a62f58f6-b389-47ab-a79e-7fdd4a634f7a)
+![image](https://github.com/user-attachments/assets/fc6568c7-a647-45ca-96e9-eb3f1bfa80ed)
 
