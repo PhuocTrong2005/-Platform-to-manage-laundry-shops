@@ -23,5 +23,6 @@ Giao diện đăng kí và đăng nhập hệ thống.
 
 
 Giao diện đăng nhập trang dành cho admin.
-![image alt](
+![image alt](![image](https://github.com/user-attachments/assets/a62f58f6-b389-47ab-a79e-7fdd4a634f7a)
+
 ![image alt](
