@@ -107,9 +107,15 @@ document.addEventListener('DOMContentLoaded', function() {
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        document.querySelector(this.getAttribute('href')).scrollIntoView({
-            behavior: 'smooth'
-        });
+        const href = this.getAttribute('href');
+        if (href === "#") return; // Skip empty anchors
+        
+        const element = document.querySelector(href);
+        if (element) {
+            element.scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
     });
 });
 
@@ -307,31 +313,62 @@ const reviewManager = {
         this.editingReview = { ...review };
     },
 
-    renderReviews() {
-        const reviewsContainer = document.getElementById('reviews-container');
-        if (!reviewsContainer) return;
+    renderReviews: function() {
+        // Tìm container
+        let reviewsContainer = document.getElementById('reviews-container');
+        
+        // Nếu không tìm thấy container, tạo mới
+        if (!reviewsContainer) {
+            console.log('Creating new reviews container');
+            const reviewsTab = document.querySelector('[x-show="activeTab === \'reviews\'"]');
+            if (reviewsTab) {
+                reviewsContainer = document.createElement('div');
+                reviewsContainer.id = 'reviews-container';
+                reviewsContainer.className = 'space-y-4 mt-4';
+                reviewsTab.appendChild(reviewsContainer);
+            } else {
+                console.error('Cannot find reviews tab to add container');
+                return;
+            }
+        }
 
-        reviewsContainer.innerHTML = this.reviews.map(review => `
-            <div class="review-item">
-                <div class="review-header">
-                    <div class="review-rating">
-                        ${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}
+        // Hiển thị thông báo nếu không có đánh giá
+        if (!this.reviews || this.reviews.length === 0) {
+            reviewsContainer.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-comment-slash text-4xl mb-2"></i>
+                    <p>Chưa có đánh giá nào</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Xóa nội dung cũ
+        reviewsContainer.innerHTML = '';
+        
+        // Thêm các đánh giá
+        this.reviews.forEach(review => {
+            const reviewElement = document.createElement('div');
+            reviewElement.className = 'review-item bg-white p-4 rounded-lg shadow-sm mb-4';
+            
+            const date = new Date(review.createdAt).toLocaleDateString('vi-VN');
+            const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+            
+            reviewElement.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <div class="font-medium">${review.customerName || 'Khách hàng'}</div>
+                        <div class="text-sm text-gray-500">${date}</div>
                     </div>
-                    <div class="review-date">
-                        ${new Date(review.createdAt).toLocaleDateString()}
+                    <div class="text-yellow-400">
+                        ${stars}
                     </div>
                 </div>
-                <div class="review-comment">${review.comment}</div>
-                <div class="review-actions">
-                    <button @click="reviewManager.editReview(${JSON.stringify(review)})" class="btn-edit">
-                        Sửa
-                    </button>
-                    <button @click="reviewManager.deleteReview(${review.id})" class="btn-delete">
-                        Xóa
-                    </button>
-                </div>
-            </div>
-        `).join('');
+                <p class="text-gray-700 my-2">${review.comment}</p>
+            `;
+            
+            reviewsContainer.appendChild(reviewElement);
+        });
     }
 };
 
@@ -869,4 +906,93 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.customerManager) {
         window.customerManager.init();
     }
-}); 
+});
+
+// Xử lý đánh giá
+let currentRating = 0;
+
+function setRating(rating) {
+    currentRating = rating;
+    document.getElementById('rating').value = rating;
+    
+    // Cập nhật hiển thị sao
+    const stars = document.querySelectorAll('.star-btn');
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.classList.remove('text-gray-300');
+            star.classList.add('text-yellow-400');
+        } else {
+            star.classList.remove('text-yellow-400');
+            star.classList.add('text-gray-300');
+        }
+    });
+}
+
+function submitReview() {
+    const rating = parseInt(document.getElementById('rating').value);
+    const comment = document.getElementById('comment').value;
+    const imageFiles = document.getElementById('reviewImages').files;
+    
+    // Validation
+    if (!rating || rating < 1) {
+        alert('Vui lòng chọn số sao đánh giá (1-5)');
+        return;
+    }
+    
+    if (!comment || comment.trim().length < 10) {
+        alert('Vui lòng nhập nhận xét ít nhất 10 ký tự');
+        return;
+    }
+    
+    // Tạo dữ liệu đánh giá
+    const reviewData = {
+        rating: rating,
+        comment: comment,
+        images: []
+    };
+    
+    // Kiểm tra user đăng nhập
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+        reviewData.customerId = parseInt(userId);
+    } else {
+        // Trong chế độ demo, sử dụng ID mẫu
+        if (window.laundryConfig?.simulationMode) {
+            reviewData.customerId = 999;
+        } else {
+            alert('Vui lòng đăng nhập để gửi đánh giá');
+            return;
+        }
+    }
+    
+    // Lấy shopId từ trang
+    const shopElement = document.querySelector('[data-shop-id]');
+    if (shopElement) {
+        reviewData.shopId = parseInt(shopElement.dataset.shopId);
+    } else {
+        // Trong chế độ demo, sử dụng ID mẫu
+        if (window.laundryConfig?.simulationMode) {
+            reviewData.shopId = 1;
+        } else {
+            alert('Không tìm thấy thông tin cửa hàng');
+            return;
+        }
+    }
+    
+    console.log('Submitting review:', reviewData);
+    
+    // Gửi đánh giá qua reviewManager
+    if (window.reviewManager) {
+        const success = window.reviewManager.submitReview(reviewData);
+        if (success) {
+            // Reset form
+            document.getElementById('rating').value = 0;
+            document.getElementById('comment').value = '';
+            document.getElementById('reviewImages').value = '';
+            setRating(0);
+        }
+    } else {
+        console.error('reviewManager not found');
+        alert('Có lỗi xảy ra khi gửi đánh giá');
+    }
+} 

@@ -7,35 +7,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
     
-    <!-- Thư viện chính cần tải trước -->
+    <!-- Thư viện chính -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stomp-websocket@2.3.4/lib/stomp.min.js"></script>
     
-    <!-- Script ứng dụng - đảm bảo tải theo thứ tự đúng -->
+    <!-- Script ứng dụng -->
     <script>
-    // Cấu hình ứng dụng
     window.laundryConfig = {
-        simulationMode: true,  // Bật chế độ giả lập khi API chưa hoàn thiện
-        debug: false           // Cấu hình debug
+        simulationMode: false
     };
     </script>
     <script src="/js/orderManager.js"></script>
-    <script src="/js/debug/debugHelper.js"></script>
-    
-    <script>
-        // Đảm bảo OrderManager được khởi tạo khi trang tải xong
-        document.addEventListener('DOMContentLoaded', function() {
-            if (window.orderManager && typeof window.orderManager.init === 'function') {
-                console.log('Khởi tạo OrderManager...');
-                window.orderManager.init();
-            } else {
-                console.error('Không tìm thấy OrderManager!');
-            }
-        });
-    </script>
-    
     <script src="/js/customer.js" defer></script>
     <script src="/js/reviewManager.js" defer></script>
     <link rel="stylesheet" th:href="@{css/styleCustomer.css}">
@@ -446,57 +430,88 @@
             </div>
 
             <!-- Reviews Section -->
-            <div x-show="activeTab === 'reviews'" x-cloak class="space-y-6">
+            <div x-show="activeTab === 'reviews'" class="space-y-4">
+                <h2 class="text-2xl font-semibold mb-4">Đánh giá của tôi</h2>
+                
+                <!-- Form đánh giá mới -->
                 <div class="bg-white rounded-lg shadow p-6">
-                <h2 class="text-2xl font-semibold mb-6">Đánh giá của tôi</h2>
-                    
-                    <!-- Review Form -->
-                    <div class="mb-6 p-4 border rounded-lg">
-                        <h3 class="text-lg font-medium mb-4">Viết đánh giá mới</h3>
-                        <form @submit.prevent="submitReview" class="space-y-4">
-                                <div>
-                                <label class="block text-sm font-medium text-gray-700">Đánh giá</label>
-                                <div class="flex items-center mt-1">
-                                    <template x-for="i in 5" :key="i">
-                                        <button type="button" @click="newReview.rating = i"
-                                                class="text-2xl focus:outline-none"
-                                                :class="i <= newReview.rating ? 'text-yellow-400' : 'text-gray-300'">
-                                            <i class="fas fa-star"></i>
-                                        </button>
-                                    </template>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Nhận xét</label>
-                                <textarea x-model="newReview.comment"
-                                          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                          rows="3"
-                                          placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Hình ảnh</label>
-                                <input type="file" multiple
-                                       @change="handleImageUpload"
-                                       class="mt-1 block w-full text-sm text-gray-500
-                                              file:mr-4 file:py-2 file:px-4
-                                              file:rounded-md file:border-0
-                                              file:text-sm file:font-semibold
-                                              file:bg-blue-50 file:text-blue-700
-                                              hover:file:bg-blue-100">
-                            </div>
-                            <div class="flex justify-end">
-                                <button type="submit"
-                                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                                    <i class="fas fa-paper-plane mr-2"></i>Gửi đánh giá
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- Reviews Container -->
-                    <div class="reviews-container space-y-4">
-                        <!-- Reviews will be rendered here by JavaScript -->
+                    <h3 class="text-lg font-semibold mb-4">Thêm đánh giá mới</h3>
+                    <form @submit.prevent="submitReview" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Cửa hàng</label>
+                            <select x-model="newReview.shopId" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Chọn cửa hàng</option>
+                                <template x-for="shop in shops" :key="shop.id">
+                                    <option :value="shop.id" x-text="shop.name"></option>
+                                </template>
+                            </select>
                         </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Đánh giá</label>
+                            <div class="flex items-center mt-1">
+                                <template x-for="star in 5">
+                                    <button type="button"
+                                        @click="newReview.rating = star"
+                                        class="text-2xl focus:outline-none"
+                                        :class="star <= newReview.rating ? 'text-yellow-400' : 'text-gray-300'">
+                                        ★
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nhận xét</label>
+                            <textarea x-model="newReview.comment" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Hình ảnh (tùy chọn)</label>
+                            <input type="file" multiple accept="image/*" @change="handleImageUpload" class="mt-1 block w-full">
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                <template x-for="(image, index) in newReview.images" :key="index">
+                                    <div class="relative">
+                                        <img :src="image" class="h-20 w-20 object-cover rounded">
+                                        <button type="button" @click="removeImage(index)" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">
+                                Gửi đánh giá
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Danh sách đánh giá -->
+                <div class="space-y-4">
+                    <template x-for="review in reviews" :key="review.id">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h4 class="font-semibold" x-text="review.shopName"></h4>
+                                    <div class="flex items-center mt-1">
+                                        <template x-for="star in 5">
+                                            <span class="text-yellow-400" x-text="star <= review.rating ? '★' : '☆'"></span>
+                                        </template>
+                                    </div>
+                                </div>
+                                <span class="text-sm text-gray-500" x-text="formatDate(review.createdAt)"></span>
+                            </div>
+                            <p class="text-gray-700" x-text="review.comment"></p>
+                            <div class="mt-4 flex flex-wrap gap-2" x-show="review.images && review.images.length">
+                                <template x-for="image in review.images">
+                                    <img :src="image" class="h-20 w-20 object-cover rounded">
+                                </template>
+                            </div>
+                        </div>
+                    </template>
                 </div>
             </div>
 
@@ -722,7 +737,7 @@
             <div class="chat-header bg-[#1F2937] text-white">
                 <div class="chat-title">Chat với cửa hàng</div>
                 <div class="chat-close-button">
-                        <i class="fas fa-times"></i>
+                    <i class="fas fa-times"></i>
                 </div>
             </div>
             <div class="chat-messages">
@@ -735,122 +750,13 @@
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </form>
-          </div>
+            </div>
         </div>
-      </div>
+    </div>
 
-    <!-- Các script bổ sung -->
+    <!-- Scripts -->
     <script src="/js/chatManager.js"></script>
-</main>
-</div>
-
-<!-- Alpine.js Data Script -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Alpine.js data
-    window.Alpine.data('customerApp', () => ({
-        sidebarOpen: false,
-        cartOpen: false,
-        activeTab: 'search',
-        user: null,
-        cart: [],
-        orders: [
-            {
-                id: 'ORD12345',
-                date: '2024-04-01',
-                status: 'Đang xử lý',
-                total: '150.000 ₫',
-                items: ['Giặt ủi thường', 'Giặt nhanh'],
-                tracking: {
-                    current: 'Đang xử lý',
-                    history: [
-                        { status: 'Đã tiếp nhận', time: '10:30' },
-                        { status: 'Đang xử lý', time: '11:15' }
-                    ]
-                }
-            },
-            {
-                id: 'ORD12346',
-                date: '2024-03-28',
-                status: 'Hoàn thành',
-                total: '250.000 ₫',
-                items: ['Giặt khô', 'Giặt đồ da'],
-                tracking: {
-                    current: 'Hoàn thành',
-                    history: [
-                        { status: 'Đã tiếp nhận', time: '09:15' },
-                        { status: 'Đang xử lý', time: '10:30' },
-                        { status: 'Đang giao', time: '15:45' },
-                        { status: 'Hoàn thành', time: '17:20' }
-                    ]
-                }
-            }
-        ],
-        
-        init() {
-            // Lấy thông tin người dùng từ localStorage
-            const userData = localStorage.getItem('user');
-            if (userData) {
-                try {
-                    this.user = JSON.parse(userData);
-                } catch (error) {
-                    console.error('Lỗi khi parse dữ liệu user:', error);
-                    this.user = null;
-                }
-            }
-            
-            // Lấy trạng thái giỏ hàng từ orderManager
-            this.syncCartWithOrderManager();
-            
-            // Xử lý toggle giỏ hàng
-            this.$watch('cartOpen', (value) => {
-                const cartSidebar = document.querySelector('.cart-sidebar');
-                if (cartSidebar) {
-                    if (value) {
-                        cartSidebar.classList.remove('translate-x-full');
-                    } else {
-                        cartSidebar.classList.add('translate-x-full');
-                    }
-                }
-            });
-            
-            // Thiết lập event listeners
-            const closeCartBtn = document.getElementById('close-cart-btn');
-            if (closeCartBtn) {
-                closeCartBtn.addEventListener('click', () => {
-                    this.cartOpen = false;
-                });
-            }
-            
-            // Khởi tạo customerManager nếu có
-            if (window.customerManager) {
-                console.log('Khởi tạo customerManager');
-                window.customerManager.init();
-            }
-        },
-        
-        // Đồng bộ giỏ hàng với orderManager
-        syncCartWithOrderManager() {
-            if (window.orderManager && window.orderManager.orderData) {
-                this.cart = [...window.orderManager.orderData.cart];
-            }
-        },
-        
-        // Hiển thị tổng tiền giỏ hàng
-        cartTotal() {
-            return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-        },
-        
-        // Định dạng giá tiền
-        formatPrice(price) {
-            return new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND',
-                maximumFractionDigits: 0
-            }).format(price);
-        }
-    }));
-});
-</script>
+    <script src="/js/reviewManager.js"></script>
+    <script src="/js/admin/customer.js"></script>
 </body>
 </html>

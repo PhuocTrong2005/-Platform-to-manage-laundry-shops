@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="content">
+        <!-- Security and Access Control -->
+        <div class="bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-shield-alt text-blue-400 mr-2"></i>
+                Bảo mật & Kiểm soát Truy cập
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <h4 class="font-semibold mb-2">Hoạt động đăng nhập gần đây</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <i class="fas fa-user-shield text-green-400 mr-2"></i>
+                                <span>Admin Panel Access</span>
+                            </div>
+                            <span class="text-xs text-gray-400">2 phút trước</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <i class="fas fa-user-shield text-red-400 mr-2"></i>
+                                <span>Failed Login Attempt</span>
+                            </div>
+                            <span class="text-xs text-gray-400">5 phút trước</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <h4 class="font-semibold mb-2">Cài đặt Bảo mật</h4>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span>2FA Authentication</span>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span>Login Notifications</span>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

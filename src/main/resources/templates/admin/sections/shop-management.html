@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="content">
+        <!-- Shop Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="stat-card p-6 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-400">Tổng số cửa hàng</p>
+                        <h3 class="text-2xl font-bold" th:text="${totalShops}">3</h3>
+                    </div>
+                    <div class="stat-icon bg-blue-500/10">
+                        <i class="fas fa-store text-blue-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card p-6 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-400">Cửa hàng hoạt động</p>
+                        <h3 class="text-2xl font-bold" th:text="${activeShops}">3</h3>
+                    </div>
+                    <div class="stat-icon bg-green-500/10">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card p-6 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-400">Đăng ký mới</p>
+                        <h3 class="text-2xl font-bold" th:text="${newRegistrations}">0</h3>
+                    </div>
+                    <div class="stat-icon bg-yellow-500/10">
+                        <i class="fas fa-user-plus text-yellow-500"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop List Table -->
+        <div class="card">
+            <div class="p-6 flex justify-between items-center border-b border-gray-700">
+                <h3 class="text-lg font-semibold">Danh sách cửa hàng</h3>
+                <button class="btn-primary">
+                    <i class="fas fa-plus mr-2"></i>
+                    Thêm cửa hàng
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table class="w-full">
+                    <thead>
+                        <tr>
+                            <th class="text-left">ID</th>
+                            <th class="text-left">Tên cửa hàng</th>
+                            <th class="text-left">Chủ sở hữu</th>
+                            <th class="text-left">Địa chỉ</th>
+                            <th class="text-left">Dịch vụ</th>
+                            <th class="text-left">Giờ hoạt động</th>
+                            <th class="text-center">Trạng thái</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Giặt Ủi Xanh -->
+                        <tr>
+                            <td>1</td>
+                            <td>
+                                <div class="flex items-center">
+                                    <i class="fas fa-store text-blue-400 mr-2"></i>
+                                    <span>Giặt Ủi Xanh</span>
+                                </div>
+                            </td>
+                            <td>Huynh Phuoc Trong</td>
+                            <td>222 Đường 27, Quận 3</td>
+                            <td>Giặt, Sấy, Ủi</td>
+                            <td>8:00 - 20:00</td>
+                            <td class="text-center">
+                                <span class="status-badge status-success">Hoạt động</span>
+                            </td>
+                            <td class="text-center">
+                                <button class="text-blue-400 hover:text-blue-500 mx-1">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-red-400 hover:text-red-500 mx-1">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Giặt Ủi Nhanh -->
+                        <tr>
+                            <td>2</td>
+                            <td>
+                                <div class="flex items-center">
+                                    <i class="fas fa-store text-blue-400 mr-2"></i>
+                                    <span>Giặt Ủi Nhanh</span>
+                                </div>
+                            </td>
+                            <td>Huynh Phuoc Trong</td>
+                            <td>456 Đường Nguyễn Trãi, Quận 5</td>
+                            <td>Giặt, Sấy, Ủi</td>
+                            <td>7:30 - 21:00</td>
+                            <td class="text-center">
+                                <span class="status-badge status-success">Hoạt động</span>
+                            </td>
+                            <td class="text-center">
+                                <button class="text-blue-400 hover:text-blue-500 mx-1">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-red-400 hover:text-red-500 mx-1">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Giặt Ủi Siêu Sạch -->
+                        <tr>
+                            <td>3</td>
+                            <td>
+                                <div class="flex items-center">
+                                    <i class="fas fa-store text-blue-400 mr-2"></i>
+                                    <span>Giặt Ủi Siêu Sạch</span>
+                                </div>
+                            </td>
+                            <td>Nguyen Minh Man</td>
+                            <td>789 Đường Lý Thường Kiệt, Quận 10</td>
+                            <td>Giặt, Sấy, Ủi</td>
+                            <td>8:00 - 19:00</td>
+                            <td class="text-center">
+                                <span class="status-badge status-success">Hoạt động</span>
+                            </td>
+                            <td class="text-center">
+                                <button class="text-blue-400 hover:text-blue-500 mx-1">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-red-400 hover:text-red-500 mx-1">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="p-4 border-t border-gray-700 flex items-center justify-between">
+                <div class="text-sm text-gray-400">
+                    Hiển thị 1-3 của 3 cửa hàng
+                </div>
+                <div class="flex space-x-2">
+                    <button class="btn-primary px-4 py-2 disabled:opacity-50" disabled>
+                        <i class="fas fa-chevron-left mr-2"></i>
+                        Trước
+                    </button>
+                    <button class="btn-primary px-4 py-2 disabled:opacity-50" disabled>
+                        Sau
+                        <i class="fas fa-chevron-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Shop Modal -->
+        <div class="fixed inset-0 bg-black bg-opacity-50 hidden" id="shopModal">
+            <div class="bg-secondary-bg p-6 rounded-lg w-full max-w-2xl mx-auto mt-20">
+                <h3 class="text-lg font-semibold mb-4">Thêm/Sửa cửa hàng</h3>
+                <form>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Tên cửa hàng</label>
+                            <input type="text" class="w-full bg-primary-bg p-2 rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Chủ sở hữu</label>
+                            <select class="w-full bg-primary-bg p-2 rounded">
+                                <option>Chọn chủ sở hữu</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium mb-2">Địa chỉ</label>
+                            <input type="text" class="w-full bg-primary-bg p-2 rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Dịch vụ</label>
+                            <input type="text" class="w-full bg-primary-bg p-2 rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Giờ hoạt động</label>
+                            <input type="text" class="w-full bg-primary-bg p-2 rounded">
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button type="button" class="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600">Hủy</button>
+                        <button type="submit" class="btn-primary">Lưu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const shopModal = document.getElementById('shopModal');
+            const addShopBtn = document.querySelector('.btn-primary');
+            const closeModalBtn = shopModal.querySelector('button[type="button"]');
+            const shopForm = shopModal.querySelector('form');
+            let currentShopId = null;
+
+            // Show modal
+            function showModal(shopData = null) {
+                shopModal.classList.remove('hidden');
+                if (shopData) {
+                    currentShopId = shopData.id;
+                    fillFormWithShopData(shopData);
+                } else {
+                    currentShopId = null;
+                    shopForm.reset();
+                }
+            }
+
+            // Hide modal
+            function hideModal() {
+                shopModal.classList.add('hidden');
+                shopForm.reset();
+                currentShopId = null;
+            }
+
+            // Fill form with shop data for editing
+            function fillFormWithShopData(shop) {
+                const inputs = shopForm.elements;
+                inputs['shopName'].value = shop.name;
+                inputs['ownerSelect'].value = shop.ownerId;
+                inputs['location'].value = shop.location;
+                inputs['services'].value = shop.services;
+                inputs['hours'].value = shop.operatingHours;
+            }
+
+            // Add shop button click
+            addShopBtn.addEventListener('click', () => showModal());
+
+            // Close modal button click
+            closeModalBtn.addEventListener('click', hideModal);
+
+            // Edit shop button click
+            document.querySelectorAll('.edit-shop-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const shopId = e.currentTarget.dataset.shopId;
+                    try {
+                        const response = await fetch(`/api/admin/shops/${shopId}`);
+                        if (response.ok) {
+                            const shopData = await response.json();
+                            showModal(shopData);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching shop data:', error);
+                        alert('Không thể tải thông tin cửa hàng');
+                    }
+                });
+            });
+
+            // Delete shop button click
+            document.querySelectorAll('.delete-shop-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    if (confirm('Bạn có chắc chắn muốn xóa cửa hàng này?')) {
+                        const shopId = e.currentTarget.dataset.shopId;
+                        try {
+                            const response = await fetch(`/api/admin/shops/${shopId}`, {
+                                method: 'DELETE'
+                            });
+                            if (response.ok) {
+                                e.currentTarget.closest('tr').remove();
+                                updateShopCount();
+                            } else {
+                                alert('Không thể xóa cửa hàng');
+                            }
+                        } catch (error) {
+                            console.error('Error deleting shop:', error);
+                            alert('Lỗi khi xóa cửa hàng');
+                        }
+                    }
+                });
+            });
+
+            // Form submit handler
+            shopForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(shopForm);
+                const shopData = {
+                    name: formData.get('shopName'),
+                    ownerId: formData.get('ownerSelect'),
+                    location: formData.get('location'),
+                    services: formData.get('services'),
+                    operatingHours: formData.get('hours')
+                };
+
+                try {
+                    const url = currentShopId 
+                        ? `/api/admin/shops/${currentShopId}`
+                        : '/api/admin/shops';
+                    const method = currentShopId ? 'PUT' : 'POST';
+                    
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(shopData)
+                    });
+
+                    if (response.ok) {
+                        hideModal();
+                        location.reload(); // Refresh to show updated data
+                    } else {
+                        const error = await response.json();
+                        alert(error.message || 'Có lỗi xảy ra');
+                    }
+                } catch (error) {
+                    console.error('Error saving shop:', error);
+                    alert('Lỗi khi lưu thông tin cửa hàng');
+                }
+            });
+
+            // Update shop statistics
+            function updateShopCount() {
+                const totalShops = document.querySelector('[th\\:text="${totalShops}"]');
+                const activeShops = document.querySelector('[th\\:text="${activeShops}"]');
+                if (totalShops) {
+                    totalShops.textContent = (parseInt(totalShops.textContent) - 1).toString();
+                }
+                if (activeShops) {
+                    activeShops.textContent = (parseInt(activeShops.textContent) - 1).toString();
+                }
+            }
+
+            // Close modal when clicking outside
+            shopModal.addEventListener('click', (e) => {
+                if (e.target === shopModal) {
+                    hideModal();
+                }
+            });
+
+            // Initialize tooltips
+            const tooltips = document.querySelectorAll('[data-tooltip]');
+            tooltips.forEach(tooltip => {
+                tooltip.addEventListener('mouseenter', (e) => {
+                    const tip = document.createElement('div');
+                    tip.className = 'tooltip';
+                    tip.textContent = e.target.dataset.tooltip;
+                    document.body.appendChild(tip);
+                    
+                    const rect = e.target.getBoundingClientRect();
+                    tip.style.top = rect.bottom + 5 + 'px';
+                    tip.style.left = rect.left + (rect.width - tip.offsetWidth) / 2 + 'px';
+                });
+
+                tooltip.addEventListener('mouseleave', () => {
+                    const tips = document.querySelectorAll('.tooltip');
+                    tips.forEach(tip => tip.remove());
+                });
+            });
+        });
+    </script>
+
+    <style>
+        .tooltip {
+            position: absolute;
+            background: var(--secondary-bg);
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            z-index: 50;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .form-error {
+            color: #F64E60;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .input-error {
+            border-color: #F64E60;
+        }
+    </style>
+</body>
+</html> 

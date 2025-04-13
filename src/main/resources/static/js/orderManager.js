@@ -71,14 +71,6 @@ window.orderManager = {
     // Hiển thị chi tiết cửa hàng
     async showShopDetails(shopId) {
         try {
-            console.log('DEBUG: Hiển thị chi tiết shop ID:', shopId);
-            
-            // DEBUG: Kiểm tra templates
-            console.log('DEBUG: Templates có tồn tại không?', {
-                modalTemplate: !!document.getElementById('shop-detail-modal-template'),
-                serviceTemplate: !!document.getElementById('service-item-template')
-            });
-            
             this.orderData.selectedShop = null;
             
             // Lấy dữ liệu cửa hàng từ API
@@ -101,215 +93,104 @@ window.orderManager = {
                 
                 // Lấy danh sách dịch vụ
                 const services = await servicesResponse.json();
-                console.log(`Đã tải ${services.length} dịch vụ cho shop ${shopId}`);
                 
                 // Tạo đánh giá ngẫu nhiên
                 const rating = (4.0 + Math.random() * 1.0).toFixed(1);
                 const reviewCount = Math.floor(50 + Math.random() * 150);
                 
-                // Tạo đối tượng shopData hoàn chỉnh
+                // Kết hợp thông tin
                 shopData = {
-                    id: shopBasicInfo.id,
-                    shopName: shopBasicInfo.shopName,
-                    location: shopBasicInfo.location,
-                    operatingHours: shopBasicInfo.operatingHours || '08:00 - 20:00',
+                    ...shopBasicInfo,
+                    services: services,
                     rating: rating,
-                    reviewCount: reviewCount,
-                    services: services.map(service => ({
-                        id: service.id,
-                        serviceName: service.serviceName,
-                        price: service.price,
-                        description: `Dịch vụ ${service.serviceName} chất lượng cao`
-                    }))
+                    reviewCount: reviewCount
                 };
-                
             } catch (error) {
-                console.warn('Không thể lấy dữ liệu cửa hàng từ API, sử dụng dữ liệu mẫu:', error.message);
-                
-                // Dữ liệu mẫu nếu API không có
+                // Xử lý lỗi khi API không có sẵn
                 shopData = {
                     id: shopId,
-                    shopName: 'Tiệm giặt ủi ' + shopId,
-                    location: 'Địa chỉ cửa hàng ' + shopId,
-                    rating: 4.5,
-                    reviewCount: 120,
-                    operatingHours: '08:00 - 20:00',
+                    name: 'Tiệm giặt ' + shopId,
+                    address: '123 Đường ABC, Quận XYZ',
+                    phone: '0123456789',
+                    rating: (4.0 + Math.random() * 1.0).toFixed(1),
+                    reviewCount: Math.floor(50 + Math.random() * 150),
                     services: [
-                        { id: 1, serviceName: 'Giặt ủi thường', price: 50000, description: 'Giặt ủi quần áo thông thường' },
-                        { id: 2, serviceName: 'Giặt khô', price: 80000, description: 'Giặt khô quần áo cao cấp' },
-                        { id: 3, serviceName: 'Giặt nhanh', price: 100000, description: 'Giặt ủi nhanh trong 4 giờ' },
-                        { id: 4, serviceName: 'Giặt đồ da', price: 150000, description: 'Giặt làm sạch đồ da chuyên nghiệp' }
+                        {
+                            id: 1,
+                            serviceName: 'Giặt ủi thường',
+                            price: 15000,
+                            description: 'Giặt ủi thông thường'
+                        },
+                        {
+                            id: 2,
+                            serviceName: 'Giặt hấp',
+                            price: 20000,
+                            description: 'Giặt hấp cao cấp'
+                        }
                     ]
                 };
             }
-            
-            // Lưu shop đã chọn
+
+            // Lưu thông tin shop đã chọn
             this.orderData.selectedShop = shopData;
             
-            // Hiển thị modal chi tiết shop
-            this.renderShopDetailModal(shopData);
-        } catch (error) {
-            console.error('Lỗi khi hiển thị chi tiết shop:', error);
-            alert('Không thể tải thông tin cửa hàng. Vui lòng thử lại sau.');
-        }
-    },
-
-    // Render modal chi tiết shop
-    renderShopDetailModal(shopData) {
-        // Kiểm tra xem có template không
-        const modalTemplate = document.getElementById('shop-detail-modal-template');
-        const serviceTemplate = document.getElementById('service-item-template');
-        
-        if (!modalTemplate || !serviceTemplate) {
-            console.error('Không tìm thấy template cho modal chi tiết shop hoặc dịch vụ');
-            console.log('DEBUG: Templates tồn tại khi render:', {
-                modalTemplate: !!modalTemplate,
-                serviceTemplate: !!serviceTemplate,
-                bodyContainsModalTemplate: document.body.innerHTML.includes('shop-detail-modal-template')
-            });
+            // Hiển thị modal
+            const modalTemplate = document.getElementById('shop-detail-modal-template');
+            const serviceTemplate = document.getElementById('service-item-template');
             
-            // Thử tạo modal thủ công nếu không tìm thấy templates
-            this.createManualShopModal(shopData);
-            return;
-        }
-        
-        console.log('Đang render shop modal cho shop:', shopData.shopName);
-        
-        // Clone template modal
-        const modalContent = modalTemplate.content.cloneNode(true);
-        
-        // Cập nhật thông tin shop
-        modalContent.querySelector('.shop-name').textContent = shopData.shopName;
-        modalContent.querySelector('.shop-location').textContent = shopData.location;
-        modalContent.querySelector('.shop-hours').textContent = shopData.operatingHours;
-        modalContent.querySelector('.shop-rating').textContent = shopData.rating;
-        modalContent.querySelector('.shop-reviews').textContent = `(${shopData.reviewCount})`;
-        
-        // Set ngày mặc định cho lịch hẹn
-        const today = new Date().toISOString().split('T')[0];
-        const scheduleDate = modalContent.querySelector('#schedule-date');
-        scheduleDate.value = today;
-        scheduleDate.min = today;
-        
-        // Render danh sách dịch vụ
-        const servicesContainer = modalContent.querySelector('.services-container');
-        servicesContainer.innerHTML = ''; // Xóa nội dung mẫu
-        
-        // Kiểm tra xem có dịch vụ không
-        if (!shopData.services || shopData.services.length === 0) {
-            servicesContainer.innerHTML = '<div class="text-center p-4 text-gray-500">Cửa hàng chưa cung cấp dịch vụ nào</div>';
-        } else {
-            shopData.services.forEach(service => {
-                // Clone template dịch vụ
-                const serviceItem = serviceTemplate.content.cloneNode(true);
+            if (modalTemplate && serviceTemplate) {
+                // Tạo modal từ template
+                const modal = modalTemplate.content.cloneNode(true);
                 
-                // Cập nhật thông tin dịch vụ
-                serviceItem.querySelector('.service-name').textContent = service.serviceName;
-                serviceItem.querySelector('.service-price').textContent = this.formatPrice(service.price);
-                serviceItem.querySelector('.service-description').textContent = service.description || 'Không có mô tả';
+                // Cập nhật thông tin shop
+                modal.querySelector('.shop-name').textContent = shopData.name;
+                modal.querySelector('.shop-address').textContent = shopData.address;
+                modal.querySelector('.shop-phone').textContent = shopData.phone;
+                modal.querySelector('.shop-rating').textContent = shopData.rating;
+                modal.querySelector('.review-count').textContent = `(${shopData.reviewCount} đánh giá)`;
                 
-                // Lưu ID dịch vụ vào các nút
-                const addToCartBtn = serviceItem.querySelector('.add-to-cart-btn');
-                addToCartBtn.dataset.serviceId = service.id;
-                addToCartBtn.dataset.serviceName = service.serviceName;
-                addToCartBtn.dataset.servicePrice = service.price;
-                
-                // Lưu ID dịch vụ vào input số lượng
-                const quantityInput = serviceItem.querySelector('.service-quantity');
-                quantityInput.id = `quantity-${service.id}`;
-                
-                // Thêm vào container
-                servicesContainer.appendChild(serviceItem);
-            });
-        }
-        
-        // Tạo modal element nếu chưa có
-        let shopModal = document.getElementById('shop-detail-modal');
-        if (!shopModal) {
-            shopModal = document.createElement('div');
-            shopModal.id = 'shop-detail-modal';
-            document.body.appendChild(shopModal);
-        }
-        
-        // Xóa nội dung cũ và thêm nội dung mới
-        shopModal.innerHTML = '';
-        shopModal.appendChild(modalContent);
-        
-        // Hiển thị modal
-        shopModal.style.display = 'block';
-        shopModal.classList.add('fixed', 'inset-0', 'z-50');
-        
-        console.log('Đã hiển thị shop modal');
-        
-        // Xử lý sự kiện
-        this.setupShopModalEvents(shopModal, shopData);
-    },
-
-    // Thiết lập sự kiện cho modal chi tiết shop
-    setupShopModalEvents(modal, shopData) {
-        // Sự kiện đóng modal
-        const closeBtn = modal.querySelector('.close-shop-modal');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                modal.style.display = 'none';
-            });
-        }
-        
-        // Sự kiện click bên ngoài đóng modal
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
-        
-        // Sự kiện thêm vào giỏ hàng
-        const addToCartBtns = modal.querySelectorAll('.add-to-cart-btn');
-        addToCartBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const serviceId = btn.dataset.serviceId;
-                const serviceName = btn.dataset.serviceName;
-                const servicePrice = parseFloat(btn.dataset.servicePrice);
-                const quantityInput = document.getElementById(`quantity-${serviceId}`);
-                const quantity = parseInt(quantityInput?.value || '1');
-                
-                this.addToCart({
-                    id: serviceId,
-                    shopId: shopData.id,
-                    shopName: shopData.shopName,
-                    name: serviceName,
-                    price: servicePrice,
-                    quantity: quantity
+                // Tạo danh sách dịch vụ
+                const servicesList = modal.querySelector('.services-list');
+                shopData.services.forEach(service => {
+                    const serviceItem = serviceTemplate.content.cloneNode(true);
+                    
+                    serviceItem.querySelector('.service-name').textContent = service.serviceName;
+                    serviceItem.querySelector('.service-price').textContent = 
+                        new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
+                            .format(service.price);
+                    serviceItem.querySelector('.service-description').textContent = service.description;
+                    
+                    // Thêm sự kiện cho nút thêm vào giỏ
+                    const addToCartBtn = serviceItem.querySelector('.add-to-cart-btn');
+                    addToCartBtn.dataset.serviceId = service.id;
+                    addToCartBtn.dataset.serviceName = service.serviceName;
+                    addToCartBtn.dataset.servicePrice = service.price;
+                    addToCartBtn.addEventListener('click', () => {
+                        this.addToCart(service);
+                    });
+                    
+                    servicesList.appendChild(serviceItem);
                 });
-            });
-        });
-        
-        // Sự kiện đặt lịch hẹn
-        const scheduleBtn = modal.querySelector('.schedule-pickup-btn');
-        if (scheduleBtn) {
-            scheduleBtn.addEventListener('click', () => {
-                const scheduleDate = document.getElementById('schedule-date').value;
-                const scheduleTime = document.getElementById('schedule-time').value;
                 
-                if (!scheduleDate || !scheduleTime) {
-                    alert('Vui lòng chọn ngày và giờ hẹn');
-                    return;
-                }
+                // Thêm modal vào DOM
+                document.body.appendChild(modal);
                 
-                this.orderData.scheduleDate = scheduleDate;
-                this.orderData.scheduleTime = scheduleTime;
+                // Xử lý đóng modal
+                const modalElement = document.querySelector('.shop-detail-modal');
+                const closeBtn = modalElement.querySelector('.close-modal');
+                closeBtn.onclick = () => {
+                    modalElement.remove();
+                };
                 
-                // Lưu thông tin lịch hẹn
-                alert(`Đã đặt lịch hẹn tại ${shopData.shopName} vào ngày ${scheduleDate} lúc ${scheduleTime}`);
-            });
-        }
-        
-        // Sự kiện xem giỏ hàng
-        const viewCartBtn = modal.querySelector('.view-cart-btn');
-        if (viewCartBtn) {
-            viewCartBtn.addEventListener('click', () => {
-                modal.style.display = 'none';
-                this.showCart();
-            });
+                // Đóng modal khi click bên ngoài
+                modalElement.onclick = (e) => {
+                    if (e.target === modalElement) {
+                        modalElement.remove();
+                    }
+                };
+            }
+        } catch (error) {
+            alert('Có lỗi xảy ra khi hiển thị thông tin cửa hàng');
         }
     },
 
@@ -476,155 +357,85 @@ window.orderManager = {
 
     // Hiển thị form thanh toán
     showCheckoutForm() {
-        console.log('DEBUG: Đang mở form thanh toán...');
-        if (this.orderData.cart.length === 0) {
-            alert('Giỏ hàng của bạn đang trống');
-            return;
-        }
-        
-        // Cập nhật tổng tiền trước khi hiển thị form
-        this.updateTotalAmount();
-        console.log('DEBUG: Tổng tiền:', this.orderData.totalAmount);
-        
-        try {
-            // Xóa modal cũ nếu tồn tại
-            const oldModal = document.getElementById('checkout-modal');
-            if (oldModal) {
-                document.body.removeChild(oldModal);
-                console.log('DEBUG: Đã xóa modal cũ');
-            }
-            
-            // Tạo modal mới
-            const checkoutModal = document.createElement('div');
-            checkoutModal.id = 'checkout-modal';
-            checkoutModal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50';
+        const checkoutModal = document.getElementById('checkout-modal');
+        if (checkoutModal) {
+            // Hiển thị modal
             checkoutModal.style.display = 'block';
-            console.log('DEBUG: Đã tạo modal mới');
             
-            // Tạo nội dung modal
-            checkoutModal.innerHTML = `
-                <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-                    <div class="flex justify-between items-center border-b pb-4 mb-4">
-                        <h3 class="text-2xl font-semibold">Thanh toán</h3>
-                        <button id="close-checkout-modal" class="text-gray-400 hover:text-gray-600">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    
-                    <form id="checkout-form" class="space-y-4">
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2">Thông tin liên hệ</label>
-                            <input type="text" id="contact-name" class="w-full p-2 border rounded" placeholder="Họ và tên" required>
-                        </div>
-                        
-                        <div>
-                            <input type="tel" id="contact-phone" class="w-full p-2 border rounded" placeholder="Số điện thoại" required>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2">Địa chỉ giao nhận</label>
-                            <textarea id="delivery-address" class="w-full p-2 border rounded" rows="3" placeholder="Địa chỉ đến lấy/giao đồ" required></textarea>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2">Thời gian</label>
-                            <div class="grid grid-cols-2 gap-4">
-                                <input type="date" id="pickup-date" class="p-2 border rounded" required>
-                                <input type="time" id="pickup-time" class="p-2 border rounded" required>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2">Ghi chú</label>
-                            <textarea id="order-notes" class="w-full p-2 border rounded" rows="2" placeholder="Ghi chú thêm (nếu có)"></textarea>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2">Phương thức thanh toán</label>
-                            <div class="space-y-2">
-                                <label class="flex items-center">
-                                    <input type="radio" name="payment-method" value="cod" checked>
-                                    <span class="ml-2">Thanh toán khi nhận hàng (COD)</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="radio" name="payment-method" value="banking">
-                                    <span class="ml-2">Chuyển khoản ngân hàng</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="radio" name="payment-method" value="momo">
-                                    <span class="ml-2">Ví MoMo</span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="border-t pt-4">
-                            <div class="flex justify-between mb-2">
-                                <span>Tổng tiền hàng:</span>
-                                <span>${this.formatPrice(this.orderData.totalAmount)}</span>
-                            </div>
-                            <div class="flex justify-between mb-2">
-                                <span>Phí vận chuyển:</span>
-                                <span>${this.formatPrice(15000)}</span>
-                            </div>
-                            <div class="flex justify-between font-bold text-lg">
-                                <span>Tổng thanh toán:</span>
-                                <span>${this.formatPrice(this.orderData.totalAmount + 15000)}</span>
-                            </div>
-                        </div>
-                        
-                        <div class="flex justify-end">
-                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md">
-                                Xác nhận đặt hàng
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            `;
+            // Cập nhật thông tin đơn hàng
+            const cartItemsContainer = checkoutModal.querySelector('#cart-items');
+            const totalElement = checkoutModal.querySelector('#order-total');
             
-            // Thêm modal vào DOM
-            document.body.appendChild(checkoutModal);
-            console.log('DEBUG: Đã thêm modal vào DOM');
-            
-            // Xử lý các sự kiện trong modal
-            document.getElementById('close-checkout-modal').addEventListener('click', () => {
-                checkoutModal.style.display = 'none';
-                console.log('DEBUG: Đã đóng modal thanh toán');
-            });
-            
-            // Khởi tạo giá trị mặc định cho form
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('pickup-date').value = today;
-            document.getElementById('pickup-date').min = today;
-            
-            // Điền thông tin người dùng vào form nếu có
-            if (this.userData) {
-                document.getElementById('contact-name').value = this.userData.fullName || '';
-                document.getElementById('contact-phone').value = this.userData.phone || '';
+            if (cartItemsContainer) {
+                cartItemsContainer.innerHTML = '';
+                let total = 0;
+                
+                this.orderData.cart.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'cart-item flex justify-between items-center py-2';
+                    itemElement.innerHTML = `
+                        <div>
+                            <span class="font-medium">${item.name}</span>
+                            <span class="text-gray-600"> x ${item.quantity}</span>
+                        </div>
+                        <div class="text-right">
+                            ${this.formatPrice(item.price * item.quantity)}
+                        </div>
+                    `;
+                    cartItemsContainer.appendChild(itemElement);
+                    total += item.price * item.quantity;
+                });
+                
+                if (totalElement) {
+                    totalElement.textContent = this.formatPrice(total);
+                }
             }
             
-            // Xử lý sự kiện submit form
+            // Xử lý form thanh toán
             const form = document.getElementById('checkout-form');
             if (form) {
                 form.addEventListener('submit', (e) => {
                     e.preventDefault();
-                    console.log('DEBUG: Form thanh toán đã submit');
                     
-                    // Lấy dữ liệu từ form
+                    // Thu thập dữ liệu form
+                    const formData = new FormData(form);
                     const orderData = {
-                        customerName: document.getElementById('contact-name').value,
-                        customerPhone: document.getElementById('contact-phone').value,
-                        deliveryAddress: document.getElementById('delivery-address').value,
-                        pickupDate: document.getElementById('pickup-date').value,
-                        pickupTime: document.getElementById('pickup-time').value,
-                        notes: document.getElementById('order-notes').value,
-                        paymentMethod: document.querySelector('input[name="payment-method"]:checked').value,
-                        items: this.orderData.cart,
-                        totalAmount: this.orderData.totalAmount,
-                        deliveryFee: 15000,
-                        grandTotal: this.orderData.totalAmount + 15000
+                        customerName: formData.get('customerName'),
+                        customerPhone: formData.get('customerPhone'),
+                        deliveryAddress: formData.get('deliveryAddress'),
+                        pickupDate: formData.get('pickupDate'),
+                        pickupTime: formData.get('pickupTime'),
+                        paymentMethod: formData.get('paymentMethod'),
+                        items: this.orderData.cart.map(item => ({
+                            id: item.id,
+                            name: item.name,
+                            price: item.price,
+                            quantity: item.quantity,
+                            shopId: item.shopId
+                        }))
                     };
                     
-                    console.log('DEBUG: Dữ liệu form:', orderData);
+                    // Kiểm tra dữ liệu
+                    const validationErrors = [];
+                    if (!orderData.customerName) validationErrors.push('Vui lòng nhập họ tên');
+                    if (!orderData.customerPhone) validationErrors.push('Vui lòng nhập số điện thoại');
+                    if (!orderData.deliveryAddress) validationErrors.push('Vui lòng nhập địa chỉ');
+                    if (!orderData.pickupDate) validationErrors.push('Vui lòng chọn ngày lấy hàng');
+                    if (!orderData.pickupTime) validationErrors.push('Vui lòng chọn giờ lấy hàng');
+                    if (!orderData.items || orderData.items.length === 0) validationErrors.push('Giỏ hàng trống');
+                    
+                    // Nếu có lỗi, hiển thị và dừng lại
+                    if (validationErrors.length > 0) {
+                        alert('Vui lòng kiểm tra lại thông tin:\n' + validationErrors.join('\n'));
+                        return;
+                    }
+                    
+                    // Đảm bảo có shopId
+                    if (!orderData.shopId && orderData.items && orderData.items.length > 0 && orderData.items[0].shopId) {
+                        orderData.shopId = orderData.items[0].shopId;
+                    } else if (!orderData.shopId) {
+                        orderData.shopId = 1;
+                    }
                     
                     // Gửi dữ liệu đơn hàng lên server
                     this.submitOrder(orderData, () => {
@@ -632,110 +443,93 @@ window.orderManager = {
                         checkoutModal.style.display = 'none';
                     });
                 });
-            } else {
-                console.error('DEBUG: Không tìm thấy form thanh toán');
             }
-            
-            console.log('DEBUG: Modal thanh toán đã được thiết lập hoàn tất');
-        } catch (error) {
-            console.error('DEBUG: Lỗi khi hiển thị modal thanh toán:', error);
-            alert('Có lỗi xảy ra khi mở form thanh toán. Vui lòng thử lại sau.');
         }
     },
 
-    // Gửi đơn hàng lên server
+    // Gửi đơn hàng
     async submitOrder(orderData, callback) {
         try {
-            console.log('DEBUG: Bắt đầu gửi đơn hàng:', orderData);
+            // Kiểm tra dữ liệu
+            const validationErrors = [];
+            if (!orderData.customerName) validationErrors.push('Vui lòng nhập họ tên');
+            if (!orderData.customerPhone) validationErrors.push('Vui lòng nhập số điện thoại');
+            if (!orderData.deliveryAddress) validationErrors.push('Vui lòng nhập địa chỉ');
+            if (!orderData.pickupDate) validationErrors.push('Vui lòng chọn ngày lấy hàng');
+            if (!orderData.pickupTime) validationErrors.push('Vui lòng chọn giờ lấy hàng');
+            if (!orderData.items || orderData.items.length === 0) validationErrors.push('Giỏ hàng trống');
             
-            // Kiểm tra người dùng đã đăng nhập chưa
-            if (!this.userData) {
-                if (confirm('Vui lòng đăng nhập để đặt hàng. Đến trang đăng nhập?')) {
-                    window.location.href = '/admin/login';
-                }
+            // Nếu có lỗi, hiển thị và dừng lại
+            if (validationErrors.length > 0) {
+                alert('Vui lòng kiểm tra lại thông tin:\n' + validationErrors.join('\n'));
                 return;
+            }
+            
+            // Đảm bảo có shopId
+            if (!orderData.shopId && orderData.items && orderData.items.length > 0 && orderData.items[0].shopId) {
+                orderData.shopId = orderData.items[0].shopId;
+            } else if (!orderData.shopId) {
+                orderData.shopId = 1;
             }
             
             let orderResponse = null;
             
-            // Gửi đơn hàng lên API
             try {
-                console.log('DEBUG: Gửi request tới API...');
+                // Gửi đơn hàng lên server
                 const response = await fetch('/api/orders', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        ...orderData,
-                        customerId: this.userData.userId
-                    })
+                    body: JSON.stringify(orderData)
                 });
                 
                 if (!response.ok) {
-                    throw new Error(`API trả về lỗi ${response.status}`);
+                    throw new Error('Lỗi khi gửi đơn hàng');
                 }
                 
                 orderResponse = await response.json();
-                console.log('DEBUG: Đặt hàng thành công:', orderResponse);
-            } catch (error) {
-                console.warn('DEBUG: Không thể gửi đơn hàng lên API, sử dụng chế độ giả lập:', error.message);
-                // Giả lập thành công trong môi trường development
-                orderResponse = {
-                    id: 'ORD' + Date.now(),
-                    status: 'Đang xử lý',
-                    ...orderData
-                };
-            }
-            
-            // Thông báo thành công
-            alert(`Đặt hàng thành công! Mã đơn hàng: ${orderResponse.id}`);
-            
-            // Xóa giỏ hàng
-            this.clearCart();
-            
-            // Gọi callback nếu có
-            if (typeof callback === 'function') {
-                callback();
-            }
-            
-            // Chuyển đến trang đơn hàng
-            const alpineData = document.querySelector('[x-data]')?._x_dataStack?.[0];
-            if (alpineData) {
-                alpineData.activeTab = 'orders';
                 
-                // Thêm đơn hàng mới vào danh sách
-                if (Array.isArray(alpineData.orders)) {
-                    const newOrder = {
-                        id: orderResponse.id,
-                        date: new Date().toISOString().split('T')[0],
-                        status: orderResponse.status || 'Đang xử lý',
-                        total: this.formatPrice(orderResponse.grandTotal),
-                        items: orderResponse.items.map(item => item.name),
-                        tracking: {
-                            current: 'Đang xử lý',
-                            history: [
-                                { status: 'Đã tiếp nhận', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
-                            ]
-                        }
+            } catch (error) {
+                // Nếu API lỗi, tạo đơn hàng giả
+                if (window.laundryConfig?.simulationMode) {
+                    orderResponse = {
+                        id: 'ORD' + Math.floor(Math.random() * 10000),
+                        status: 'PENDING',
+                        items: orderData.items,
+                        total: orderData.items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+                        customerName: orderData.customerName,
+                        customerPhone: orderData.customerPhone,
+                        deliveryAddress: orderData.deliveryAddress,
+                        pickupDate: orderData.pickupDate,
+                        pickupTime: orderData.pickupTime
                     };
-                    
-                    // Thêm vào đầu danh sách
-                    alpineData.orders.unshift(newOrder);
+                } else {
+                    throw error;
                 }
             }
             
-            // Đóng modal thanh toán
-            const checkoutModal = document.getElementById('checkout-modal');
-            if (checkoutModal) {
-                checkoutModal.style.display = 'none';
+            if (orderResponse) {
+                // Xóa giỏ hàng
+                this.clearCart();
+                
+                // Hiển thị thông báo thành công
+                alert('Đặt hàng thành công! Mã đơn hàng: ' + orderResponse.id);
+                
+                // Gọi callback nếu có
+                if (typeof callback === 'function') {
+                    callback(orderResponse);
+                }
+                
+                // Gửi sự kiện đặt hàng thành công
+                const orderPlacedEvent = new CustomEvent('orderPlaced', {
+                    detail: orderResponse
+                });
+                document.dispatchEvent(orderPlacedEvent);
             }
             
-            console.log('DEBUG: Hoàn tất quy trình đặt hàng');
-            
         } catch (error) {
-            console.error('DEBUG: Lỗi khi gửi đơn hàng:', error);
-            alert('Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại sau.');
+            alert('Có lỗi xảy ra khi đặt hàng: ' + error.message);
         }
     },
 

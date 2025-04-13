@@ -1,38 +1,42 @@
 version: '3.8'
 
 services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: laundry-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - laundry-network
+
+  # Spring Boot Application
   app:
-    build: .
-    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laundry-app
+    depends_on:
+      - sqlserver
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://sqlserver:1433;databaseName=laundrydb;encrypt=false
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=YourStrong@Passw0rd
     ports:
       - "8080:8080"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/pmls_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=pmls_user
-      - SPRING_DATASOURCE_PASSWORD=pmls_password
-    depends_on:
-      - db
     networks:
-      - pmls-network
-
-  db:
-    image: mysql:8.0
-    restart: always
-    environment:
-      - MYSQL_DATABASE=pmls_db
-      - MYSQL_USER=pmls_user
-      - MYSQL_PASSWORD=pmls_password
-      - MYSQL_ROOT_PASSWORD=root_password
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql-data:/var/lib/mysql
-    networks:
-      - pmls-network
-
-networks:
-  pmls-network:
-    driver: bridge
+      - laundry-network
 
 volumes:
-  mysql-data: 
+  sqlserver_data:
+    driver: local
+
+networks:
+  laundry-network:
+    driver: bridge 

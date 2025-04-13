@@ -3,322 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PMLS - Quản Lý Đơn Hàng</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-    
-    <!-- Alpine.js -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    
-    <!-- WebSocket -->
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/stomp-websocket@2.3.4/lib/stomp.min.js"></script>
-    
+    <title>PMLS - Nhân viên</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        [x-cloak] { display: none !important; }
+        .sidebar-link.active {
+            background-color: #4F46E5;
+            color: white;
+        }
+        .sidebar-link:hover:not(.active) {
+            background-color: #6366F1;
+            color: white;
+        }
+        .task-card {
+            transition: all 0.3s ease;
+        }
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
-<body class="bg-gray-100 flex" x-data="staffOrderManager">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-white shadow-md h-screen fixed left-0 top-0 z-40 flex flex-col">
-        <!-- Logo Section -->
-        <div class="flex items-center justify-center h-20 border-b">
-            <img src="https://storage.googleapis.com/a1aa/image/hd1mAGyVCYYPVAtfkt7e6lWmPMG3mDW6LAtKRO2mzfs.jpg" 
-                 alt="PMLS Logo" 
-                 class="h-16 w-auto object-contain">
-        </div>
-        
-        <!-- Navigation Menu -->
-        <nav class="flex-grow pt-6">
-            <ul>
-                <li>
-                    <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 
-                        border-l-4 border-transparent hover:border-blue-500">
-                        <i class="fas fa-chart-pie mr-3"></i>
-                        Tổng Quan
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 
-                        border-l-4 border-blue-500 bg-gray-100 text-blue-600">
-                        <i class="fas fa-shopping-cart mr-3"></i>
-                        Quản Lý Đơn Hàng
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 
-                        border-l-4 border-transparent hover:border-blue-500">
-                        <i class="fas fa-users mr-3"></i>
-                        Khách Hàng
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 
-                        border-l-4 border-transparent hover:border-blue-500">
-                        <i class="fas fa-cog mr-3"></i>
-                        Cài Đặt
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        
-        <!-- User Profile Section -->
-        <div class="border-t p-6">
-            <div class="flex items-center">
-                <img src="/images/avatar-placeholder.png" 
-                     alt="User Avatar" 
-                     class="w-10 h-10 rounded-full mr-3">
-                <div>
-                    <p class="font-semibold text-gray-800">Nhân Viên</p>
-                    <p class="text-sm text-gray-500">Staff</p>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-white shadow-lg">
+            <!-- Logo -->
+            <div class="flex items-center justify-center h-16 border-b">
+                <i class="fas fa-tshirt text-indigo-600 text-2xl mr-2"></i>
+                <span class="text-xl font-semibold text-gray-800">PMLS Staff</span>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="mt-6">
+                <div class="px-4 py-2">
+                    <div class="flex items-center mb-4 p-2 rounded-lg bg-gray-100">
+                        <img src="/images/default-avatar.png" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
+                        <div>
+                            <p class="text-sm font-medium text-gray-900" th:text="${session.user != null ? session.user.fullName : 'Nhân viên'}">Nhân viên</p>
+                            <p class="text-xs text-gray-500">Nhân viên</p>
+                        </div>
+                    </div>
                 </div>
-                <button class="ml-auto text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
+
+                <a href="/staff" class="sidebar-link flex items-center px-6 py-3 hover:bg-gray-100">
+                    <i class="fas fa-home mr-3 text-gray-600"></i>
+                    <span>Trang chủ</span>
+                </a>
+
+                <a href="/staff/orders" class="sidebar-link flex items-center px-6 py-3 hover:bg-gray-100">
+                    <i class="fas fa-tasks mr-3 text-gray-600"></i>
+                    <span>Quản lý Đơn hàng</span>
+                </a>
+
+                <a href="/staff/schedule" class="sidebar-link flex items-center px-6 py-3 hover:bg-gray-100">
+                    <i class="fas fa-calendar-alt mr-3 text-gray-600"></i>
+                    <span>Lịch làm việc</span>
+                </a>
+
+                <a href="/staff/stats" class="sidebar-link flex items-center px-6 py-3 hover:bg-gray-100">
+                    <i class="fas fa-chart-line mr-3 text-gray-600"></i>
+                    <span>Thống kê</span>
+                </a>
+
+                <a href="/staff/settings" class="sidebar-link flex items-center px-6 py-3 hover:bg-gray-100">
+                    <i class="fas fa-cog mr-3 text-gray-600"></i>
+                    <span>Cài đặt</span>
+                </a>
+            </nav>
+
+            <!-- Logout Button -->
+            <div class="absolute bottom-0 w-64 border-t">
+                <a href="/staff/logout" class="flex items-center px-6 py-3 hover:bg-red-100 text-red-500">
+                    <i class="fas fa-sign-out-alt mr-3"></i>
+                    <span>Đăng xuất</span>
+                </a>
             </div>
         </div>
-    </aside>
 
-    <!-- Main Content Area -->
-    <main class="ml-64 flex-grow p-8 overflow-auto">
-        <div class="container mx-auto px-4 py-8">
-            <header class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-800">Quản Lý Đơn Hàng</h1>
-                <p class="text-gray-600">Xử lý và theo dõi các đơn hàng đang chờ</p>
+        <!-- Main Content -->
+        <div class="flex-1 overflow-y-auto">
+            <!-- Header -->
+            <header class="bg-white shadow-sm">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <h1 class="text-2xl font-semibold text-gray-800">Dashboard</h1>
+                    <div class="flex items-center space-x-4">
+                        <!-- Notifications -->
+                        <div class="relative">
+                            <button class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-bell text-xl"></i>
+                                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
+                            </button>
+                        </div>
+                        <!-- Profile Menu -->
+                        <div class="relative">
+                            <button class="flex items-center space-x-2 text-gray-700 hover:text-gray-900">
+                                <img src="/images/default-avatar.png" alt="Profile" class="w-8 h-8 rounded-full">
+                                <span th:text="${session.user != null ? session.user.fullName : 'Nhân viên'}">Nhân viên</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </header>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Thống kê nhanh -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold mb-4">Tổng Quan</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Đơn hàng mới</span>
-                            <span class="font-bold text-blue-600" x-text="orderStats.newOrders">0</span>
+            <!-- Content -->
+            <main class="p-6">
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-indigo-100 text-indigo-500">
+                                <i class="fas fa-shopping-bag text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-gray-500 text-sm">Đơn hàng hôm nay</h3>
+                                <p class="text-2xl font-semibold text-gray-800" th:text="${todayOrders}">15</p>
+                            </div>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Đang xử lý</span>
-                            <span class="font-bold text-yellow-600" x-text="orderStats.processingOrders">0</span>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-green-100 text-green-500">
+                                <i class="fas fa-check-circle text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-gray-500 text-sm">Đã hoàn thành</h3>
+                                <p class="text-2xl font-semibold text-gray-800" th:text="${completedOrders}">12</p>
+                            </div>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Hoàn thành</span>
-                            <span class="font-bold text-green-600" x-text="orderStats.completedOrders">0</span>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-yellow-100 text-yellow-500">
+                                <i class="fas fa-clock text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-gray-500 text-sm">Đang xử lý</h3>
+                                <p class="text-2xl font-semibold text-gray-800" th:text="${processingOrders}">3</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-blue-100 text-blue-500">
+                                <i class="fas fa-star text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-gray-500 text-sm">Đánh giá</h3>
+                                <p class="text-2xl font-semibold text-gray-800" th:text="${rating}">4.8</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Bộ lọc đơn hàng -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold mb-4">Bộ Lọc</h3>
-                    <div class="space-y-3">
-                        <select @change="filterOrders" x-model="filters.status" class="w-full p-2 border rounded">
-                            <option value="">Tất cả trạng thái</option>
-                            <option value="Mới">Đơn hàng mới</option>
-                            <option value="Đang xử lý">Đang xử lý</option>
-                            <option value="Hoàn thành">Hoàn thành</option>
-                            <option value="Hủy">Đã hủy</option>
-                        </select>
-                        <input type="date" @change="filterOrders" x-model="filters.date" 
-                               class="w-full p-2 border rounded" placeholder="Chọn ngày">
+                <!-- Recent Orders -->
+                <div class="bg-white rounded-lg shadow mb-6">
+                    <div class="p-6 border-b">
+                        <h2 class="text-lg font-semibold text-gray-800">Đơn hàng gần đây</h2>
                     </div>
-                </div>
-
-                <!-- Thống kê doanh thu -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold mb-4">Doanh Thu</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Hôm nay</span>
-                            <span class="font-bold text-green-600" x-text="formatPrice(revenueStats.today)">0 ₫</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Tuần này</span>
-                            <span class="font-bold text-blue-600" x-text="formatPrice(revenueStats.thisWeek)">0 ₫</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Tháng này</span>
-                            <span class="font-bold text-purple-600" x-text="formatPrice(revenueStats.thisMonth)">0 ₫</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Danh sách đơn hàng -->
-            <div class="bg-white rounded-lg shadow mt-6">
-                <div class="p-6 border-b flex justify-between items-center">
-                    <h3 class="text-lg font-semibold">Danh Sách Đơn Hàng</h3>
-                    <div class="flex items-center space-x-2">
-                        <input type="text" x-model="searchQuery" @input="searchOrders"
-                               placeholder="Tìm kiếm đơn hàng..." 
-                               class="p-2 border rounded w-64">
-                        <button @click="refreshOrders" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                            <i class="fas fa-sync"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="p-4 text-left">Mã ĐH</th>
-                                <th class="p-4 text-left">Khách Hàng</th>
-                                <th class="p-4 text-left">Ngày Đặt</th>
-                                <th class="p-4 text-left">Tổng Tiền</th>
-                                <th class="p-4 text-left">Trạng Thái</th>
-                                <th class="p-4 text-left">Thao Tác</th>
-            </tr>
-            </thead>
-            <tbody>
-                            <template x-for="order in filteredOrders" :key="order.id">
-                                <tr class="border-b hover:bg-gray-50">
-                                    <td class="p-4" x-text="order.id"></td>
-                                    <td class="p-4" x-text="order.customerName"></td>
-                                    <td class="p-4" x-text="order.date"></td>
-                                    <td class="p-4" x-text="formatPrice(order.total)"></td>
-                                    <td class="p-4">
-                                        <span 
-                                            :class="{
-                                                'bg-blue-100 text-blue-800': order.status === 'Mới',
-                                                'bg-yellow-100 text-yellow-800': order.status === 'Đang xử lý',
-                                                'bg-green-100 text-green-800': order.status === 'Hoàn thành',
-                                                'bg-red-100 text-red-800': order.status === 'Hủy'
-                                            }"
-                                            class="px-3 py-1 rounded-full text-sm"
-                                            x-text="order.status">
-                                        </span>
-                                    </td>
-                                    <td class="p-4">
-                                        <div class="flex space-x-2">
-                                            <button @click="viewOrderDetails(order)" 
-                                                    class="text-blue-600 hover:text-blue-800">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button @click="updateOrderStatus(order)" 
-                                                    class="text-green-600 hover:text-green-800">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                        </div>
-                </td>
-            </tr>
-                            </template>
-            </tbody>
-        </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal Chi Tiết Đơn Hàng -->
-        <div x-show="selectedOrder" x-cloak 
-             class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-                <div class="flex justify-between items-center border-b pb-4 mb-4">
-                    <h3 class="text-2xl font-semibold">Chi Tiết Đơn Hàng</h3>
-                    <button @click="selectedOrder = null" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div x-show="selectedOrder">
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <p class="font-medium">Mã Đơn Hàng:</p>
-                            <p x-text="selectedOrder.id"></p>
-                        </div>
-                        <div>
-                            <p class="font-medium">Ngày Đặt:</p>
-                            <p x-text="selectedOrder.date"></p>
-                        </div>
-                        <div>
-                            <p class="font-medium">Khách Hàng:</p>
-                            <p x-text="selectedOrder.customerName"></p>
-                </div>
-                <div>
-                            <p class="font-medium">Số Điện Thoại:</p>
-                            <p x-text="selectedOrder.customerPhone"></p>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <h4 class="font-semibold mb-2">Danh Sách Dịch Vụ</h4>
-                        <table class="w-full border">
-                            <thead>
-                                <tr class="bg-gray-100">
-                                    <th class="p-2 text-left">Dịch Vụ</th>
-                                    <th class="p-2 text-left">Số Lượng</th>
-                                    <th class="p-2 text-left">Đơn Giá</th>
-                                    <th class="p-2 text-left">Thành Tiền</th>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã đơn</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách hàng</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dịch vụ</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <template x-for="item in selectedOrder.items" :key="item.id">
-                                    <tr>
-                                        <td class="p-2" x-text="item.name"></td>
-                                        <td class="p-2" x-text="item.quantity"></td>
-                                        <td class="p-2" x-text="formatPrice(item.price)"></td>
-                                        <td class="p-2" x-text="formatPrice(item.price * item.quantity)"></td>
-                                    </tr>
-                                </template>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Sample Order Row -->
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">#12345</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">Nguyễn Văn A</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">Giặt ủi</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            Hoàn thành
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <button class="text-indigo-600 hover:text-indigo-900">Chi tiết</button>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
-                    
-                    <div class="border-t pt-4">
-                        <div class="flex justify-between mb-2">
-                            <span>Tổng Tiền Hàng:</span>
-                            <span x-text="formatPrice(selectedOrder.totalAmount)"></span>
-                        </div>
-                        <div class="flex justify-between mb-2">
-                            <span>Phí Vận Chuyển:</span>
-                            <span x-text="formatPrice(selectedOrder.deliveryFee)"></span>
-                        </div>
-                        <div class="flex justify-between font-bold text-lg">
-                            <span>Tổng Thanh Toán:</span>
-                            <span x-text="formatPrice(selectedOrder.grandTotal)"></span>
+                </div>
+
+                <!-- Work Schedule -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6 border-b">
+                        <h2 class="text-lg font-semibold text-gray-800">Lịch làm việc hôm nay</h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="task-card bg-gray-50 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-600">8:00 - 10:00</span>
+                                    <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Đang xử lý</span>
+                                </div>
+                                <h3 class="font-medium text-gray-800">Giặt ủi - Đơn #12346</h3>
+                                <p class="text-sm text-gray-500 mt-1">2 áo sơ mi, 3 quần tây</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Modal Cập Nhật Trạng Thái -->
-        <div x-show="orderStatusModal" x-cloak 
-             class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                <h3 class="text-xl font-semibold mb-4">Cập Nhật Trạng Thái Đơn Hàng</h3>
-                
-                <div class="space-y-4">
-                    <select x-model="newOrderStatus" class="w-full p-2 border rounded">
-                        <option value="Mới">Mới</option>
-                        <option value="Đang xử lý">Đang xử lý</option>
-                        <option value="Hoàn thành">Hoàn thành</option>
-                        <option value="Hủy">Hủy</option>
-                    </select>
-                    
-                    <textarea x-model="orderStatusNote" 
-                              class="w-full p-2 border rounded" 
-                              placeholder="Ghi chú (nếu có)"></textarea>
-                    
-                    <div class="flex justify-end space-x-2">
-                        <button @click="orderStatusModal = false" 
-                                class="bg-gray-200 text-gray-800 px-4 py-2 rounded">
-                            Hủy
-                        </button>
-                        <button @click="confirmOrderStatusUpdate" 
-                                class="bg-blue-600 text-white px-4 py-2 rounded">
-                            Xác Nhận
-                        </button>
-                    </div>
+            </main>
         </div>
     </div>
-</div>
-    </main>
 
-    <!-- Scripts -->
-    <script src="/js/staffOrderManager.js"></script>
+    <script>
+        // Active link handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const links = document.querySelectorAll('.sidebar-link');
+            
+            links.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

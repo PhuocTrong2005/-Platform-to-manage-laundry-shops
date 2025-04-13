@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="content">
+        <!-- Dashboard Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-gray-800 rounded-lg p-6 dashboard-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400">Tổng số cửa hàng</p>
+                        <h3 class="text-2xl font-bold">156</h3>
+                    </div>
+                    <div class="text-blue-400 bg-blue-400 bg-opacity-20 rounded-full p-3">
+                        <i class="fas fa-store text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm">
+                    <span class="text-green-400"><i class="fas fa-arrow-up"></i> +12%</span>
+                    <span class="text-gray-400 ml-2">so với tháng trước</span>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-lg p-6 dashboard-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400">Đơn hàng trong ngày</p>
+                        <h3 class="text-2xl font-bold">2,451</h3>
+                    </div>
+                    <div class="text-green-400 bg-green-400 bg-opacity-20 rounded-full p-3">
+                        <i class="fas fa-shopping-cart text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm">
+                    <span class="text-green-400"><i class="fas fa-arrow-up"></i> +8%</span>
+                    <span class="text-gray-400 ml-2">so với hôm qua</span>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-lg p-6 dashboard-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400">Người dùng hoạt động</p>
+                        <h3 class="text-2xl font-bold">12,325</h3>
+                    </div>
+                    <div class="text-purple-400 bg-purple-400 bg-opacity-20 rounded-full p-3">
+                        <i class="fas fa-users text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm">
+                    <span class="text-green-400"><i class="fas fa-arrow-up"></i> +15%</span>
+                    <span class="text-gray-400 ml-2">so với tuần trước</span>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-lg p-6 dashboard-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400">Doanh thu hệ thống</p>
+                        <h3 class="text-2xl font-bold">45.2M</h3>
+                    </div>
+                    <div class="text-yellow-400 bg-yellow-400 bg-opacity-20 rounded-full p-3">
+                        <i class="fas fa-chart-line text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm">
+                    <span class="text-green-400"><i class="fas fa-arrow-up"></i> +10%</span>
+                    <span class="text-gray-400 ml-2">so với tháng trước</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

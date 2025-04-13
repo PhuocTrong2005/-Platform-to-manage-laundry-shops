@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="content">
+        <!-- System Notifications -->
+        <div class="bg-gray-800 rounded-lg shadow-lg p-6">
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-bullhorn text-blue-400 mr-2"></i>
+                Thông báo Hệ thống
+            </h3>
+            <div class="space-y-4">
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <h4 class="font-semibold">Bảo trì Hệ thống</h4>
+                    <p class="text-sm text-gray-400 mt-1">Hệ thống sẽ được nâng cấp vào ngày 20/04/2024 từ 02:00 - 04:00</p>
+                    <div class="mt-2 flex items-center space-x-2">
+                        <button class="bg-blue-500 text-white px-3 py-1 rounded text-sm">Gửi thông báo</button>
+                        <button class="bg-gray-600 text-white px-3 py-1 rounded text-sm">Chỉnh sửa</button>
+                    </div>
+                </div>
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <h4 class="font-semibold">Tính năng Mới</h4>
+                    <p class="text-sm text-gray-400 mt-1">Ra mắt tính năng thanh toán qua ví điện tử</p>
+                    <div class="mt-2 flex items-center space-x-2">
+                        <button class="bg-blue-500 text-white px-3 py-1 rounded text-sm">Gửi thông báo</button>
+                        <button class="bg-gray-600 text-white px-3 py-1 rounded text-sm">Chỉnh sửa</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

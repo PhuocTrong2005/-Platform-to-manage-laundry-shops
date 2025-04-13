@@ -1,0 +1,355 @@
+<!-- Khu vực đánh giá -->
+<section id="reviews" class="py-16 bg-blue-50">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-10">Đánh giá từ khách hàng</h2>
+        
+        <div id="reviews-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Đánh giá sẽ được hiển thị ở đây -->
+            <div class="text-center py-4">
+                <p class="text-gray-500">Đang tải đánh giá...</p>
+            </div>
+        </div>
+        
+        <!-- Form gửi đánh giá -->
+        <div class="mt-12 bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
+            <h3 class="text-xl font-semibold mb-4">Gửi đánh giá của bạn</h3>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Đánh giá của bạn</label>
+                <div class="flex space-x-1 text-2xl">
+                    <button type="button" onclick="setRating(1)" class="star-btn text-gray-300 hover:text-yellow-400">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button type="button" onclick="setRating(2)" class="star-btn text-gray-300 hover:text-yellow-400">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button type="button" onclick="setRating(3)" class="star-btn text-gray-300 hover:text-yellow-400">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button type="button" onclick="setRating(4)" class="star-btn text-gray-300 hover:text-yellow-400">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button type="button" onclick="setRating(5)" class="star-btn text-gray-300 hover:text-yellow-400">
+                        <i class="fas fa-star"></i>
+                    </button>
+                </div>
+                <input type="hidden" id="rating" value="0">
+            </div>
+            
+            <div class="mb-4">
+                <label for="comment" class="block text-gray-700 mb-2">Nhận xét của bạn</label>
+                <textarea id="comment" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Chia sẻ ý kiến của bạn về dịch vụ..."></textarea>
+            </div>
+            
+            <div class="mb-4">
+                <label for="reviewImages" class="block text-gray-700 mb-2">Hình ảnh (tùy chọn)</label>
+                <input type="file" id="reviewImages" multiple accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+            </div>
+            
+            <button type="button" onclick="submitReview()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50">
+                Gửi đánh giá
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Banner -->
+<section id="home" class="bg-blue-600 text-white py-24">
+    <div class="container mx-auto px-4 flex flex-col md:flex-row items-center">
+        <div class="md:w-1/2 mb-8 md:mb-0" data-shop-id="1">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Giặt Ủi Thanh Tâm</h1>
+            <p class="text-xl mb-8">Dịch vụ giặt ủi chuyên nghiệp, nhanh chóng và uy tín hàng đầu TP.HCM</p>
+            <div class="flex space-x-4">
+                <a href="#services" class="bg-white text-blue-600 hover:bg-blue-100 font-semibold px-6 py-3 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-white">
+                    Dịch vụ của chúng tôi
+                </a>
+                <a href="#contact" class="bg-transparent hover:bg-blue-700 border-2 border-white font-semibold px-6 py-3 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-white">
+                    Liên hệ ngay
+                </a>
+            </div>
+        </div>
+        <div class="md:w-1/2">
+            <img src="/images/laundry-hero.jpg" alt="Dịch vụ giặt ủi" class="rounded-lg shadow-xl">
+        </div>
+    </div>
+</section>
+
+<!-- JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stomp-websocket@2.3.4/lib/stomp.min.js"></script>
+<script src="/js/debug/laundryConfig.js"></script>
+<script src="/js/chatManager.js"></script>
+<script src="/js/customer.js"></script>
+<script src="/js/reviewManager.js"></script>
+<script>
+    // Khởi tạo reviewManager khi trang đã tải xong
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Trang đã tải xong, đang khởi tạo reviewManager...");
+        
+        // Tắt chế độ giả lập để kết nối với DB thực tế
+        window.laundryConfig = window.laundryConfig || {};
+        window.laundryConfig.simulationMode = false;
+        
+        if (window.reviewManager) {
+            console.log("Đã tìm thấy reviewManager, đang khởi tạo...");
+            reviewManager.init();
+            
+            // Đảm bảo tải đánh giá từ DB
+            setTimeout(function() {
+                console.log("Tải lại đánh giá từ database...");
+                reviewManager.loadReviews();
+            }, 500);
+        } else {
+            console.error("Không tìm thấy reviewManager!");
+            // Tạo hàm đơn giản để tải đánh giá trực tiếp
+            loadReviewsDirectly();
+        }
+    });
+    
+    // Hàm tải đánh giá trực tiếp từ API nếu reviewManager không hoạt động
+    function loadReviewsDirectly() {
+        console.log("Tải đánh giá trực tiếp từ API...");
+        const container = document.getElementById('reviews-container');
+        
+        if (!container) {
+            console.error("Không tìm thấy reviews-container");
+            return;
+        }
+        
+        // Hiển thị trạng thái đang tải
+        container.innerHTML = `
+            <div class="col-span-full text-center py-8">
+                <p class="text-gray-500">Đang tải đánh giá từ cơ sở dữ liệu...</p>
+            </div>
+        `;
+        
+        // Lấy shopId
+        let shopId;
+        const urlParams = new URLSearchParams(window.location.search);
+        shopId = urlParams.get('shopId');
+        
+        if (!shopId) {
+            // Thử lấy từ data attribute
+            const shopElement = document.querySelector('[data-shop-id]');
+            if (shopElement) {
+                shopId = shopElement.dataset.shopId;
+                console.log("Đã tìm thấy shopId từ data attribute:", shopId);
+            }
+        }
+        
+        if (!shopId) {
+            console.warn("Không tìm thấy shopId, không thể tải đánh giá");
+            container.innerHTML = `
+                <div class="col-span-full text-center py-8">
+                    <p class="text-gray-500">Vui lòng chọn cửa hàng để xem đánh giá</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Gọi API để lấy đánh giá
+        fetch(`/api/reviews/shop/${shopId}`)
+            .then(response => {
+                console.log("Nhận phản hồi từ API:", response);
+                if (!response.ok) {
+                    throw new Error(`Lỗi API: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(reviews => {
+                console.log("Đã nhận được đánh giá từ API:", reviews);
+                
+                // Xử lý khi không có đánh giá
+                if (!reviews || reviews.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-span-full text-center py-8">
+                            <i class="fas fa-comment-slash text-4xl text-gray-400 mb-4"></i>
+                            <p class="text-gray-500">Chưa có đánh giá nào cho cửa hàng này</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Hiển thị đánh giá
+                container.innerHTML = '';
+                
+                reviews.forEach(review => {
+                    const reviewElement = document.createElement('div');
+                    reviewElement.className = 'bg-white rounded-lg shadow-md p-6 mb-6';
+                    
+                    const customerName = review.customerName || (review.customer ? review.customer.name : 'Khách hàng');
+                    const reviewDate = new Date(review.createdAt).toLocaleDateString('vi-VN');
+                    const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+                    
+                    reviewElement.innerHTML = `
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-medium text-lg">${customerName}</h3>
+                                <p class="text-sm text-gray-500">${reviewDate}</p>
+                            </div>
+                            <div class="text-yellow-400 text-xl">
+                                ${stars}
+                            </div>
+                        </div>
+                        <p class="text-gray-700 mb-4">${review.comment || ''}</p>
+                    `;
+                    
+                    // Thêm ảnh nếu có
+                    if (review.images && review.images.length > 0) {
+                        const imagesContainer = document.createElement('div');
+                        imagesContainer.className = 'grid grid-cols-2 gap-4 mt-4';
+                        
+                        review.images.forEach(image => {
+                            const img = document.createElement('img');
+                            img.src = image.url || image;
+                            img.alt = 'Review image';
+                            img.className = 'rounded-md w-full h-auto object-cover';
+                            imagesContainer.appendChild(img);
+                        });
+                        
+                        reviewElement.appendChild(imagesContainer);
+                    }
+                    
+                    container.appendChild(reviewElement);
+                });
+            })
+            .catch(error => {
+                console.error("Lỗi khi tải đánh giá:", error);
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <p class="text-red-500">Không thể tải đánh giá: ${error.message}</p>
+                        <button onclick="loadReviewsDirectly()" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                            Thử lại
+                        </button>
+                    </div>
+                `;
+            });
+    }
+    
+    // Hàm đặt rating
+    function setRating(value) {
+        document.getElementById('rating').value = value;
+        // Cập nhật hiển thị sao
+        const stars = document.querySelectorAll('.star-btn');
+        stars.forEach((star, index) => {
+            if (index < value) {
+                star.classList.remove('text-gray-300');
+                star.classList.add('text-yellow-400');
+            } else {
+                star.classList.remove('text-yellow-400');
+                star.classList.add('text-gray-300');
+            }
+        });
+    }
+    
+    // Hàm gửi đánh giá
+    function submitReview() {
+        console.log("Đang gửi đánh giá...");
+        const rating = document.getElementById('rating').value;
+        const comment = document.getElementById('comment').value;
+        const imagesInput = document.getElementById('reviewImages');
+        
+        if (!rating || rating === '0') {
+            alert('Vui lòng chọn số sao đánh giá');
+            return;
+        }
+        
+        if (!comment.trim()) {
+            alert('Vui lòng nhập nhận xét của bạn');
+            return;
+        }
+        
+        // Lấy thông tin shop từ URL hoặc từ attribute data-shop-id
+        let shopId = null;
+        const urlParams = new URLSearchParams(window.location.search);
+        shopId = urlParams.get('shopId');
+        
+        // Nếu không có shopId trong URL, thử lấy từ data attribute
+        if (!shopId) {
+            const shopElement = document.querySelector('[data-shop-id]');
+            if (shopElement) {
+                shopId = shopElement.dataset.shopId;
+                console.log("Đã tìm thấy shopId từ data attribute:", shopId);
+            }
+        }
+        
+        if (!shopId) {
+            alert('Không thể xác định cửa hàng để đánh giá');
+            return;
+        }
+        
+        // Lấy thông tin người dùng từ localStorage
+        const userData = localStorage.getItem('user');
+        let customerId = null;
+        
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                customerId = user.userId;
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+            }
+        }
+        
+        if (!customerId) {
+            alert('Vui lòng đăng nhập để gửi đánh giá');
+            return;
+        }
+        
+        // Tạo FormData để gửi lên server
+        const formData = new FormData();
+        formData.append('rating', rating);
+        formData.append('comment', comment);
+        formData.append('shopId', shopId);
+        formData.append('customerId', customerId);
+        
+        // Thêm hình ảnh nếu có
+        if (imagesInput.files.length > 0) {
+            for (let i = 0; i < imagesInput.files.length; i++) {
+                formData.append('images', imagesInput.files[i]);
+            }
+        }
+        
+        console.log("Dữ liệu gửi đi:", {
+            rating,
+            comment,
+            shopId,
+            customerId,
+            hasImages: imagesInput.files.length > 0
+        });
+        
+        // Gửi request lên server
+        fetch('/api/reviews', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            console.log("Nhận phản hồi từ server:", response);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Đánh giá đã được lưu:", data);
+            alert('Đánh giá của bạn đã được gửi thành công!');
+            // Reset form
+            document.getElementById('rating').value = 0;
+            document.getElementById('comment').value = '';
+            document.getElementById('reviewImages').value = '';
+            setRating(0);
+            // Tải lại đánh giá
+            if (window.reviewManager) {
+                reviewManager.loadReviews();
+            } else {
+                loadReviewsDirectly();
+            }
+        })
+        .catch(error => {
+            console.error('Error submitting review:', error);
+            alert('Đã xảy ra lỗi khi gửi đánh giá. Vui lòng thử lại sau.');
+        });
+    }
+</script>
+</body>
+</html> 
