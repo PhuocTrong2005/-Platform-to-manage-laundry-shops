@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Staff </title>
+    <!-- Favicon icon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="./images/logo1.png">
+    <link href="./vendor/pg-calendar/css/pignose.calendar.min.css" rel="stylesheet">
+    <link href="./vendor/chartist/css/chartist.min.css" rel="stylesheet">
+    <link href="./css/style.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+    <!--*******************
+        Preloader start
+    ********************-->
+    <div id="preloader">
+        <div class="sk-three-bounce">
+            <div class="sk-child sk-bounce1"></div>
+            <div class="sk-child sk-bounce2"></div>
+            <div class="sk-child sk-bounce3"></div>
+        </div>
+    </div>
+    <!--*******************
+        Preloader end
+    ********************-->
+
+
+    <!--**********************************
+        Main wrapper start
+    ***********************************-->
+    <div id="main-wrapper">
+
+      <!--**********************************
+      Nav header start
+  ***********************************-->
+      <div class="nav-header">
+        <a href="index.html" class="brand-logo">
+         
+          <img class="brand-title" src="./images/logo1.png" alt="">
+        </a>
+
+        <div class="nav-control">
+          <div class="hamburger">
+            <span class="line"></span><span class="line"></span><span class="line"></span>
+          </div>
+        </div>
+      </div>
+      <!--**********************************
+      Nav header end
+  ***********************************-->
+      <!--**********************************
+      Header start
+  ***********************************-->
+      <div class="header">
+        <div class="header-content">
+          <nav class="navbar navbar-expand">
+            <div class="collapse navbar-collapse justify-content-between">
+              <div class="header-left">
+                <div class="search_bar dropdown">
+                  <span class="search_icon p-3 c-pointer" data-toggle="dropdown">
+                    <i class="mdi mdi-magnify"></i>
+                  </span>
+                  <div class="dropdown-menu p-0 m-0">
+                    <form>
+                      <input class="form-control" type="search" placeholder="Tìm kiếm" aria-label="Search">
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="navbar-nav header-right">
+                <li class="nav-item dropdown notification_dropdown">
+                  <a class="nav-link" href="#" role="button" data-toggle="dropdown">
+                    <i class="mdi mdi-bell"></i>
+                    <div class="pulse-css"></div>
+                  </a>
+                  <div class="dropdown-menu dropdown-menu-right">
+                    <ul class="list-unstyled">
+                      <li class="media dropdown-item">
+                        <span class="success"><i class="ti-user"></i></span>
+                        <div class="media-body">
+                          <a href="#">
+                            <p>
+                              <strong>Đơn ORD123</strong> đã <strong>hoàn thành</strong> (chờ giao)
+                            </p>
+                          </a>
+                        </div>
+                        <span class="notify-time">3:20 pm</span>
+                      </li>
+                      <li class="media dropdown-item">
+                        <span class="primary"><i class="ti-shopping-cart"></i></span>
+                        <div class="media-body">
+                          <a href="#">
+                            <p><strong>Nguyễn Văn A</strong> đã đăng ký dịch vụ <strong>sấy khô</strong></p>
+                          </a>
+                        </div>
+                        <span class="notify-time">9:45 am</span>
+                      </li>
+                      <li class="media dropdown-item">
+                        <span class="danger"><i class="ti-bookmark"></i></span>
+                        <div class="media-body">
+                          <a href="#">
+                            <p>
+                              <strong>Đơn ORD126</strong> sắp hết <strong>thời hạn hoàn thành</strong>
+                            </p>
+                          </a>
+                        </div>
+                        <span class="notify-time">2:32 am</span>
+                      </li>
+                      <li class="media dropdown-item">
+                        <span class="primary"><i class="ti-heart"></i></span>
+                        <div class="media-body">
+                          <a href="#">
+                            <p><strong>Đặng Thị F</strong> đã thích dịch vụ của bạn</p>
+                          </a>
+                        </div>
+                        <span class="notify-time">10:22 am</span>
+                      </li>
+                      <li class="media dropdown-item">
+                        <span class="success"><i class="ti-image"></i></span>
+                        <div class="media-body">
+                          <a href="#">
+                            <p>
+                              <strong> Đơn ORD124</strong> đã <strong>hoàn thành</strong> (chờ giao)
+                            </p>
+                          </a>
+                        </div>
+                        <span class="notify-time">10:35 am</span>
+                      </li>
+                    </ul>
+                    <a class="all-notification" href="#">
+                      Xem tất cả thông báo <i class="ti-arrow-right"></i>
+                    </a>
+                  </div>
+                </li>
+                <li class="nav-item dropdown header-profile">
+                  <a class="nav-link" href="#" role="button" data-toggle="dropdown">
+                    <i class="mdi mdi-account"></i>
+                  </a>
+                  <div class="dropdown-menu dropdown-menu-right">
+
+                    <a href="./page-login.html" class="dropdown-item">
+                      <i class="icon-key"></i>
+                      <span class="ml-2">Đăng xuất </span>
+                    </a>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+      </div>
+      <!--**********************************
+      Header end ti-comment-alt
+  ***********************************-->
+      <!--**********************************
+      Sidebar start
+  ***********************************-->
+      <div class="quixnav">
+        <div class="quixnav-scroll">
+          <ul class="metismenu" id="menu">
+          
+            <!-- <li><a href="index.html"><i class="icon icon-single-04"></i><span class="nav-text">Dashboard</span></a>
+        </li> -->
+            <li>
+              <a class="has-arrow" href="javascript:void()" aria-expanded="false">
+                <i class="icon icon-single-04"></i><span class="nav-text">Danh mục</span>
+              </a>
+              <ul aria-expanded="false">
+                <li><a href="./index.html">Danh sách công việc</a></li>
+                <li><a href="./index2.html">Cập nhật trạng thái đơn hàng</a></li>
+              </ul>
+            </li>
+
+           
+          </ul>
+        </div>
+      </div>
+      <!--**********************************
+      Sidebar end
+  ***********************************-->
+      <!--**********************************
+      Content body start
+  ***********************************-->
+      <div class="content-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header">
+                  <h4 class="card-title">Cập nhật trạng thái đơn hàng</h4>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table mb-0">
+                      <thead>
+                        <tr>
+                          <th>Mã đơn</th>
+                          <th>Khách hàng</th>
+                          <th>Dịch vụ</th>
+                          <th>Ngày nhận</th>
+                          <th>Thời hạn</th>
+                          <th>Trạng thái</th>
+                          <th>Ghi chú</th>
+                          <th>Nhân viên phụ trách</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>ORD123</td>
+                          <td>Nguyễn Văn A</td>
+                          <td>Giặt hấp</td>
+                          <td>13/03/2025</td>
+                          <td>15/03/2025</td>
+                          <td>
+                            <select class="form-control status-select" onchange="updateStatus(this)">
+                              <option value="dang-giat">Chưa giặt</option>
+                              <option value="dang-giat">Đang giặt</option>
+                              <option value="da-ui">Đã ủi</option>
+                              <option value="san-sang-giao" selected>Sẵn sàng giao</option>
+                            </select>
+                          </td>
+                          <td>Yêu cầu gấp</td>
+                          <td>Quốc Khánh</td>
+                        </tr>
+                        <tr>
+                          <td>ORD124</td>
+                          <td>Trần Thị B</td>
+                          <td>Ủi đồ</td>
+                          <td>14/03/2025</td>
+                          <td>16/03/2025</td>
+                          <td>
+                            <select class="form-control status-select" onchange="updateStatus(this)">
+                              <option value="dang-giat">Chưa giặt</option>
+                              <option value="dang-giat">Đang giặt</option>
+                              <option value="da-ui" selected>Đã ủi</option>
+                              <option value="san-sang-giao">Sẵn sàng giao</option>
+                            </select>
+                          </td>
+                          <td>Không có</td>
+                          <td>Quốc Khánh</td>
+                        </tr>
+                        <tr>
+                          <td>ORD125</td>
+                          <td>Lê Văn C</td>
+                          <td>Giặt khô</td>
+                          <td>15/03/2025</td>
+                          <td>17/03/2025</td>
+                          <td>
+                            <select class="form-control status-select" onchange="updateStatus(this)">
+                              <option value="dang-giat">Chưa giặt</option>
+                              <option value="dang-giat" selected>Đang giặt</option>
+                              <option value="da-ui">Đã ủi</option>
+                              <option value="san-sang-giao" >Sẵn sàng giao</option>
+                            </select>
+                          </td>
+                          <td>Giao buổi tối</td>
+                          <td>Quốc Khánh</td>
+                        </tr>
+                        <tr>
+                          <td>ORD126</td>
+                          <td>Phạm Thị D</td>
+                          <td>Giặt nước nóng</td>
+                          <td>16/03/2025</td>
+                          <td>18/03/2025</td>
+                          <td>
+                            <select class="form-control status-select" onchange="updateStatus(this)">
+                              <option value="dang-giat">Chưa giặt</option>
+                              <option value="dang-giat" selected>Đang giặt</option>
+                              <option value="da-ui">Đã ủi</option>
+                              <option value="san-sang-giao">Sẵn sàng giao</option>
+                            </select>
+                          </td>
+                          <td>Chăn dày</td>
+                          <td>Quốc Khánh</td>
+                        </tr>
+                        <tr>
+                          <td>ORD127</td>
+                          <td>Hoàng Văn E</td>
+                          <td>Giặt chăn màn</td>
+                          <td>17/03/2025</td>
+                          <td>19/03/2025</td>
+                          <td>
+                            <select class="form-control status-select" onchange="updateStatus(this)">
+                              <option value="dang-giat" selected>Chưa giặt</option>
+                              <option value="dang-giat">Đang giặt</option>
+                              <option value="da-ui">Đã ủi</option>
+                              <option value="san-sang-giao">Sẵn sàng giao</option>
+                            </select>
+                          </td>
+                          <td>Chăn dày</td>
+                          <td>Quốc Khánh</td>
+                        </tr>
+                        <tr>
+                          <td>ORD128</td>
+                          <td>Đặng Thị F</td>
+                          <td>Giặt hấp</td>
+                          <td>18/03/2025</td>
+                          <td>20/03/2025</td>
+                          <td>
+                            <select class="form-control status-select" onchange="updateStatus(this)">
+                              <option value="dang-giat">Chưa giặt</option>
+                              <option value="dang-giat">Đang giặt</option>
+                              <option value="da-ui" selected>Đã ủi</option>
+                              <option value="san-sang-giao">Sẵn sàng giao</option>
+                            </select>
+                          </td>
+                          <td>Không có</td>
+                          <td>Nguyễn Lan</td>
+                        </tr>
+                        <tr>
+                          <td>ORD129</td>
+                          <td>Bùi Văn G</td>
+                          <td>Ủi đồ</td>
+                          <td>19/03/2025</td>
+                          <td>21/03/2025</td>
+                          <td>
+                            <select class="form-control status-select" onchange="updateStatus(this)">
+                              <option value="dang-giat">Chưa giặt</option>
+                              <option value="dang-giat" selected>Đang giặt</option>
+                              <option value="da-ui">Đã ủi</option>
+                              <option value="san-sang-giao">Sẵn sàng giao</option>
+                            </select>
+                          </td>
+                          <td>Yêu cầu gấp</td>
+                          <td>Nguyễn Lan</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style>
+        .table thead th {
+          color: black !important;
+        }
+
+        .card-title {
+          color: black !important;
+        }
+
+        .status-select {
+          width: 150px; /* Điều chỉnh chiều rộng dropdown cho phù hợp */
+        }
+      </style>
+
+      <script>
+        function updateStatus(select) {
+          const value = select.value;
+          // Có thể thêm logic xử lý khi trạng thái thay đổi, ví dụ gửi dữ liệu lên server
+          console.log(`Trạng thái đơn hàng đã thay đổi thành: ${select.options[select.selectedIndex].text}`);
+        }
+      </script>
+      <!--**********************************
+      Content body end
+  ***********************************-->
+      <!--**********************************
+      Footer start
+  ***********************************-->
+      <div class="footer">
+        <div class="copyright">
+          <p>Copyright © Designed &amp; Developed by <a href="#" target="_blank">PMLS</a> 2025</p>
+        </div>
+      </div>
+      <!--**********************************
+      Footer end
+  ***********************************-->
+      <!--**********************************
+     Support ticket button start
+  ***********************************-->
+      <!--**********************************
+     Support ticket button end
+  ***********************************-->
+
+
+    </div>
+    <!--**********************************
+        Main wrapper end
+    ***********************************-->
+
+    <!--**********************************
+        Scripts
+    ***********************************-->
+    <!-- Required vendors -->
+    <script src="./vendor/global/global.min.js"></script>
+    <script src="./js/quixnav-init.js"></script>
+    <script src="./js/custom.min.js"></script>
+
+    <script src="./vendor/chartist/js/chartist.min.js"></script>
+
+    <script src="./vendor/moment/moment.min.js"></script>
+    <script src="./vendor/pg-calendar/js/pignose.calendar.min.js"></script>
+
+
+    <script src="./js/dashboard/dashboard-2.js"></script>
+    <!-- Circle progress -->
+
+</body>
+
+</html>

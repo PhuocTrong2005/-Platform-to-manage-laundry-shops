@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Staff </title>
+    <!-- Favicon icon -->
+    <link rel="icon" type="image/logo1.png" sizes="16x16" href="./images/logo1.png">
+    <link rel="stylesheet" href="./vendor/owl-carousel/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="./vendor/owl-carousel/css/owl.theme.default.min.css">
+    <link href="./vendor/jqvmap/css/jqvmap.min.css" rel="stylesheet">
+    <link href="./css/style.css" rel="stylesheet">
+  <style>
+    .content-body1 {
+      height: 300px !important; /* Thay đổi theo nhu cầu */
+      width: 80% !important;
+      margin-left: 290px !important;
+      margin-top: 80px !important;
+    }
+</style>
+
+
+
+</head>
+
+<body>
+
+  <!--*******************
+      Preloader start
+  ********************-->
+  <div id="preloader">
+    <div class="sk-three-bounce">
+      <div class="sk-child sk-bounce1"></div>
+      <div class="sk-child sk-bounce2"></div>
+      <div class="sk-child sk-bounce3"></div>
+    </div>
+  </div>
+  <!--*******************
+      Preloader end
+  ********************-->
+  <!--**********************************
+      Main wrapper start
+  ***********************************-->
+  <div id="main-wrapper">
+
+    <!--**********************************
+      Nav header start
+  ***********************************-->
+    <div class="nav-header">
+      <a href="index.html" class="brand-logo">
+        <img class="logo-abbr" src="./images/" alt="">
+        <img class="brand-title" src="./images/logo1.png" alt="">
+      </a>
+
+      <div class="nav-control">
+        <div class="hamburger">
+          <span class="line"></span><span class="line"></span><span class="line"></span>
+        </div>
+      </div>
+    </div>
+    <!--**********************************
+      Nav header end
+  ***********************************-->
+    <!--**********************************
+      Header start
+  ***********************************-->
+    <div class="header">
+      <div class="header-content">
+        <nav class="navbar navbar-expand">
+          <div class="collapse navbar-collapse justify-content-between">
+            <div class="header-left">
+              <div class="search_bar dropdown">
+                <span class="search_icon p-3 c-pointer" data-toggle="dropdown">
+                  <i class="mdi mdi-magnify"></i>
+                </span>
+                <div class="dropdown-menu p-0 m-0">
+                  <form>
+                    <input class="form-control" type="search" placeholder="Tìm kiếm" aria-label="Search">
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <ul class="navbar-nav header-right">
+              <li class="nav-item dropdown notification_dropdown">
+                <a class="nav-link" href="#" role="button" data-toggle="dropdown">
+                  <i class="mdi mdi-bell"></i>
+                  <div class="pulse-css"></div>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                  <ul class="list-unstyled">
+                    <li class="media dropdown-item">
+                      <span class="success"><i class="ti-user"></i></span>
+                      <div class="media-body">
+                        <a href="#">
+                          <p>
+                            <strong>Đơn ORD123</strong> đã <strong>hoàn thành</strong> (chờ giao)
+                          </p>
+                        </a>
+                      </div>
+                      <span class="notify-time">3:20 pm</span>
+                    </li>
+                    <li class="media dropdown-item">
+                      <span class="primary"><i class="ti-shopping-cart"></i></span>
+                      <div class="media-body">
+                        <a href="#">
+                          <p><strong>Nguyễn Văn A</strong> đã đăng ký dịch vụ <strong>sấy khô</strong></p>
+                        </a>
+                      </div>
+                      <span class="notify-time">9:45 am</span>
+                    </li>
+                    <li class="media dropdown-item">
+                      <span class="danger"><i class="ti-bookmark"></i></span>
+                      <div class="media-body">
+                        <a href="#">
+                          <p>
+                            <strong>Đơn ORD126</strong> sắp hết <strong>thời hạn hoàn thành</strong>
+                          </p>
+                        </a>
+                      </div>
+                      <span class="notify-time">2:32 am</span>
+                    </li>
+                    <li class="media dropdown-item">
+                      <span class="primary"><i class="ti-heart"></i></span>
+                      <div class="media-body">
+                        <a href="#">
+                          <p><strong>Đặng Thị F</strong> đã thích dịch vụ của bạn</p>
+                        </a>
+                      </div>
+                      <span class="notify-time">10:22 am</span>
+                    </li>
+                    <li class="media dropdown-item">
+                      <span class="success"><i class="ti-image"></i></span>
+                      <div class="media-body">
+                        <a href="#">
+                          <p>
+                            <strong> Đơn ORD124</strong> đã <strong>hoàn thành</strong> (chờ giao)
+                          </p>
+                        </a>
+                      </div>
+                      <span class="notify-time">10:35 am</span>
+                    </li>
+                  </ul>
+                  <a class="all-notification" href="#">
+                    Xem tất cả thông báo <i class="ti-arrow-right"></i>
+                  </a>
+                </div>
+              </li>
+              <li class="nav-item dropdown header-profile">
+                <a class="nav-link" href="#" role="button" data-toggle="dropdown">
+                  <i class="mdi mdi-account"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+
+                  <a href="./page-login.html" class="dropdown-item">
+                    <i class="icon-key"></i>
+                    <span class="ml-2">Đăng xuất </span>
+                  </a>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </div>
+    <!--**********************************
+      Header end ti-comment-alt
+  ***********************************-->
+    <!--**********************************
+      Sidebar start
+  ***********************************-->
+    <div class="quixnav">
+      <div class="quixnav-scroll">
+        <ul class="metismenu" id="menu">
+         
+          <li>
+            <a class="has-arrow" href="javascript:void()" aria-expanded="false">
+              <i class="icon icon-single-04"></i><span class="nav-text">Danh mục</span>
+            </a>
+            <ul aria-expanded="false">
+              <li><a href="./index.html">Danh sách công việc</a></li>
+              <li><a href="./index2.html">Cập nhật trạng thái đơn hàng</a></li>
+            </ul>
+          </li>
+          
+        </ul>
+      </div>
+
+
+    </div>
+    <!--**********************************
+  Sidebar end
+  ***********************************-->
+    <!--**********************************
+  Profile start
+  ***********************************-->
+    <div class="content-body1">
+      <div class="container-fluid">
+
+        <!-- row -->
+        <div class="row-profile">
+          <div class="col-lg-12">
+            <div class="profile">
+              <div class="profile-head">
+                <div class="photo-content">
+                  <div class="cover-photo"></div>
+                  <div class="profile-photo">
+                    <img src="images/profile/profile.png" class="img-fluid rounded-circle" alt="">
+                  </div>
+                </div>
+                <div class="profile-info">
+                  <div class="row justify-content-center">
+                    <div class="col-xl-8">
+                      <div class="row">
+                        <div class="col-xl-4 col-sm-4 border-right-1 prf-col">
+                          <div class="profile-name">
+                            <h4 class="text-primary">Trần Quốc Khánh</h4>
+                            <p>Nhân viên Phục vụ</p>
+                          </div>
+                        </div>
+                        <div class="col-xl-4 col-sm-4 border-right-1 prf-col">
+                          <div class="profile-email">
+                            <h4 class="text-muted">NV001</h4>
+                            <p>Mã nhân viên</p>
+                          </div>
+                        </div>
+                        <div class="col-xl-4 col-sm-4 border-right-1 prf-col">
+                          <div class="profile-email">
+                            <h4 class="text-muted">CH001</h4>
+                            <p>Mã cửa hàng</p>
+                          </div>
+                        </div>
+                        <!-- <div class="col-xl-4 col-sm-4 prf-col">
+                          <div class="profile-call">
+                              <h4 class="text-muted">(+1) 321-837-1030</h4>
+                              <p>Phone No.</p>
+                          </div>
+                      </div> -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--**********************************
+  Profile end
+  ***********************************-->
+    <!--**********************************
+  Content body start
+  ***********************************-->
+    <div class="content-body">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="card">
+              <div class="card-header">
+                <h4 class="card-title">Danh sách đơn hàng</h4>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table mb-0">
+                    <thead>
+                      <tr>
+                        <th>Mã đơn</th>
+                        <th>Dịch vụ</th>
+                        <th>Khách hàng</th>
+                        <th>Thời hạn</th>
+                        <th>Trạng thái</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>ORD123</td>
+                        <td>Giặt hấp</td>
+                        <td>Nguyễn Văn A</td>
+                        <td>15/03/2025</td>
+                        <td><button class="btn btn-warning btn-sm status-btn" onclick="toggleStatus(this)">Đang xử lý</button></td>
+                      </tr>
+                      <tr>
+                        <td>ORD124</td>
+                        <td>Ủi đồ</td>
+                        <td>Trần Thị B</td>
+                        <td>16/03/2025</td>
+                        <td><button class="btn btn-warning btn-sm status-btn" onclick="toggleStatus(this)">Đang xử lý</button></td>
+                      </tr>
+                      <tr>
+                        <td>ORD125</td>
+                        <td>Giặt khô</td>
+                        <td>Lê Văn C</td>
+                        <td>17/03/2025</td>
+                        <td><button class="btn btn-warning btn-sm status-btn" onclick="toggleStatus(this)">Đang xử lý</button></td>
+                      </tr>
+                      <tr>
+                        <td>ORD126</td>
+                        <td>Giặt nước nóng</td>
+                        <td>Phạm Thị D</td>
+                        <td>18/03/2025</td>
+                        <td><button class="btn btn-warning btn-sm status-btn" onclick="toggleStatus(this)">Đang xử lý</button></td>
+                      </tr>
+                      <tr>
+                        <td>ORD127</td>
+                        <td>Giặt chăn màn</td>
+                        <td>Hoàng Văn E</td>
+                        <td>19/03/2025</td>
+                        <td><button class="btn btn-warning btn-sm status-btn" onclick="toggleStatus(this)">Đang xử lý</button></td>
+                      </tr>
+                      <tr>
+                        <td>ORD128</td>
+                        <td>Giặt hấp</td>
+                        <td>Đặng Thị F</td>
+                        <td>20/03/2025</td>
+                        <td><button class="btn btn-warning btn-sm status-btn" onclick="toggleStatus(this)">Đang xử lý</button></td>
+                      </tr>
+                      <tr>
+                        <td>ORD129</td>
+                        <td>Ủi đồ</td>
+                        <td>Bùi Văn G</td>
+                        <td>21/03/2025</td>
+                        <td><button class="btn btn-warning btn-sm status-btn" onclick="toggleStatus(this)">Đang xử lý</button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      .table thead th {
+        color: black !important;
+      }
+
+      .card-title {
+        color: black !important;
+      }
+    </style>
+
+    <script>
+      function toggleStatus(button) {
+        button.classList.remove('btn-warning');
+        button.classList.add('btn-success');
+        button.textContent = 'Hoàn thành';
+        button.disabled = true;
+      }
+    </script>
+
+    <!--**********************************
+      Content body end
+  ***********************************-->
+    <!--**********************************
+      Footer start
+  ***********************************-->
+    <div class="footer">
+      <div class="copyright">
+        <p>Copyright © Designed &amp; Developed by <a href="#" target="_blank">PMLS</a> 2025</p>
+      </div>
+    </div>
+    <!--**********************************
+      Footer end
+  ***********************************-->
+    <!--**********************************
+     Support ticket button start
+  ***********************************-->
+    <!--**********************************
+     Support ticket button end
+  ***********************************-->
+  </div>
+  <!--**********************************
+      Main wrapper end
+  ***********************************-->
+  <!--**********************************
+      Scripts
+  ***********************************-->
+  <!-- Required vendors -->
+  <script src="./vendor/global/global.min.js"></script>
+  <script src="./js/quixnav-init.js"></script>
+  <script src="./js/custom.min.js"></script>
+
+
+  <!-- Vectormap -->
+  <script src="./vendor/raphael/raphael.min.js"></script>
+  <script src="./vendor/morris/morris.min.js"></script>
+
+
+  <script src="./vendor/circle-progress/circle-progress.min.js"></script>
+  <script src="./vendor/chart.js/Chart.bundle.min.js"></script>
+
+  <script src="./vendor/gaugeJS/dist/gauge.min.js"></script>
+
+  <!--  flot-chart js -->
+  <script src="./vendor/flot/jquery.flot.js"></script>
+  <script src="./vendor/flot/jquery.flot.resize.js"></script>
+
+  <!-- Owl Carousel -->
+  <script src="./vendor/owl-carousel/js/owl.carousel.min.js"></script>
+
+  <!-- Counter Up -->
+  <script src="./vendor/jqvmap/js/jquery.vmap.min.js"></script>
+  <script src="./vendor/jqvmap/js/jquery.vmap.usa.js"></script>
+  <script src="./vendor/jquery.counterup/jquery.counterup.min.js"></script>
+
+
+  <script src="./js/dashboard/dashboard-1.js"></script>
+
+</body>
+
+</html>
